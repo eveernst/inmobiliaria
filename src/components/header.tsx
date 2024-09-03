@@ -1,14 +1,13 @@
 'use client';
 
 import React from 'react';
-import Image from 'next/image';
 
 const Header = () => {
   return (
     <nav className="bg-gray border-gray-200 dark:bg-gray-900">
                 <div className="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
                     <div className="flex items-center space-x-3 rtl:space-x-reverse">
-                        <Image src="userIcon.webp" className="h-8" alt="AAC icon" />
+                        <img src="userIcon.webp" className="h-8" alt="AAC icon" />
                         <span className="self-center text-2xl font-semibold whitespace-nowrap dark:text-black">AAC</span>
                     </div>
                     {/* <div className="flex items-center space-x-3 rtl:space-x-reverse">
