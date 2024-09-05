@@ -3,6 +3,8 @@ import React from 'react';
 
 const Pagination = () => {
   return (
+    <div className='flex justify-center items-center min-h-14'>
+
     <nav className="items-center">
                 <ul className="flex items-center -space-x-px h-10 text-base">
                     <li>
@@ -38,6 +40,7 @@ const Pagination = () => {
                     </li>
                 </ul>
             </nav>
+    </div>
   );
 };
 
