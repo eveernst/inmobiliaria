@@ -27,7 +27,7 @@ export default function NuevaDocumentacion() {
       
       <div className="container mx-auto px-4 py-8 max-w-6xl">
         <div className="flex justify-between items-center mb-6">
-          <h1 className="text-3xl font-bold text-orange-500">Nueva Documentacion</h1>
+          <h1 className="text-3xl font-bold text-orange-500">Nueva Documentacion Escritura</h1>
           <select
             value={tipoDocumento}
             onChange={(e) => setTipoDocumento(e.target.value)}
