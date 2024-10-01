@@ -50,7 +50,7 @@ export default function NewDocumentation() {
       
       <div className="bg-gray-800 text-white p-6 rounded-lg max-w-4xl mx-auto mt-12">
         <div className="flex justify-between items-center mb-6">
-          <h1 className="text-3xl font-bold text-orange-500">Nueva Documentación</h1>
+          <h1 className="text-3xl font-bold text-orange-500">Nueva Documentación de Plano de Casa</h1>
           <select
             value={documentType}
             onChange={(e) => setDocumentType(e.target.value)}
