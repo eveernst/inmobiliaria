@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { User, ChevronDown, Upload } from 'lucide-react';
 
-export default function DocumentationForm() {
+export default function NewRentedProperty() {
   const [contractImage, setContractImage] = useState<File | null>(null);
 
   const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {

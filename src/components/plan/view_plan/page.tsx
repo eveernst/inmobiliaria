@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import Header from "../../../components/header";
+import Header from "../../header";
 import { AiOutlineCheckCircle } from 'react-icons/ai';
 
 const ImageModal = ({ imageUrl, onClose }: { imageUrl: string; onClose: () => void }) => (
@@ -18,7 +18,7 @@ const ImageModal = ({ imageUrl, onClose }: { imageUrl: string; onClose: () => vo
   </div>
 );
 
-export default function ViewDocumentation() {
+export default function ViewPlan() {
   const [modalImageUrl, setModalImageUrl] = useState<string | null>(null);
 
   const handleImageClick = (imageUrl: string) => {

@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useRef } from 'react';
-import Header from "../../../components/header";
+import Header from "../../header";
 import { AiOutlineCheckCircle, AiOutlineEdit, AiOutlineCheck, AiOutlineUpload } from 'react-icons/ai';
 
 const ImageModal = ({ imageUrl, onClose, onUpload }: { imageUrl: string; onClose: () => void; onUpload: (file: File) => void }) => {
@@ -83,9 +83,21 @@ const EditableField = ({ label, value, onChange }: { label: string; value: strin
   );
 };
 
-export default function EditDocumentation() {
+export default function EditPlan() {
   const [documentType, setDocumentType] = useState<string>('Plano de casa');
   const [modalImageUrl, setModalImageUrl] = useState<string | null>(null);
+
+//   type DocumentData = {
+//     [key: string]: any;
+//     planoGeneral: { numero: string; año: string; profesional: string; contacto: string; visado: string; fecha: string; };
+//     planoEstructura: { estado: boolean; };
+//     planoGas: { estado: boolean; };
+//     planoAgua: { estado: boolean; };
+//     planoLuz: { estado: boolean; };
+//     anteproyecto: { estado: boolean; };
+//     finalObra: { estado: boolean; };
+//     actualizacion: { tipo: string; numero: string; ano: string; profesional: string; contacto: string; visado: string; fecha: string; estado: string; };
+//   };
 
   const [documentData, setDocumentData] = useState({
     planoGeneral: { numero: '001', año: '2023', profesional: 'Juan Pérez', contacto: '123-456-7890', visado: 'VM-2023-001', fecha: '2023-05-15' },
@@ -155,14 +167,14 @@ export default function EditDocumentation() {
       <div className="bg-gray-800 text-white p-6 rounded-lg max-w-4xl mx-auto mt-12">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-3xl font-bold text-orange-500">Editar Documentación de Plano de Casa</h1>
-          <select
+          {/* <select
             value={documentType}
             onChange={(e) => setDocumentType(e.target.value)}
             className="w-48 bg-gray-700 border border-gray-600 text-white px-4 py-2 rounded-md"
           >
             <option value="Plano de casa">Plano de casa</option>
             <option value="Otro tipo">Otro tipo</option>
-          </select>
+          </select> */}
         </div>
 
         <div className="mb-6">

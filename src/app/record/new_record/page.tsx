@@ -2,6 +2,9 @@
 
 import React, { useState } from 'react';
 import Header from '@/components/header';
+import NewDeed from '@/components/deed/new_deed/page';
+import NewPlan from '@/components/plan/new_plan/page';
+import NewRentedProperty from '@/components/rented_property/new_rented_property/page';
 
 export default function NewRecord() {
     const [selectedOption, setSelectedOption] = useState('');
@@ -36,6 +39,7 @@ export default function NewRecord() {
                         <form>
                             {/* Contenido del formulario específico para "Escritura" */}
                             <input type="text" placeholder="Ingrese detalles de la escritura" />
+                            <NewDeed />
                         </form>
                     </div>
                 )}
@@ -54,6 +58,7 @@ export default function NewRecord() {
                         <form>
                             {/* Contenido del formulario específico para "Inmueble Alquilado" */}
                             <input type="text" placeholder="Ingrese detalles del alquiler" />
+                            <NewRentedProperty />
                         </form>
                     </div>
                 )}
@@ -63,6 +68,7 @@ export default function NewRecord() {
                         <form>
                             {/* Contenido del formulario específico para "Plano de Casa" */}
                             <input type="text" placeholder="Ingrese detalles del plano" />
+                            <NewPlan />
                         </form>
                     </div>
                 )}
@@ -88,8 +94,6 @@ export default function NewRecord() {
 
                             <label htmlFor="serviceType-input" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Titular</label>
                             <input type="text" id="name-input" aria-describedby="helper-text-explanation" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Titular" required />
-                            
-                            
                         </form>
                     </div>
                 )}

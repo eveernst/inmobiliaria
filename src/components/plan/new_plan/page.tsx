@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
-import Header from "../../../components/header";
+import Header from "../../header";
 import { AiOutlineCheckCircle } from 'react-icons/ai'; // Icono visual
 
 // Modal de imagen
@@ -19,7 +19,7 @@ const ImageModal = ({ imageUrl, onClose }: { imageUrl: string; onClose: () => vo
   </div>
 );
 
-export default function NewDocumentation() {
+export default function NewPlan() {
   const [documentType, setDocumentType] = useState<string>('Plano de casa');
   const [modalImageUrl, setModalImageUrl] = useState<string | null>(null); // Estado para controlar la URL de la imagen que se muestra en el modal
 
