@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useRef } from 'react';
-import Header from "../../header";
+import Header from "../header";
 import { AiOutlineCheckCircle, AiOutlineEdit, AiOutlineCheck, AiOutlineUpload } from 'react-icons/ai';
 
 const ImageModal = ({ imageUrl, onClose, onUpload }: { imageUrl: string; onClose: () => void; onUpload: (file: File) => void }) => {

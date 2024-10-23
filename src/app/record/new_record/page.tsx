@@ -2,9 +2,9 @@
 
 import React, { useState } from 'react';
 import Header from '@/components/header';
-import NewDeed from '@/components/deed/new_deed/page';
-import NewPlan from '@/components/plan/new_plan/page';
-import NewRentedProperty from '@/components/rented_property/new_rented_property/page';
+import NewDeed from '@/components/deed/new_deed';
+import NewPlan from '@/components/plan/new_plan';
+import NewRentedProperty from '@/components/rented_property/new_rented_property';
 
 export default function NewRecord() {
     const [selectedOption, setSelectedOption] = useState('');

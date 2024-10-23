@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, ChangeEvent } from 'react';
-import Header from "../../header";
+import Header from "../header";
 
 export default function NewDeed() {
   const [tipoDocumento, setTipoDocumento] = useState<string>('Escritura');
