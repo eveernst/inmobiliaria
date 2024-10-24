@@ -3,7 +3,7 @@
 import React, { useState, ChangeEvent } from 'react';
 import Header from "../header";
 
-export default function NewDeed() {
+export default function NewWriting() {
   const [tipoDocumento, setTipoDocumento] = useState<string>('Escritura');
   const [imagenJDAAC, setImagenJDAAC] = useState<File | null>(null);
   const [imagenJDUA, setImagenJDUA] = useState<File | null>(null);

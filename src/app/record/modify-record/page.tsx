@@ -2,9 +2,26 @@
 
 import React, { useState } from 'react';
 import Header from "../../../components/header";
+import NewPlan from '@/components/plan/new-plan';
+import NewRentedProperty from '@/components/rented-property/new-rented-property';
+import NewWriting from '@/components/writing/new_writing';
 
 export default function DocumentationModifier() {
   const [documentType, setDocumentType] = useState<string>('');
+  const renderDocumentContent = () => {
+    switch (documentType) {
+      case 'escritura':
+        return <NewWriting />;
+      case 'seguro':
+        return <SeguroComponent />;
+      case 'inmueble':
+        return <NewRentedProperty />;
+      case 'plano':
+        return <NewPlan />;
+      default:
+        return <p className="text-gray-400">Por favor, selecciona un tipo de documento.</p>;
+    }
+  };
 
   return (
     <main className="bg-gray-800 text-white min-h-screen p-8">
@@ -22,8 +39,11 @@ export default function DocumentationModifier() {
             <option value="" disabled>Seleccionar tipo de documento</option>
             <option value="escritura">Escritura</option>
             <option value="seguro">Seguro inmueble</option>
-            <option value="impuesto">Impuesto alquiler</option>
+            <option value="inmueble">Inmueble alquilado</option>
             <option value="plano">Plano de casa</option>
+            <option value="servicios">Servicios</option>
+            <option value="impuestosP">Impuestos provinciales</option>
+            <option value="impuestosM">Impuestos municipales</option>
           </select>
         </div>
 
