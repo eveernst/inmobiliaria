@@ -1,12 +1,13 @@
-"use client";
-
 import Header from "../../components/header";
+import LoginScreen from "./components/login-screen";
 
-export default function login() {
+export default function LoginPage() {
   return (
-    <main>
+    <div className="flex flex-col min-h-screen">
       <Header />
-      <h1>Login Page</h1>
-    </main>
+      <main className="flex-grow">
+        <LoginScreen />
+      </main>
+    </div>
   );
 }
