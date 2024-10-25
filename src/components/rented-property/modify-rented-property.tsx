@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { User, ChevronDown, Upload, Edit2, Check } from 'lucide-react';
 
-export default function EditRentedProperty() {
+export default function ModifyRentedProperty() {
   const [contractImage, setContractImage] = useState<File | null>(null);
   const [formData, setFormData] = useState({
     ownerData: 'Datos del propietario',

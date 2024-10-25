@@ -1,5 +1,5 @@
-import UserList from "@/components/UserList";
+import ViewUser from "@/components/view-user";
 
 export default function UserManagementPage() {
-  return <UserList />;
+  return <ViewUser />;
 }

@@ -83,7 +83,7 @@ const EditableField = ({ label, value, onChange }: { label: string; value: strin
   );
 };
 
-export default function EditPlan() {
+export default function ModifyPlan() {
   const [documentType, setDocumentType] = useState<string>('Plano de casa');
   const [modalImageUrl, setModalImageUrl] = useState<string | null>(null);
 

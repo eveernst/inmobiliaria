@@ -14,7 +14,7 @@ import { UserData } from "@/lib/types";
 import { fetchUsers, deleteUser } from "@/lib/api";
 import AddEditUserForm from "./AddEditUserForm";
 
-export default function UserList() {
+export default function ViewUser() {
   const [users, setUsers] = useState<UserData[]>([]);
   const [isAddingUser, setIsAddingUser] = useState(false);
   const [editingUser, setEditingUser] = useState<UserData | null>(null);
