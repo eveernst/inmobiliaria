@@ -15,44 +15,7 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 
 export default function NewProperty() {
-  const [view, setView] = useState<"initial" | "new" | "modify">("initial");
-
-  const renderInitialView = () => (
-    <Card className="w-full max-w-md mx-auto bg-gray-800 text-gray-100">
-      <CardHeader>
-        <CardTitle className="text-2xl font-bold text-orange-500">
-          Nueva propiedad
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <Input
-          className="bg-gray-700 border-gray-600"
-          placeholder="Nombre de la propiedad"
-        />
-        <div className="flex space-x-2">
-          <Button
-            variant="outline"
-            className="flex-1 bg-gray-700 border-gray-600 text-gray-300"
-            onClick={() => setView("modify")}
-          >
-            Modificar
-          </Button>
-          <Button
-            variant="outline"
-            className="flex-1 bg-gray-700 border-gray-600 text-gray-300"
-          >
-            Eliminar
-          </Button>
-        </div>
-        <Button
-          className="w-full bg-orange-500 hover:bg-orange-600"
-          onClick={() => setView("new")}
-        >
-          Continuar
-        </Button>
-      </CardContent>
-    </Card>
-  );
+  const [view, setView] = useState<"initial" | "new" | "modify">("new");
 
   const renderPropertyForm = (title: string) => (
     <Card className="w-full max-w-4xl mx-auto bg-gray-800 text-gray-100">
@@ -120,7 +83,7 @@ export default function NewProperty() {
             placeholder="Distrito"
           />
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           <Select>
             <SelectTrigger className="bg-gray-700 border-gray-600">
               <SelectValue placeholder="Destino de uso" />
@@ -136,6 +99,16 @@ export default function NewProperty() {
               </SelectItem>
               <SelectItem value="predio">Predio</SelectItem>
               <SelectItem value="otro">Otro</SelectItem>
+            </SelectContent>
+          </Select>
+          <Select>
+            <SelectTrigger className="bg-gray-700 border-gray-600">
+              <SelectValue placeholder="CLFC" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="option1">Opción 1</SelectItem>
+              <SelectItem value="option2">Opción 2</SelectItem>
+              <SelectItem value="option3">Opción 3</SelectItem>
             </SelectContent>
           </Select>
           <Select>
@@ -233,9 +206,7 @@ export default function NewProperty() {
         </Button>
       </header>
 
-      {view === "initial" && renderInitialView()}
-      {view === "new" && renderPropertyForm("Nueva Propiedad")}
-      {view === "modify" && renderPropertyForm("Modificar Propiedad")}
+      {renderPropertyForm("Nueva Propiedad")}
     </div>
   );
 }
