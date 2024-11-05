@@ -1,4 +1,4 @@
-import NewProperty from "@/components/new_property";
+import NewProperty from "@/components/property/newProperty";
 
 export default function NewPropertyPage() {
   return <NewProperty />;

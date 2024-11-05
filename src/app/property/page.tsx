@@ -1,14 +1,17 @@
+import PropertyList from "@/components/property/propertyList";
 import Header from "../../components/header";
 import Pagination from "../../components/pagination";
+import { useEffect, useState } from "react";
 
 export default function Property() {
+
     return (
         <main>
             <Header />
 
             <h1>PROPIEDADES</h1>
 
-            {/* lista de propiedades */}
+            {/* lista de propiedades
             <div className="relative overflow-x-auto shadow-md sm:rounded-lg">
                 <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
                     <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
@@ -124,7 +127,8 @@ export default function Property() {
                         </tr>
                     </tbody>
                 </table>
-            </div>
+            </div> */}
+            <PropertyList />
             {/* fin de propiedades */}
 
             {/* paginacion */}
