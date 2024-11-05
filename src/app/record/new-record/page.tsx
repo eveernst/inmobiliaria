@@ -1,49 +1,79 @@
-'use client';
+"use client";
 
 import React, { useState } from 'react';
-import Header from '@/components/header';
-import NewDeed from '@/components/writing/new_writing';
+import Header from "../../../components/header";
 import NewPlan from '@/components/plan/new-plan';
 import NewRentedProperty from '@/components/rented-property/new-rented-property';
-import NewInsurance from '@/components/insurance/new-insurance';
+import ModifyInsurance from '@/components/insurance/modify-insurance';
+import ModifyWriting from '@/components/writing/modify_writing';
+import ModifyRentedProperty from '@/components/rented-property/modify-rented-property';
+import ModifyPlan from '@/components/plan/modify-plan';
 import NewWriting from '@/components/writing/new_writing';
+import NewInsurance from '@/components/insurance/new-insurance';
 
 export default function NewRecord() {
-    const [selectedOption, setSelectedOption] = useState('');
+  const [selectedOption, setSelectedOption] = useState('');
+  const handleSelectChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    setSelectedOption(event.target.value);
+};
+  // const renderDocumentContent = () => {
+  //   switch (documentType) {
+  //     case 'escritura':
+  //       return <ModifyWriting />;
+  //     case 'seguro':
+  //       return <ModifyInsurance />;
+  //     case 'inmueble':
+  //       return <ModifyRentedProperty />;
+  //     case 'plano':
+  //       return <ModifyPlan />;
+  //     case 'servicios':
+  //       // return <ModifyServices />;
+  //     case 'impuestosP':
+  //       // return <ModifyProvincialTaxes />;
+  //     case 'impuestosM':
+  //       // return <ModifyMunicipalTaxes />;
+  //     default:
+  //       return <p className="text-gray-400">Por favor, selecciona un tipo de documento.</p>;
+    // }
+  // };
 
-    const handleSelectChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-        setSelectedOption(event.target.value);
-    };
-    return (
-        <main className='min-h-screen flex flex-col'>
-            <Header />
-            {/* <div className="max-w-sm mx-auto"> */}
-            <div className="flex-grow flex flex-col">
+  return (
+    <main className="bg-gray-800 text-white min-h-screen p-8">
+      <Header />
+      
+      <div className="flex flex-col items-center mt-12">
+        <h1 className="text-4xl font-bold text-orange-500 mb-8">Nueva Documentación</h1>
+        
+        <div className="w-full max-w-md mb-8">
+          <select id="documentation" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" onChange={handleSelectChange} defaultValue=''>
+            <option value="" disabled hidden>Tipo</option>
+            <option value="escritura">Escritura</option>
+            <option value="seguro">Seguro inmueble</option>
+            <option value="inmueble">Inmueble alquilado</option>
+            <option value="plano">Plano de casa</option>
+            <option value="servicios">Servicios</option>
+            <option value="impuestosP">Impuestos provinciales</option>
+            <option value="impuestosM">Impuestos municipales</option>
+          </select>
+        </div>
 
-                <div className="max-w-sm mx-auto">
-                    <select id="documentation" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" onChange={handleSelectChange} defaultValue=''>
-                        <option value="" disabled hidden>Seleccione una opcion</option>
-                        <option value="escritura">Escritura</option>
-                        <option value="seguroInmueble">Seguro inmueble</option>
-                        <option value="inmuebleAlquilado">Inmueble alquilado</option>
-                        <option value="planoCasa">Plano de casa</option>
-                        <option value="impuestosP">Impuestos Provinciales</option>
-                        <option value="impuestosM">Impuestos Municipales</option>
-                        <option value="servicios">Servicios</option>
-                    </select>
-                </div>
+        {selectedOption === 'escritura' && <NewWriting />}
+        {selectedOption === 'seguro' && <NewInsurance />}
+        {selectedOption === 'inmueble' && <NewRentedProperty />}
+        {selectedOption === 'plano' && <NewPlan />}
+        {/* {selectedOption === 'servicios' && <ModifyServices />} */}
+        {/* {selectedOption === 'impuestosP' && <ModifyProvincialTaxes />} */}
+        {/* {selectedOption === 'impuestosM' && <ModifyMunicipalTaxes />} */}
 
-
-                <div className='flex-grow'>
-                    {selectedOption === 'escritura' && (<div className="h-full"> <NewWriting /> </div>)}
-                    {selectedOption === 'seguroInmueble' && (<div className='h-full'> <NewInsurance /> </div>)}
-                    {selectedOption === 'inmuebleAlquilado' && (<div className='h-full'> <NewRentedProperty /> </div>)}
-                    {selectedOption === 'planoCasa' && (<div className='h-full'> <NewPlan /> </div>)}
-                    {/* {selectedOption === 'impuestosP' && (<div className='h-full'> <NewProvincialTaxes /> </div>)} */}
-                    {/* {selectedOption === 'impuestosM' && (<div className='h-full'> <NewMunicipalTaxes /> </div>)} */}
-                    {/* {selectedOption === 'servicios' && (<div className='h-full'> <NewServices /> </div>)} */}
-                </div>
-            </div>
-        </main>
-    );
+        <div className="flex justify-center space-x-8 mt-12">
+          <button className="bg-orange-500 text-white hover:bg-orange-600 px-12 py-3 rounded-md">
+            Cancelar
+          </button>
+          <button className="bg-gray-600 text-white hover:bg-gray-700 px-12 py-3 rounded-md">
+            Aceptar
+          </button>
+        </div>
+      </div>
+    </main>
+  );
 }
