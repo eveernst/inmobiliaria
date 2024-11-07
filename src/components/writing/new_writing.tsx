@@ -1,9 +1,9 @@
 "use client";
 
 import React, { useState, ChangeEvent } from 'react';
-import Header from "../header";
+import Header from "../Header";
 
-export default function NewWriting() {
+export default function FormWriting() {
   const [tipoDocumento, setTipoDocumento] = useState<string>('Escritura');
   const [imagenJDAAC, setImagenJDAAC] = useState<File | null>(null);
   const [imagenJDUA, setImagenJDUA] = useState<File | null>(null);

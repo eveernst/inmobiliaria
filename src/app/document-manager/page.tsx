@@ -1,4 +1,4 @@
-import PropertyDocumentManager from "../../components/PropertyDocumentManager";
+import PropertyDocumentManager from "../../components/DocumentManagerForm";
 
 export default function DocumentManagerPage() {
   return (
