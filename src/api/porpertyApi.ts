@@ -6,7 +6,7 @@ const saveProperty = async (data: any) => {
     const response = await axiosInstance.post('/property', data);
     return response.data;
   } catch (error) {
-    console.error('Error al obtener los datos:', error);
+    console.error('Error al guardar los datos:', error);
     throw error;
   }
 };
