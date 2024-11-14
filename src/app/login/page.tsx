@@ -1,4 +1,3 @@
-import Header from "../../components/Header";
 import LoginScreen from "../../components/Login";
 
 export default function LoginPage() {

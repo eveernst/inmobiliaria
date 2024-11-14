@@ -2,32 +2,47 @@
 import { saveProperty } from "@/api/porpertyApi";
 import React from "react";
 import { useForm, SubmitHandler, useFieldArray } from "react-hook-form";
+// import { uploadImageToFirebase } from "@/utils/firebase";
 
 interface FormData {
   goodUseCode: number;
-  classification: number;
-  address: string;
-  destiny: string;
-  detailsMaintenance: string;
+  innerImage: string | null;
+  outerImage: string | null;
   file: File | null;
-  description: string;
   province: string;
   locality: string;
+  address: string;
+  postalCode: number;
   betweenStreets1: string;
   betweenStreets2: string;
-  postalCode: number;
   district: string;
-  destinyUse: string;
-  isActive: boolean;
-  installations: InstallationData[];
+  destiny: string;
+  state: number; 
+  active: boolean;
+  clfc: string; // seria un number para elegir pero en la api esta como string
+  detailsMaintenance: string;
+  description: string;
+  user: number;
+  classification: number;
+  // installations: InstallationData[];
+  installations: {
+    name: string;
+    quantity: number;
+    file: File | null;
+    details: string;
+    property: number;
+    classification: number;
+  }[];
 }
 
-interface InstallationData {
-  name: string;
-  classification: string;
-  quantity: number;
-  file: File | null;
-}
+// interface InstallationData {
+//   name: string;
+//   quantity: number;
+//   file: File | null;
+//   details: string;
+//   property: number;
+//   classification: number;
+// }
 
 const NewProperty = () => {
   const { register, handleSubmit, formState: { errors }, control } = useForm<FormData>();
@@ -35,6 +50,23 @@ const NewProperty = () => {
     control,
     name: "installations"
   });
+
+  // const [innerImageUrl, setInnerImageUrl] = useState<string | null>(null);
+  // const [outerImageUrl, setOuterImageUrl] = useState<string | null>(null);
+
+  // const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>, imageType: "innerImage" | "outerImage") => {
+  //   const file = event.target.files?.[0];
+  //   if (file) {
+  //     const url = await uploadImageToFirebase(file); // Esta función debería retornar la URL de Firebase
+  //     if (imageType === "innerImage") {
+  //       setInnerImageUrl(url);
+  //       setValue("innerImage", url); // Actualiza el valor en el formulario
+  //     } else {
+  //       setOuterImageUrl(url);
+  //       setValue("outerImage", url); // Actualiza el valor en el formulario
+  //     }
+  //   }
+  // };
 
   const onSubmit: SubmitHandler<FormData> = async (data) => {
     console.log(data);
@@ -60,6 +92,36 @@ const NewProperty = () => {
               <span className="text-red-500 text-sm mt-1">{errors.goodUseCode.message}</span>
             )}
           </div>
+          {/* <div className="flex flex-col mb-4">
+            <label className="text-white mb-2">Imagen Interior</label>
+            <input
+              type="file"
+              className="px-4 py-2 bg-gray-600 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
+              onChange={(event) => handleImageUpload(event, "innerImage")}
+            />
+            {innerImageUrl && (
+              <img src={innerImageUrl} alt="Imagen Interior" className="mt-2 h-32 object-cover" />
+            )}
+          </div>
+
+          <div className="flex flex-col mb-4">
+            <label className="text-white mb-2">Imagen Exterior</label>
+            <input
+              type="file"
+              className="px-4 py-2 bg-gray-600 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
+              onChange={(event) => handleImageUpload(event, "outerImage")}
+            />
+            {outerImageUrl && (
+              <img src={outerImageUrl} alt="Imagen Exterior" className="mt-2 h-32 object-cover" />
+            )}
+          </div> */}
+          <div className="flex flex-col mb-4">
+            <input
+              {...register("file")}
+              type="file"
+              className="px-4 py-2 bg-gray-600 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
+            />
+          </div>
           <div className="flex flex-col mb-4">
             <input
               {...register("classification", { required: "Este campo es obligatorio" })}
@@ -68,6 +130,30 @@ const NewProperty = () => {
             />
             {errors.classification && (
               <span className="text-red-500 text-sm mt-1">{errors.classification.message}</span>
+            )}
+          </div>
+          <div className="flex flex-col mb-4">
+            <select
+              {...register("province", { required: "Este campo es obligatorio" })}
+              className="px-4 py-2 bg-gray-600 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
+            >
+              <option value="" hidden>Provincia</option>
+              <option value="provincia1">Cordoba</option>
+              <option value="provincia2">Entre Rios</option>
+              <option value="provincia3">Santa Fe</option>
+            </select>
+            {errors.province && (
+              <span className="text-red-500 text-sm mt-1">{errors.province.message}</span>
+            )}
+          </div>
+          <div className="flex flex-col mb-4">
+            <input
+              {...register("locality", { required: "Este campo es obligatorio" })}
+              className="px-4 py-2 bg-gray-600 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
+              placeholder="Localidad"
+            />
+            {errors.locality && (
+              <span className="text-red-500 text-sm mt-1">{errors.locality.message}</span>
             )}
           </div>
           <div className="flex flex-col mb-4">
@@ -82,59 +168,13 @@ const NewProperty = () => {
           </div>
           <div className="flex flex-col mb-4">
             <input
-              {...register("destiny", { required: "Este campo es obligatorio" })}
+              {...register("postalCode", { required: "Este campo es obligatorio", valueAsNumber: true })}
+              type="number"
               className="px-4 py-2 bg-gray-600 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
-              placeholder="Destino"
+              placeholder="Código Postal"
             />
-            {errors.destiny && (
-              <span className="text-red-500 text-sm mt-1">{errors.destiny.message}</span>
-            )}
-          </div>
-          <div className="flex flex-col mb-4">
-            <input
-              {...register("detailsMaintenance", { required: "Este campo es obligatorio" })}
-              className="px-4 py-2 bg-gray-600 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
-              placeholder="Detalles de Mantenimiento"
-            />
-            {errors.detailsMaintenance && (
-              <span className="text-red-500 text-sm mt-1">{errors.detailsMaintenance.message}</span>
-            )}
-          </div>
-          <div className="flex flex-col mb-4">
-            <input
-              {...register("file")}
-              type="file"
-              className="px-4 py-2 bg-gray-600 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
-            />
-          </div>
-          <div className="flex flex-col mb-4">
-            <input
-              {...register("description", { required: "Este campo es obligatorio" })}
-              className="px-4 py-2 bg-gray-600 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
-              placeholder="Descripción"
-            />
-            {errors.description && (
-              <span className="text-red-500 text-sm mt-1">{errors.description.message}</span>
-            )}
-          </div>
-          <div className="flex flex-col mb-4">
-            <input
-              {...register("province", { required: "Este campo es obligatorio" })}
-              className="px-4 py-2 bg-gray-600 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
-              placeholder="Provincia"
-            />
-            {errors.province && (
-              <span className="text-red-500 text-sm mt-1">{errors.province.message}</span>
-            )}
-          </div>
-          <div className="flex flex-col mb-4">
-            <input
-              {...register("locality", { required: "Este campo es obligatorio" })}
-              className="px-4 py-2 bg-gray-600 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
-              placeholder="Localidad"
-            />
-            {errors.locality && (
-              <span className="text-red-500 text-sm mt-1">{errors.locality.message}</span>
+            {errors.postalCode && (
+              <span className="text-red-500 text-sm mt-1">{errors.postalCode.message}</span>
             )}
           </div>
           <div className="flex flex-col mb-4">
@@ -159,17 +199,6 @@ const NewProperty = () => {
           </div>
           <div className="flex flex-col mb-4">
             <input
-              {...register("postalCode", { required: "Este campo es obligatorio", valueAsNumber: true })}
-              type="number"
-              className="px-4 py-2 bg-gray-600 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
-              placeholder="Código Postal"
-            />
-            {errors.postalCode && (
-              <span className="text-red-500 text-sm mt-1">{errors.postalCode.message}</span>
-            )}
-          </div>
-          <div className="flex flex-col mb-4">
-            <input
               {...register("district", { required: "Este campo es obligatorio" })}
               className="px-4 py-2 bg-gray-600 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
               placeholder="Distrito"
@@ -179,22 +208,84 @@ const NewProperty = () => {
             )}
           </div>
           <div className="flex flex-col mb-4">
-            <input
-              {...register("destinyUse", { required: "Este campo es obligatorio" })}
+            <select
+              {...register("destiny", { required: "Este campo es obligatorio" })}
               className="px-4 py-2 bg-gray-600 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
-              placeholder="Uso de Destino"
-            />
-            {errors.destinyUse && (
-              <span className="text-red-500 text-sm mt-1">{errors.destinyUse.message}</span>
+            >
+              <option value="" hidden>Destino</option>
+              <option value="0">Templo</option>
+              <option value="1">Terreno</option>
+              <option value="2">Antena</option>
+              <option value="3">Casa</option>
+              <option value="4">Departamento</option>
+              <option value="5">Instituciones Educativas</option>
+              <option value="6">Predio</option>
+              <option value="7">Otro</option>
+            </select>
+            {errors.destiny && (
+              <span className="text-red-500 text-sm mt-1">{errors.destiny.message}</span>
+            )}
+          </div>
+          <div className="flex flex-col mb-4">
+            <select
+              {...register("clfc", { required: "Este campo es obligatorio" })}
+              className="px-4 py-2 bg-gray-600 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
+            >
+              <option value="" hidden>CLFC</option>
+              <option value="0">Si</option>
+              <option value="1">Solicitar</option>
+              <option value="2">Solicitado</option>
+              <option value="3">No</option>
+            </select>
+            {errors.clfc && (
+              <span className="text-red-500 text-sm mt-1">{errors.clfc.message}</span>
+            )}
+          </div>
+          <div className="flex flex-col mb-4">
+            <select
+              {...register("state", { required: "Este campo es obligatorio" })}
+              className="px-4 py-2 bg-gray-600 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
+            >
+              <option value="" hidden>Estado</option>
+              <option value="1">Propia</option>
+              <option value="2">Alquilada</option>
+              <option value="3">A adquirir</option>
+              <option value="4">A vender</option>
+              <option value="5">Antena</option>
+              <option value="6">A administrar</option>
+              <option value="7">Proceso</option>
+            </select>
+            {errors.state && (
+              <span className="text-red-500 text-sm mt-1">{errors.state.message}</span>
             )}
           </div>
           <div className="flex items-center mb-4">
             <input
-              {...register("isActive")}
+              {...register("active")}
               type="checkbox"
               className="mr-2"
             />
             <label className="text-white">Activo</label>
+          </div>
+          <div className="flex flex-col mb-4">
+            <input
+              {...register("detailsMaintenance", { required: "Este campo es obligatorio" })}
+              className="px-4 py-2 bg-gray-600 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
+              placeholder="Detalles de Mantenimiento"
+            />
+            {errors.detailsMaintenance && (
+              <span className="text-red-500 text-sm mt-1">{errors.detailsMaintenance.message}</span>
+            )}
+          </div>
+          <div className="flex flex-col mb-4">
+            <input
+              {...register("description", { required: "Este campo es obligatorio" })}
+              className="px-4 py-2 bg-gray-600 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
+              placeholder="Descripción"
+            />
+            {errors.description && (
+              <span className="text-red-500 text-sm mt-1">{errors.description.message}</span>
+            )}
           </div>
 
           {/* Instalaciones */}
@@ -243,6 +334,16 @@ const NewProperty = () => {
                   className="px-4 py-2 bg-gray-600 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
                 />
               </div>
+              <div className="flex flex-col mb-4">
+                <input
+                  {...register(`installations[${index}].name`, { required: "Este campo es obligatorio" })}
+                  className="px-4 py-2 bg-gray-600 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
+                  placeholder="Detalles instalación"
+                />
+                {errors.installations?.[index]?.name && (
+                  <span className="text-red-500 text-sm mt-1">{errors.installations[index].name.message}</span>
+                )}
+              </div>
 
               {/* Botón para eliminar instalación */}
               <button
@@ -258,7 +359,7 @@ const NewProperty = () => {
           {/* Botón para agregar nueva instalación */}
           <button
             type="button"
-            onClick={() => append({ name: "", classification: "", quantity: 0, file: null })}
+            onClick={() => append({ name: "", classification: 0, quantity: 0, file: null, details: "", property: 0 })}
             className="w-full py-2 px-4 bg-orange-500 text-white rounded-lg hover:bg-orange-400 focus:outline-none focus:ring-2 focus:ring-orange-500"
           >
             Agregar Instalación
