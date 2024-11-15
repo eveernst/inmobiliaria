@@ -1,5 +1,5 @@
 // Ejemplo de uso en un servicio o componente
-import axiosInstance from '../api/api';
+import axiosInstance from './api';
 
 const saveProperty = async (data: any) => {
   try {

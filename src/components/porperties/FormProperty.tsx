@@ -1,13 +1,12 @@
 "use client"
-import { saveProperty } from "@/api/porpertyApi";
+import { saveProperty } from "@/api/propertyApi";
 import React from "react";
 import { useForm, SubmitHandler, useFieldArray } from "react-hook-form";
-// import { uploadImageToFirebase } from "@/utils/firebase";
 
 interface FormData {
   goodUseCode: number;
-  innerImage: string | null;
-  outerImage: string | null;
+  // innerImage: string | null;
+  // outerImage: string | null;
   file: File | null;
   province: string;
   locality: string;
@@ -24,7 +23,6 @@ interface FormData {
   description: string;
   user: number;
   classification: number;
-  // installations: InstallationData[];
   installations: {
     name: string;
     quantity: number;
@@ -35,15 +33,6 @@ interface FormData {
   }[];
 }
 
-// interface InstallationData {
-//   name: string;
-//   quantity: number;
-//   file: File | null;
-//   details: string;
-//   property: number;
-//   classification: number;
-// }
-
 const NewProperty = () => {
   const { register, handleSubmit, formState: { errors }, control } = useForm<FormData>();
   const { fields, append, remove } = useFieldArray({
@@ -51,26 +40,17 @@ const NewProperty = () => {
     name: "installations"
   });
 
-  // const [innerImageUrl, setInnerImageUrl] = useState<string | null>(null);
-  // const [outerImageUrl, setOuterImageUrl] = useState<string | null>(null);
-
-  // const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>, imageType: "innerImage" | "outerImage") => {
-  //   const file = event.target.files?.[0];
-  //   if (file) {
-  //     const url = await uploadImageToFirebase(file); // Esta función debería retornar la URL de Firebase
-  //     if (imageType === "innerImage") {
-  //       setInnerImageUrl(url);
-  //       setValue("innerImage", url); // Actualiza el valor en el formulario
-  //     } else {
-  //       setOuterImageUrl(url);
-  //       setValue("outerImage", url); // Actualiza el valor en el formulario
-  //     }
-  //   }
-  // };
-
   const onSubmit: SubmitHandler<FormData> = async (data) => {
-    console.log(data);
-    await saveProperty(data);
+    const processedData = {
+      ...data,
+      file: data.file?.size ? data.file : null,
+      installations: data.installations.map(inst => ({
+        ...inst,
+        file: inst.file?.size ? inst.file : null
+      })),
+    };
+    console.log(processedData);
+    await saveProperty(processedData);
   };
 
   return (
@@ -92,36 +72,13 @@ const NewProperty = () => {
               <span className="text-red-500 text-sm mt-1">{errors.goodUseCode.message}</span>
             )}
           </div>
-          {/* <div className="flex flex-col mb-4">
-            <label className="text-white mb-2">Imagen Interior</label>
-            <input
-              type="file"
-              className="px-4 py-2 bg-gray-600 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
-              onChange={(event) => handleImageUpload(event, "innerImage")}
-            />
-            {innerImageUrl && (
-              <img src={innerImageUrl} alt="Imagen Interior" className="mt-2 h-32 object-cover" />
-            )}
-          </div>
-
-          <div className="flex flex-col mb-4">
-            <label className="text-white mb-2">Imagen Exterior</label>
-            <input
-              type="file"
-              className="px-4 py-2 bg-gray-600 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
-              onChange={(event) => handleImageUpload(event, "outerImage")}
-            />
-            {outerImageUrl && (
-              <img src={outerImageUrl} alt="Imagen Exterior" className="mt-2 h-32 object-cover" />
-            )}
-          </div> */}
           <div className="flex flex-col mb-4">
             <input
               {...register("file")}
               type="file"
-              className="px-4 py-2 bg-gray-600 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
-            />
-          </div>
+                  className="px-4 py-2 bg-gray-600 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
+                />
+              </div>
           <div className="flex flex-col mb-4">
             <input
               {...register("classification", { required: "Este campo es obligatorio" })}
