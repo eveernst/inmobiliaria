@@ -16,7 +16,7 @@ interface FormData {
   betweenStreets2: string;
   district: string;
   destiny: string;
-  state: number; 
+  state: number;
   active: boolean;
   clfc: string; // seria un number para elegir pero en la api esta como string
   detailsMaintenance: string;
@@ -54,120 +54,167 @@ const NewProperty = () => {
   };
 
   return (
-    <div className="w-full max-w-4xl mx-auto p-6 bg-gray-800 rounded-lg shadow-lg">
-      <h1 className="text-3xl font-semibold text-orange-500 text-center mb-6">Nueva Propiedad</h1>
-      <form onSubmit={handleSubmit(onSubmit)}>
-        {/* Campos del formulario como antes */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Aquí van los campos de la propiedad, como 'goodUseCode', 'classification', etc. */}
-          {/* Campos del formulario como antes */}
-          <div className="flex flex-col mb-4">
+    <form onSubmit={handleSubmit(onSubmit)} className="max-w-4xl mx-auto p-6 bg-gray-800 rounded shadow-lg space-y-6">
+      <h1 className="text-3xl font-bold text-white text-center mb-6">Nueva Propiedad</h1>
+      {/* Campos del formulario como antes */}
+      <fieldset className="border border-gray-600 rounded p-4">
+        <legend className="text-lg font-semibold text-white px-2">Detalles de la Propiedad</legend>
+
+        {/* Código de Buen Uso */}
+        <div className="grid grid-cols-2 gap-4 mt-4">
+          <div>
+            <label htmlFor="goodUseCode" className="block text-gray-300 mb-1">Código de Buen Uso</label>
             <input
+              id="goodUseCode"
               {...register("goodUseCode", { required: "Este campo es obligatorio" })}
               type="number"
-              className="px-4 py-2 bg-gray-600 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
-              placeholder="Código de Buen Uso"
+              className="bg-gray-700 p-2 rounded w-full"
             />
             {errors.goodUseCode && (
               <span className="text-red-500 text-sm mt-1">{errors.goodUseCode.message}</span>
             )}
           </div>
-          <div className="flex flex-col mb-4">
+          <div>
+            <label htmlFor="description" className="block text-gray-300 mb-1">Descripcion</label>
             <input
+              id="description"
+              {...register("description", { required: "Este campo es obligatorio" })}
+              type="string"
+              className="bg-gray-700 p-2 rounded w-full"
+            />
+            {errors.description && (
+              <span className="text-red-500 text-sm mt-1">{errors.description.message}</span>
+            )}
+          </div>
+
+          {/* Archivo */}
+          <div>
+            <label htmlFor="file" className="block text-gray-300 mb-1">Cargar Archivo</label>
+            <input
+              id="file"
               {...register("file")}
               type="file"
-                  className="px-4 py-2 bg-gray-600 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
-                />
-              </div>
-          <div className="flex flex-col mb-4">
+              className="bg-gray-700 p-2 rounded w-full"
+            />
+          </div>
+
+          {/* Clasificación */}
+          <div>
+            <label htmlFor="classification" className="block text-gray-300 mb-1">Clasificación</label>
             <input
+              id="classification"
               {...register("classification", { required: "Este campo es obligatorio" })}
-              className="px-4 py-2 bg-gray-600 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
-              placeholder="Clasificación"
+              className="bg-gray-700 p-2 rounded w-full"
             />
             {errors.classification && (
               <span className="text-red-500 text-sm mt-1">{errors.classification.message}</span>
             )}
           </div>
-          <div className="flex flex-col mb-4">
+
+          {/* Provincia */}
+          <div>
+            <label htmlFor="province" className="block text-gray-300 mb-1">Provincia</label>
             <select
+              id="province"
               {...register("province", { required: "Este campo es obligatorio" })}
-              className="px-4 py-2 bg-gray-600 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
+              className="bg-gray-700 p-2 rounded w-full"
             >
               <option value="" hidden>Provincia</option>
-              <option value="provincia1">Cordoba</option>
-              <option value="provincia2">Entre Rios</option>
+              <option value="provincia1">Córdoba</option>
+              <option value="provincia2">Entre Ríos</option>
               <option value="provincia3">Santa Fe</option>
             </select>
             {errors.province && (
               <span className="text-red-500 text-sm mt-1">{errors.province.message}</span>
             )}
           </div>
-          <div className="flex flex-col mb-4">
+
+          {/* Localidad */}
+          <div>
+            <label htmlFor="locality" className="block text-gray-300 mb-1">Localidad</label>
             <input
+              id="locality"
               {...register("locality", { required: "Este campo es obligatorio" })}
-              className="px-4 py-2 bg-gray-600 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
-              placeholder="Localidad"
+              className="bg-gray-700 p-2 rounded w-full"
             />
             {errors.locality && (
               <span className="text-red-500 text-sm mt-1">{errors.locality.message}</span>
             )}
           </div>
-          <div className="flex flex-col mb-4">
+
+          {/* Dirección */}
+          <div>
+            <label htmlFor="address" className="block text-gray-300 mb-1">Dirección</label>
             <input
+              id="address"
               {...register("address", { required: "Este campo es obligatorio" })}
-              className="px-4 py-2 bg-gray-600 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
-              placeholder="Dirección"
+              className="bg-gray-700 p-2 rounded w-full"
             />
             {errors.address && (
               <span className="text-red-500 text-sm mt-1">{errors.address.message}</span>
             )}
           </div>
-          <div className="flex flex-col mb-4">
+
+          {/* Código Postal */}
+          <div>
+            <label htmlFor="postalCode" className="block text-gray-300 mb-1">Código Postal</label>
             <input
+              id="postalCode"
               {...register("postalCode", { required: "Este campo es obligatorio", valueAsNumber: true })}
               type="number"
-              className="px-4 py-2 bg-gray-600 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
-              placeholder="Código Postal"
+              className="bg-gray-700 p-2 rounded w-full"
             />
             {errors.postalCode && (
               <span className="text-red-500 text-sm mt-1">{errors.postalCode.message}</span>
             )}
           </div>
-          <div className="flex flex-col mb-4">
+
+          {/* Entre Calles 1 */}
+          <div>
+            <label htmlFor="betweenStreets1" className="block text-gray-300 mb-1">Entre Calles 1</label>
             <input
+              id="betweenStreets1"
               {...register("betweenStreets1", { required: "Este campo es obligatorio" })}
-              className="px-4 py-2 bg-gray-600 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
-              placeholder="Entre Calles 1"
+              className="bg-gray-700 p-2 rounded w-full"
             />
             {errors.betweenStreets1 && (
               <span className="text-red-500 text-sm mt-1">{errors.betweenStreets1.message}</span>
             )}
           </div>
-          <div className="flex flex-col mb-4">
+
+          {/* Entre Calles 2 */}
+          <div>
+            <label htmlFor="betweenStreets2" className="block text-gray-300 mb-1">Entre Calles 2</label>
             <input
+              id="betweenStreets2"
               {...register("betweenStreets2", { required: "Este campo es obligatorio" })}
-              className="px-4 py-2 bg-gray-600 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
-              placeholder="Entre Calles 2"
+              className="bg-gray-700 p-2 rounded w-full"
             />
             {errors.betweenStreets2 && (
               <span className="text-red-500 text-sm mt-1">{errors.betweenStreets2.message}</span>
             )}
           </div>
-          <div className="flex flex-col mb-4">
+
+          {/* Distrito */}
+          <div>
+            <label htmlFor="district" className="block text-gray-300 mb-1">Distrito</label>
             <input
+              id="district"
               {...register("district", { required: "Este campo es obligatorio" })}
-              className="px-4 py-2 bg-gray-600 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
-              placeholder="Distrito"
+              className="bg-gray-700 p-2 rounded w-full"
             />
             {errors.district && (
               <span className="text-red-500 text-sm mt-1">{errors.district.message}</span>
             )}
           </div>
-          <div className="flex flex-col mb-4">
+
+          {/* Destino */}
+          <div>
+            <label htmlFor="destiny" className="block text-gray-300 mb-1">Destino</label>
             <select
+              id="destiny"
               {...register("destiny", { required: "Este campo es obligatorio" })}
-              className="px-4 py-2 bg-gray-600 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
+              className="bg-gray-700 p-2 rounded w-full"
             >
               <option value="" hidden>Destino</option>
               <option value="0">Templo</option>
@@ -183,13 +230,17 @@ const NewProperty = () => {
               <span className="text-red-500 text-sm mt-1">{errors.destiny.message}</span>
             )}
           </div>
-          <div className="flex flex-col mb-4">
+
+          {/* CLFC */}
+          <div>
+            <label htmlFor="clfc" className="block text-gray-300 mb-1">CLFC</label>
             <select
+              id="clfc"
               {...register("clfc", { required: "Este campo es obligatorio" })}
-              className="px-4 py-2 bg-gray-600 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
+              className="bg-gray-700 p-2 rounded w-full"
             >
               <option value="" hidden>CLFC</option>
-              <option value="0">Si</option>
+              <option value="0">Sí</option>
               <option value="1">Solicitar</option>
               <option value="2">Solicitado</option>
               <option value="3">No</option>
@@ -198,63 +249,37 @@ const NewProperty = () => {
               <span className="text-red-500 text-sm mt-1">{errors.clfc.message}</span>
             )}
           </div>
-          <div className="flex flex-col mb-4">
+
+          {/* Estado */}
+          <div>
+            <label htmlFor="state" className="block text-gray-300 mb-1">Estado</label>
             <select
+              id="state"
               {...register("state", { required: "Este campo es obligatorio" })}
-              className="px-4 py-2 bg-gray-600 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
+              className="bg-gray-700 p-2 rounded w-full"
             >
               <option value="" hidden>Estado</option>
-              <option value="1">Propia</option>
-              <option value="2">Alquilada</option>
-              <option value="3">A adquirir</option>
-              <option value="4">A vender</option>
-              <option value="5">Antena</option>
-              <option value="6">A administrar</option>
-              <option value="7">Proceso</option>
+              <option value="0">Disponible</option>
+              <option value="1">Alquilado</option>
             </select>
             {errors.state && (
               <span className="text-red-500 text-sm mt-1">{errors.state.message}</span>
             )}
           </div>
-          <div className="flex items-center mb-4">
-            <input
-              {...register("active")}
-              type="checkbox"
-              className="mr-2"
-            />
-            <label className="text-white">Activo</label>
-          </div>
-          <div className="flex flex-col mb-4">
-            <input
-              {...register("detailsMaintenance", { required: "Este campo es obligatorio" })}
-              className="px-4 py-2 bg-gray-600 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
-              placeholder="Detalles de Mantenimiento"
-            />
-            {errors.detailsMaintenance && (
-              <span className="text-red-500 text-sm mt-1">{errors.detailsMaintenance.message}</span>
-            )}
-          </div>
-          <div className="flex flex-col mb-4">
-            <input
-              {...register("description", { required: "Este campo es obligatorio" })}
-              className="px-4 py-2 bg-gray-600 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
-              placeholder="Descripción"
-            />
-            {errors.description && (
-              <span className="text-red-500 text-sm mt-1">{errors.description.message}</span>
-            )}
-          </div>
+        </div>
+      </fieldset>
 
-          {/* Instalaciones */}
-          {fields.map((item, index) => (
-            <div key={item.id} className="border p-4 mb-4 rounded-lg bg-gray-700">
-              <h3 className="text-xl text-orange-500 mb-4">Instalación {index + 1}</h3>
-
-              <div className="flex flex-col mb-4">
+      <fieldset className="border border-gray-600 rounded p-4">
+        {/* Instalaciones */}
+        {fields.map((item, index) => (
+          <div key={item.id} >
+            <h3 className="text-3xl font-bold text-white text-center mb-4">Instalación {index + 1}</h3>
+            <div className="grid grid-cols-2 gap-4 mt-4">
+              <div>
+                <label htmlFor="name" className="block text-gray-300 mb-1">Nombre de instalacion</label>
                 <input
                   {...register(`installations[${index}].name`, { required: "Este campo es obligatorio" })}
-                  className="px-4 py-2 bg-gray-600 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
-                  placeholder="Nombre de la Instalación"
+                  className="bg-gray-700 p-2 rounded w-full"
                 />
                 {errors.installations?.[index]?.name && (
                   <span className="text-red-500 text-sm mt-1">{errors.installations[index].name.message}</span>
@@ -262,10 +287,10 @@ const NewProperty = () => {
               </div>
 
               <div className="flex flex-col mb-4">
+                <label htmlFor="classification" className="block text-gray-300 mb-1">Clasificacion</label>
                 <input
                   {...register(`installations[${index}].classification`, { required: "Este campo es obligatorio" })}
-                  className="px-4 py-2 bg-gray-600 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
-                  placeholder="Clasificación de Instalación"
+                  className="bg-gray-700 p-2 rounded w-full"
                 />
                 {errors.installations?.[index]?.classification && (
                   <span className="text-red-500 text-sm mt-1">{errors.installations[index].classification.message}</span>
@@ -273,11 +298,11 @@ const NewProperty = () => {
               </div>
 
               <div className="flex flex-col mb-4">
+                <label htmlFor="quantity" className="block text-gray-300 mb-1">Cantidad</label>
                 <input
                   {...register(`installations[${index}].quantity`, { required: "Este campo es obligatorio", valueAsNumber: true })}
                   type="number"
-                  className="px-4 py-2 bg-gray-600 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
-                  placeholder="Cantidad"
+                  className="bg-gray-700 p-2 rounded w-full"
                 />
                 {errors.installations?.[index]?.quantity && (
                   <span className="text-red-500 text-sm mt-1">{errors.installations[index].quantity.message}</span>
@@ -285,18 +310,19 @@ const NewProperty = () => {
               </div>
 
               <div className="flex flex-col mb-4">
+                <label htmlFor="file" className="block text-gray-300 mb-1">Archivo</label>
                 <input
                   {...register(`installations[${index}].file`)}
                   type="file"
-                  className="px-4 py-2 bg-gray-600 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
+                  className="bg-gray-700 p-2 rounded w-full"
                 />
               </div>
               <div className="flex flex-col mb-4">
-                <input
+                <label htmlFor="details" className="block text-gray-300 mb-1">Detalles</label>
+                <textarea
                   {...register(`installations[${index}].name`, { required: "Este campo es obligatorio" })}
-                  className="px-4 py-2 bg-gray-600 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
-                  placeholder="Detalles instalación"
-                />
+                  className="bg-gray-700 p-2 rounded w-full"
+                ></textarea>
                 {errors.installations?.[index]?.name && (
                   <span className="text-red-500 text-sm mt-1">{errors.installations[index].name.message}</span>
                 )}
@@ -305,33 +331,33 @@ const NewProperty = () => {
               {/* Botón para eliminar instalación */}
               <button
                 type="button"
-                className="mt-4 text-red-500"
                 onClick={() => remove(index)}
+                className="w-full h-10 bg-blue-800 text-white py-1 px-3 rounded hover:bg-blue-700 transition-colors mt-10"
               >
                 Eliminar Instalación
               </button>
             </div>
-          ))}
+          </div>
+        ))}
+      </fieldset>
 
-          {/* Botón para agregar nueva instalación */}
-          <button
-            type="button"
-            onClick={() => append({ name: "", classification: 0, quantity: 0, file: null, details: "", property: 0 })}
-            className="w-full py-2 px-4 bg-orange-500 text-white rounded-lg hover:bg-orange-400 focus:outline-none focus:ring-2 focus:ring-orange-500"
-          >
-            Agregar Instalación
-          </button>
-        </div>
+      {/* Botón para agregar nueva instalación */}
+      <button
+        type="button"
+        onClick={() => append({ name: "", classification: 0, quantity: 0, file: null, details: "", property: 0 })}
+        className="w-full bg-blue-800 text-white py-2 px-4 rounded hover:bg-blue-700 transition-colors"
+      >
+        Agregar Instalación
+      </button>
 
-        {/* Botón para enviar el formulario */}
-        <button
-          type="submit"
-          className="mt-6 w-full py-2 px-4 bg-green-500 text-white rounded-lg hover:bg-green-400 focus:outline-none focus:ring-2 focus:ring-green-500"
-        >
-          Guardar Propiedad
-        </button>
-      </form>
-    </div>
+      {/* Botón para enviar el formulario */}
+      <button
+        type="submit"
+        className="w-full bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 transition-colors"
+      >
+        Guardar Propiedad
+      </button>
+    </form>
   );
 };
 

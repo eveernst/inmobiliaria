@@ -10,16 +10,17 @@ const PlanoCasa = () => {
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-      <fieldset>
-        <legend className="sr-only">Detalles del Plano</legend>
-        <section className="grid grid-cols-2 gap-4">
+    <form onSubmit={handleSubmit(onSubmit)} className="max-w-4xl mx-auto p-6 bg-gray-800 rounded shadow-lg space-y-6">
+      <h1 className="text-3xl font-bold text-white text-center mb-6"> Formulario de Plano de Casa</h1>
+      <fieldset className="border border-gray-600 rounded p-4">
+        <legend className="text-lg font-semibold text-white px-2">Detalles del Plano</legend>
+        <section className="grid grid-cols-2 gap-4 mt-4">
           <div>
-            <label htmlFor="generalPlan">Plano General</label>
+            <label htmlFor="generalPlan" className="block text-gray-300 mb-1">Plano General</label>
             <input type="checkbox" {...register("generalPlan")} id="generalPlan" className="mr-2" />
           </div>
           <div>
-            <label htmlFor="nro-plano">N° de Plano</label>
+            <label htmlFor="nro-plano" className="block text-gray-300 mb-1">N° de Plano</label>
             <input
               id="nro-plano"
               className="bg-gray-700 p-2 rounded w-full"
@@ -27,21 +28,15 @@ const PlanoCasa = () => {
             />
           </div>
           <div>
-            <label htmlFor="year">Año</label>
+            <label htmlFor="year" className="block text-gray-300 mb-1">Año</label>
             <input
               id="year"
               className="bg-gray-700 p-2 rounded w-full"
               {...register("year")}
             />
           </div>
-        </section>
-      </fieldset>
-
-      <fieldset>
-        <legend className="sr-only">Información Profesional</legend>
-        <section className="grid grid-cols-2 gap-4">
           <div>
-            <label htmlFor="profesional">Profesional</label>
+            <label htmlFor="profesional" className="block text-gray-300 mb-1">Profesional</label>
             <input
               id="profesional"
               className="bg-gray-700 p-2 rounded w-full"
@@ -49,7 +44,7 @@ const PlanoCasa = () => {
             />
           </div>
           <div>
-            <label htmlFor="contactoProfesional">Contacto del Profesional</label>
+            <label htmlFor="contactoProfesional" className="block text-gray-300 mb-1">Contacto del Profesional</label>
             <input
               id="contactoProfesional"
               className="bg-gray-700 p-2 rounded w-full"
@@ -59,11 +54,11 @@ const PlanoCasa = () => {
         </section>
       </fieldset>
 
-      <fieldset>
-        <legend>Detalles de Visado y Planos</legend>
-        <section className="grid grid-cols-2 gap-4">
+      <fieldset className="border border-gray-600 rounded p-4">
+        <legend className="text-lg font-semibold text-white px-2">Detalles de Visado y Planos</legend>
+        <section className="grid grid-cols-2 gap-4 mt-4">
           <div>
-            <label htmlFor="numberVisado">Visado municipal</label>
+            <label htmlFor="numberVisado" className="block text-gray-300 mb-1">Visado municipal</label>
             <input
               id="numberVisado"
               className="bg-gray-700 p-2 rounded w-full"
@@ -71,7 +66,7 @@ const PlanoCasa = () => {
             />
           </div>
           <div>
-            <label htmlFor="dateVisado">Fecha visado</label>
+            <label htmlFor="dateVisado" className="block text-gray-300 mb-1">Fecha visado</label>
             <input
               id="dateVisado"
               type="date"
@@ -80,37 +75,37 @@ const PlanoCasa = () => {
             />
           </div>
           <div>
-            <label htmlFor="structurePlan">Plano estructura</label>
+            <label htmlFor="structurePlan" className="block text-gray-300 mb-1">Plano estructura</label>
             <input type="checkbox" {...register("structurePlan")} id="structurePlan" className="mr-2" />
           </div>
           <div>
-            <label htmlFor="gasPlan">Plano gas</label>
+            <label htmlFor="gasPlan" className="block text-gray-300 mb-1">Plano gas</label>
             <input type="checkbox" {...register("gasPlan")} id="gasPlan" className="mr-2" />
           </div>
           <div>
-            <label htmlFor="waterPlan">Plano agua</label>
+            <label htmlFor="waterPlan" className="block text-gray-300 mb-1">Plano agua</label>
             <input type="checkbox" {...register("waterPlan")} id="waterPlan" className="mr-2" />
           </div>
           <div>
-            <label htmlFor="lightPlan">Plano luz</label>
+            <label htmlFor="lightPlan" className="block text-gray-300 mb-1">Plano luz</label>
             <input type="checkbox" {...register("lightPlan")} id="lightPlan" className="mr-2" />
           </div>
           <div>
-            <label htmlFor="projectPlan">Anteproyecto</label>
+            <label htmlFor="projectPlan" className="block text-gray-300 mb-1">Anteproyecto</label>
             <input type="checkbox" {...register("projectPlan")} id="projectPlan" className="mr-2" />
           </div>
           <div>
-            <label htmlFor="finalPlan">Final de obra</label>
+            <label htmlFor="finalPlan" className="block text-gray-300 mb-1">Final de obra</label>
             <input type="checkbox" {...register("finalPlan")} id="finalPlan" className="mr-2" />
           </div>
         </section>
       </fieldset>
 
-      <fieldset>
-        <legend className="sr-only">Actualización de Plano</legend>
-        <section className="grid grid-cols-2 gap-4">
+      <fieldset className="border border-gray-600 rounded p-4">
+      <legend className="text-lg font-semibold text-white px-2">Actualizacion</legend>
+        <section className="grid grid-cols-2 gap-4 mt-4">
           <div>
-            <label htmlFor="planType">Tipo de plano</label>
+            <label htmlFor="planType" className="block text-gray-300 mb-1">Tipo de plano</label>
             <select
               id="planType"
               className="bg-gray-700 p-2 rounded w-full"
@@ -122,7 +117,7 @@ const PlanoCasa = () => {
             </select>
           </div>
           <div>
-            <label htmlFor="planNumberUpdate">N° de Plano</label>
+            <label htmlFor="planNumberUpdate" className="block text-gray-300 mb-1">N° de Plano</label>
             <input
               id="planNumberUpdate"
               className="bg-gray-700 p-2 rounded w-full"
@@ -130,7 +125,7 @@ const PlanoCasa = () => {
             />
           </div>
           <div>
-            <label htmlFor="yearUpdate">Año</label>
+            <label htmlFor="yearUpdate" className="block text-gray-300 mb-1">Año</label>
             <input
               id="yearUpdate"
               className="bg-gray-700 p-2 rounded w-full"
@@ -138,7 +133,7 @@ const PlanoCasa = () => {
             />
           </div>
           <div>
-            <label htmlFor="formalities">Formalidades</label>
+            <label htmlFor="formalities" className="block text-gray-300 mb-1">Formalidades</label>
             <input
               id="formalities"
               className="bg-gray-700 p-2 rounded w-full"
@@ -146,7 +141,7 @@ const PlanoCasa = () => {
             />
           </div>
           <div>
-            <label htmlFor="documentation">Documentación</label>
+            <label htmlFor="documentation" className="block text-gray-300 mb-1">Documentación</label>
             <input
               id="documentation"
               className="bg-gray-700 p-2 rounded w-full"
@@ -154,7 +149,7 @@ const PlanoCasa = () => {
             />
           </div>
           <div>
-            <label htmlFor="contacts">Contactos</label>
+            <label htmlFor="contacts" className="block text-gray-300 mb-1">Contactos</label>
             <input
               id="contacts"
               className="bg-gray-700 p-2 rounded w-full"
@@ -164,13 +159,11 @@ const PlanoCasa = () => {
         </section>
       </fieldset>
 
-      <button type="submit" className="bg-blue-500 text-white p-2 rounded mt-4">
-        Enviar Formulario
+      <button type="submit" className="w-full bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 transition-colors">
+        Enviar
       </button>
     </form>
   );
 };
 
 export default PlanoCasa;
-
-
