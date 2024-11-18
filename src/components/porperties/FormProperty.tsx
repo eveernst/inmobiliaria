@@ -1,6 +1,7 @@
 "use client"
-import { saveProperty } from "@/api/propertyApi";
-import React from "react";
+import { saveProperty, editProperty, getProperty } from "@/api/propertyApi";
+import { Console } from "console";
+import React, { useState, useEffect } from "react";
 import { useForm, SubmitHandler, useFieldArray } from "react-hook-form";
 
 interface FormData {
@@ -28,34 +29,70 @@ interface FormData {
     quantity: number;
     file: File | null;
     details: string;
-    property: number;
-    classification: number;
   }[];
+  id?: number;
 }
 
-const NewProperty = () => {
-  const { register, handleSubmit, formState: { errors }, control } = useForm<FormData>();
+const PropertyForm = ({ id }: any) => {
+
+  const { register, handleSubmit, formState: { errors }, control, reset, setValue } = useForm<FormData>();
+
   const { fields, append, remove } = useFieldArray({
     control,
     name: "installations"
   });
 
+  const [title, setTitle] = useState<string>("Nueva Propiedad");
+
+  useEffect(() => {
+    async function fetchProperty() {
+      if (id === undefined || id === 0) return;
+      const data = await getProperty(id);
+      console.log(data);
+      reset(data);
+      setValue("classification", data.classification.id);
+    }
+    fetchProperty();
+  }, [id]);
+
+  // useEffect precargará los datos de la propiedad si se está editando
+  useEffect(() => {
+    if (id !== undefined && id !== 0) {
+      setTitle("Editar Propiedad");
+      console.log("Cargando propiedad con id:", id);
+
+    } else {
+      setTitle("Nueva Propiedad");
+      console.log("Creando nueva propiedad");
+    }
+  }, [id]);
+
+
   const onSubmit: SubmitHandler<FormData> = async (data) => {
+    console.log("id de propiedad", id);
+
+    // Preprocesamiento de datos antes de enviarlos
     const processedData = {
       ...data,
-      file: data.file?.size ? data.file : null,
+      file: data.file?.size ? data.file : null, // Asigna archivo si tiene tamaño, de lo contrario null
       installations: data.installations.map(inst => ({
         ...inst,
-        file: inst.file?.size ? inst.file : null
+        file: inst.file?.size ? inst.file : null, // Igual para las instalaciones
       })),
     };
-    console.log(processedData);
-    await saveProperty(processedData);
+
+    // Manejo de la lógica de `id`
+    if (id !== undefined && id !== 0) {
+      processedData.id = id; // Si existe `id` y no es 0, se asigna al objeto
+      await editProperty(processedData); // Llamada para editar propiedad
+    } else {
+      await saveProperty(processedData); // Llamada para guardar nueva propiedad
+    }
   };
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="max-w-4xl mx-auto p-6 bg-gray-800 rounded shadow-lg space-y-6">
-      <h1 className="text-3xl font-bold text-white text-center mb-6">Nueva Propiedad</h1>
+      <h1 className="text-3xl font-bold text-white text-center mb-6">{title}</h1>
       {/* Campos del formulario como antes */}
       <fieldset className="border border-gray-600 rounded p-4">
         <legend className="text-lg font-semibold text-white px-2">Detalles de la Propiedad</legend>
@@ -102,6 +139,7 @@ const NewProperty = () => {
           <div>
             <label htmlFor="classification" className="block text-gray-300 mb-1">Clasificación</label>
             <input
+              type="number"
               id="classification"
               {...register("classification", { required: "Este campo es obligatorio" })}
               className="bg-gray-700 p-2 rounded w-full"
@@ -381,4 +419,5 @@ const NewProperty = () => {
   );
 };
 
-export default NewProperty;
+export default PropertyForm;
+
