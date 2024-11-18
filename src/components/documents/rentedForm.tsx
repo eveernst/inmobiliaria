@@ -2,11 +2,12 @@ import React from "react";
 import { useForm, FieldError } from "react-hook-form";
 import { saveRented } from "@/api/rentedApi";
 
-const InmuebleAlquilado = () => {
+const RentedForm = (propertyId : any) => {
   const { register, handleSubmit, formState: { errors } } = useForm();
 
   const onSubmit = async (data: any) => {
     console.log("Formulario enviado:", data);
+    data.propertyId = propertyId;
     await saveRented(data);
   };
 
@@ -180,4 +181,4 @@ const InmuebleAlquilado = () => {
   );
 };
 
-export default InmuebleAlquilado;
+export default RentedForm;

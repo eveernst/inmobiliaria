@@ -1,11 +1,12 @@
 import { saveInsurance } from "@/api/insuranceApi";
 import { useForm } from "react-hook-form";
 
-const SeguroInmueble = () => {
+const InsuranceForm = ({ propertyId }: any) => {
   const { register, handleSubmit } = useForm();
 
   const onSubmit = async (data: any) => {
     console.log("Datos del formulario:", data);
+    data.propertyId = propertyId;
     await saveInsurance(data);
   };
 
@@ -141,4 +142,4 @@ const SeguroInmueble = () => {
   );
 };
 
-export default SeguroInmueble;
+export default InsuranceForm;

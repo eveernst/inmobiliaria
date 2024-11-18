@@ -1,11 +1,12 @@
 import { useForm } from "react-hook-form";
 import { savePlan } from "@/api/planApi";
 
-const PlanoCasa = () => {
+const PlanForm = (propertyId: any) => {
   const { register, handleSubmit } = useForm();
 
   const onSubmit = async (data: any) => {
     console.log("Datos del formulario:", data);
+    data.propertyId = propertyId;
     await savePlan(data);
   };
 
@@ -166,4 +167,4 @@ const PlanoCasa = () => {
   );
 };
 
-export default PlanoCasa;
+export default PlanForm;

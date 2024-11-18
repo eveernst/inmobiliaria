@@ -208,6 +208,26 @@ const NewProperty = () => {
             )}
           </div>
 
+          <div>
+            <label htmlFor="active" className="block text-gray-300 mb-1">Activo</label>
+            <input type="checkbox" {...register("active")} id="generalPlan" className="mr-2" />
+            {errors.active && (
+              <span className="text-red-500 text-sm mt-1">{errors.active.message}</span>
+            )}
+          </div>
+
+          <div>
+            <label htmlFor="detailsMaintenance" className="block text-gray-300 mb-1">Detalles</label>
+            <input type="text-area"
+              id="detailsMaintenance"
+              {...register("detailsMaintenance", { required: "Este campo es obligatorio" })}
+              className="bg-gray-700 p-2 rounded w-full"
+            />
+            {errors.detailsMaintenance && (
+              <span className="text-red-500 text-sm mt-1">{errors.detailsMaintenance.message}</span>
+            )}
+          </div>
+
           {/* Destino */}
           <div>
             <label htmlFor="destiny" className="block text-gray-300 mb-1">Destino</label>

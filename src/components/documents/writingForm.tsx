@@ -1,11 +1,12 @@
 import { useForm } from "react-hook-form";
 import { saveWriting } from "@/api/writingApi";
 
-export function Escritura() {
+const WritingForm = (propertyId: any) => {
   const { register, handleSubmit } = useForm();
 
   const onSubmit = async (data: any) => {
     console.log("Datos enviados:", data);
+    data.propertyId = propertyId;
     await saveWriting(data);
   };
 
@@ -229,4 +230,4 @@ export function Escritura() {
   );
 }
 
-export default Escritura;
+export default WritingForm;

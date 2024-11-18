@@ -1,34 +1,36 @@
 'use client';
 
-import { useState } from "react";
-import SeguroInmueble from "../components/documents/insuranceForm";
-import Escritura from "../components/documents/writingForm";
-import InmuebleAlquilado from "../components/documents/rentedForm";
-import PlanoCasa from "../components/documents/planForm";
+import { useState, useEffect } from "react";
+import InsuranceForm from "../components/documents/insuranceForm";
+import WritingForm from "../components/documents/writingForm";
+import PlanForm from "../components/documents/planForm";
+import { useRouter } from "next/navigation";
+import RentedForm from "./documents/rentedForm";
 
 export default function Formulario() {
-  // const router = useRouter();
-  const [activeTab, setActiveTab] = useState("seguro-inmueble");
-  // const [propertyId, setPropertyId] = useState(null);
+  const router = useRouter();
+  const [activeTab, setActiveTab] = useState<string>("insurance");
+  const [propertyId, setPropertyId] = useState<number>(0);
 
-  // useEffect(() => {
-  //   const query = new URLSearchParams(window.location.search);
-  //   const id = query.get("id");
-  //   if (id) setPropertyId(id);
-  // }, []);
+  useEffect(() => {
+    const query = new URLSearchParams(window.location.search);
+    const id = Number(query.get("propertyId"));
+    if (id) setPropertyId(id);
+    // route example: /document-manager?propertyId=123
+  }, []);
 
   const renderTabContent = () => {
     switch (activeTab) {
-      case "seguro-inmueble":
-        return <SeguroInmueble />;
-      case "inmueble-alquilado":
-        return <InmuebleAlquilado />;
-      case "plano-casa":
-        return <PlanoCasa />;
-      case "escritura":
-        return <Escritura />;
+      case "insurance":
+        return <InsuranceForm propertyId={ propertyId } />;
+      case "rented-property":
+        return <RentedForm propertyId={ propertyId } />;
+      case "plan":
+        return <PlanForm propertyId={ propertyId } />;
+      case "writing":
+        return <WritingForm propertyId={ propertyId } />;
       default:
-        return <SeguroInmueble />;
+        return <InsuranceForm propertyId={ propertyId } />;
     }
   };
 
@@ -37,26 +39,26 @@ export default function Formulario() {
       {/* Contenedor de Tabs */}
       <div className="flex space-x-4 mb-6">
         <button
-          className={`py-2 px-4 rounded ${activeTab === "seguro-inmueble" ? "bg-blue-500 text-white" : "bg-gray-200"}`}
-          onClick={() => setActiveTab("seguro-inmueble")}
+          className={`py-2 px-4 rounded ${activeTab === "insurance" ? "bg-blue-500 text-white" : "bg-gray-200"}`}
+          onClick={() => setActiveTab("insurance")}
         >
           Seguro Inmueble
         </button>
         <button
-          className={`py-2 px-4 rounded ${activeTab === "inmueble-alquilado" ? "bg-blue-500 text-white" : "bg-gray-200"}`}
-          onClick={() => setActiveTab("inmueble-alquilado")}
+          className={`py-2 px-4 rounded ${activeTab === "rented-property" ? "bg-blue-500 text-white" : "bg-gray-200"}`}
+          onClick={() => setActiveTab("rented-property")}
         >
           Inmueble Alquilado
         </button>
         <button
-          className={`py-2 px-4 rounded ${activeTab === "plano-casa" ? "bg-blue-500 text-white" : "bg-gray-200"}`}
-          onClick={() => setActiveTab("plano-casa")}
+          className={`py-2 px-4 rounded ${activeTab === "plan" ? "bg-blue-500 text-white" : "bg-gray-200"}`}
+          onClick={() => setActiveTab("plan")}
         >
           Plano Casa
         </button>
         <button
-          className={`py-2 px-4 rounded ${activeTab === "escritura" ? "bg-blue-500 text-white" : "bg-gray-200"}`}
-          onClick={() => setActiveTab("escritura")}
+          className={`py-2 px-4 rounded ${activeTab === "writing" ? "bg-blue-500 text-white" : "bg-gray-200"}`}
+          onClick={() => setActiveTab("writing")}
         >
           Escritura
         </button>
