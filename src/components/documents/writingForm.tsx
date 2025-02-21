@@ -1,12 +1,42 @@
-import { useForm } from "react-hook-form";
+import { useForm, SubmitHandler } from "react-hook-form";
 import { saveWriting } from "@/api/writingApi";
 
-const WritingForm = (propertyId: any) => {
-  const { register, handleSubmit } = useForm();
+interface WritingFormProps {
+  propertyId: number;
+}
 
-  const onSubmit = async (data: any) => {
-    console.log("Datos enviados:", data);
-    data.propertyId = propertyId;
+interface FormData {
+  writingNumber: number;
+  voteNumberJDAAC: number;
+  voteDateJDAAC: Date;
+  voteNumberJDUA: number;
+  voteDateJDUA: Date;
+  domain: string;
+  folio: string;
+  tomo: string;
+  year: number;
+  department: string;
+  totalSurface: string;
+  coveredSurface: number;
+  improvementSurface: number;
+  improvementValue: number;
+  cadastralNomenclature: string;
+  ubicationMap: string;
+  cadastralInform: string;
+  actingNotary: string;
+  notaryContact: number;
+  formalities: string;
+  documentation: string;
+  detailSpaces: string;
+  propertyId?: number;
+}
+
+const WritingForm = ({ propertyId }: WritingFormProps) => {
+  const { register, handleSubmit } = useForm<FormData>(
+    { defaultValues: { propertyId } }
+  );
+
+  const onSubmit: SubmitHandler<FormData> = async (data: FormData) => {
     await saveWriting(data);
   };
 
@@ -23,6 +53,7 @@ const WritingForm = (propertyId: any) => {
             <label htmlFor="writingNumber" className="block text-gray-300 mb-1">Número de escritura</label>
             <input
               id="writingNumber"
+              type="number"
               className="bg-gray-700 p-2 rounded w-full"
               {...register("writingNumber")}
             />
@@ -31,6 +62,7 @@ const WritingForm = (propertyId: any) => {
             <label htmlFor="voteNumberJDAAC" className="block text-gray-300 mb-1">Voto JD AAC</label>
             <input
               id="voteNumberJDAAC"
+              type="number"
               className="bg-gray-700 p-2 rounded w-full"
               {...register("voteNumberJDAAC")}
             />
@@ -48,6 +80,7 @@ const WritingForm = (propertyId: any) => {
             <label htmlFor="voteNumberJDUA" className="block text-gray-300 mb-1">Voto JD UA</label>
             <input
               id="voteNumberJDUA"
+              type="number"
               className="bg-gray-700 p-2 rounded w-full"
               {...register("voteNumberJDUA")}
             />
@@ -96,6 +129,7 @@ const WritingForm = (propertyId: any) => {
             <label htmlFor="year" className="block text-gray-300 mb-1">Año</label>
             <input
               id="year"
+              type="number"
               className="bg-gray-700 p-2 rounded w-full"
               {...register("year")}
             />
@@ -123,6 +157,7 @@ const WritingForm = (propertyId: any) => {
             <label htmlFor="coveredSurface" className="block text-gray-300 mb-1">Superficie Cubierta</label>
             <input
               id="coveredSurface"
+              type="number"
               className="bg-gray-700 p-2 rounded w-full"
               {...register("coveredSurface")}
             />
@@ -131,6 +166,7 @@ const WritingForm = (propertyId: any) => {
             <label htmlFor="improvementSurface" className="block text-gray-300 mb-1">Superficie con mejoras</label>
             <input
               id="improvementSurface"
+              type="number"
               className="bg-gray-700 p-2 rounded w-full"
               {...register("improvementSurface")}
             />
@@ -187,6 +223,7 @@ const WritingForm = (propertyId: any) => {
             <label htmlFor="notaryContact" className="block text-gray-300 mb-1">Contacto del Escribano</label>
             <input
               id="notaryContact"
+              type="number"
               className="bg-gray-700 p-2 rounded w-full"
               {...register("notaryContact")}
             />

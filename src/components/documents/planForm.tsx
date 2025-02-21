@@ -1,10 +1,37 @@
-import { useForm } from "react-hook-form";
+import { useForm, SubmitHandler } from "react-hook-form";
 import { savePlan } from "@/api/planApi";
 
-const PlanForm = (propertyId: any) => {
-  const { register, handleSubmit } = useForm();
+interface PlanFormProps {
+  propertyId: number;
+}
 
-  const onSubmit = async (data: any) => {
+interface FormData {
+  generalPlan: boolean;
+  planNumber: string;
+  year: number;
+  profesional: string;
+  professionalContact: string;
+  numberVisado: string;
+  dateVisado: string;
+  structurePlan: boolean;
+  gasPlan: boolean;
+  waterPlan: boolean;
+  lightPlan: boolean;
+  projectPlan: boolean;
+  finalPlan: boolean;
+  planType: string;
+  planNumberUpdate: string;
+  yearUpdate: number;
+  formalities: string;
+  documentation: string;
+  contacts: string;
+  propertyId?: number;
+}
+
+const PlanForm = ({ propertyId }: PlanFormProps) => {
+  const { register, handleSubmit } = useForm<FormData>();
+
+  const onSubmit: SubmitHandler<FormData> = async (data) => {
     console.log("Datos del formulario:", data);
     data.propertyId = propertyId;
     await savePlan(data);
@@ -33,7 +60,7 @@ const PlanForm = (propertyId: any) => {
             <input
               id="year"
               className="bg-gray-700 p-2 rounded w-full"
-              {...register("year")}
+              {...register("year", { valueAsNumber: true })}
             />
           </div>
           <div>
@@ -62,6 +89,7 @@ const PlanForm = (propertyId: any) => {
             <label htmlFor="numberVisado" className="block text-gray-300 mb-1">Visado municipal</label>
             <input
               id="numberVisado"
+              type="number"
               className="bg-gray-700 p-2 rounded w-full"
               {...register("numberVisado")}
             />
@@ -113,8 +141,10 @@ const PlanForm = (propertyId: any) => {
               {...register("planType", { required: "Este campo es obligatorio" })}
             >
               <option value="">Seleccionar</option>
-              <option value="option1">Opción 1</option>
-              <option value="option2">Opción 2</option>
+              <option value="option1">General</option>
+              <option value="option2">Electricidad</option>
+              <option value="option2">Gas</option>
+              <option value="option2">Agua</option>
             </select>
           </div>
           <div>
@@ -130,7 +160,7 @@ const PlanForm = (propertyId: any) => {
             <input
               id="yearUpdate"
               className="bg-gray-700 p-2 rounded w-full"
-              {...register("yearUpdate")}
+              {...register("yearUpdate", { valueAsNumber: true })}
             />
           </div>
           <div>

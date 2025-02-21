@@ -2,7 +2,7 @@ import React from "react";
 import { useForm, FieldError } from "react-hook-form";
 import { saveRented } from "@/api/rentedApi";
 
-const RentedForm = (propertyId : any) => {
+const RentedForm = ({ propertyId }: any) => {
   const { register, handleSubmit, formState: { errors } } = useForm();
 
   const onSubmit = async (data: any) => {
@@ -34,8 +34,9 @@ const RentedForm = (propertyId : any) => {
                 {...register("affectation", { required: "Este campo es obligatorio" })}
               >
                 <option value="">Seleccionar</option>
-                <option value="option1">Opción 1</option>
-                <option value="option2">Opción 2</option>
+                <option value="option1">Habitacional</option>
+                <option value="option2">Templo</option>
+                <option value="option2">Comercial</option>
               </select>
               {errors.affectation && (
                 <p className="text-red-500 text-sm">{(errors.affectation as FieldError).message}</p>
@@ -55,7 +56,7 @@ const RentedForm = (propertyId : any) => {
 
       <section>
         <fieldset className="border border-gray-600 rounded p-4">
-        <legend className="text-lg font-semibold text-white px-2">Datos del Inquilino</legend>
+          <legend className="text-lg font-semibold text-white px-2">Datos del Inquilino</legend>
           <div className="grid grid-cols-2 gap-4 mt-4">
             <div>
               <label htmlFor="renterDetails" className="block text-gray-300 mb-1">Datos del inquilino</label>
@@ -95,7 +96,7 @@ const RentedForm = (propertyId : any) => {
 
       <section>
         <fieldset className="border border-gray-600 rounded p-4">
-        <legend className="text-lg font-semibold text-white px-2">Detalles del Contrato</legend>
+          <legend className="text-lg font-semibold text-white px-2">Detalles del Contrato</legend>
           <div className="grid grid-cols-2 gap-4 mt-4">
             <div>
               <label htmlFor="contratStartDate" className="block text-gray-300 mb-1">Fecha de comienzo</label>
@@ -114,8 +115,9 @@ const RentedForm = (propertyId : any) => {
                 {...register("province", { required: "Este campo es obligatorio" })}
               >
                 <option value="">Seleccionar</option>
-                <option value="option1">Opción 1</option>
-                <option value="option2">Opción 2</option>
+                <option value="option1">Cordoba</option>
+                <option value="option2">Entre Rios</option>
+                <option value="option2">Santa Fe</option>
               </select>
               {errors.province && (
                 <p className="text-red-500 text-sm">{(errors.province as FieldError).message}</p>
@@ -136,7 +138,7 @@ const RentedForm = (propertyId : any) => {
 
       <section>
         <fieldset className="border border-gray-600 rounded p-4">
-        <legend className="text-lg font-semibold text-white px-2">Detalles Financieros</legend>
+          <legend className="text-lg font-semibold text-white px-2">Detalles Financieros</legend>
           <div className="grid grid-cols-2 gap-4 mt-4">
             <div>
               <label htmlFor="price" className="block text-gray-300 mb-1">Monto ($)</label>

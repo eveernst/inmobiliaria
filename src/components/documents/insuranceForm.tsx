@@ -1,10 +1,31 @@
 import { saveInsurance } from "@/api/insuranceApi";
-import { useForm } from "react-hook-form";
+import { useForm, SubmitHandler } from "react-hook-form";
 
-const InsuranceForm = ({ propertyId }: any) => {
-  const { register, handleSubmit } = useForm();
+interface InsuranceFormProps {
+  propertyId: number;
+}
 
-  const onSubmit = async (data: any) => {
+interface FormData {
+  name: string;
+  phone: number;
+  email: string;
+  insuredProperty: string;
+  insuranceARM: boolean;
+  insuranceASE: boolean;
+  team: boolean;
+  property: boolean;
+  content: boolean;
+  values: boolean;
+  insuranceDate: string;
+  AnualFormDate: string;
+  observations: string;
+  propertyId?: number;
+}
+
+const InsuranceForm = ({ propertyId }: InsuranceFormProps) => {
+  const { register, handleSubmit } = useForm<FormData>();
+
+  const onSubmit: SubmitHandler<FormData> = async (data) => {
     console.log("Datos del formulario:", data);
     data.propertyId = propertyId;
     await saveInsurance(data);
@@ -29,7 +50,7 @@ const InsuranceForm = ({ propertyId }: any) => {
             <label htmlFor="telefono" className="block text-gray-300 mb-1">Teléfono</label>
             <input
               id="telefono"
-              type="tel"
+              type="number"
               className="bg-gray-700 p-2 rounded w-full"
               {...register("phone", { required: "Este campo es obligatorio" })}
             />
@@ -57,8 +78,17 @@ const InsuranceForm = ({ propertyId }: any) => {
               {...register("insuredProperty", { required: "Este campo es obligatorio" })}
             >
               <option value="">Seleccionar</option>
-              <option value="option1">Opción 1</option>
-              <option value="option2">Opción 2</option>
+              <option value="option1">Templo</option>
+              <option value="option2">Terreno</option>
+              <option value="option2">Antena</option>
+              <option value="option2">Casa</option>
+              <option value="option2">Departamento</option>
+              <option value="option2">Instituciones Educativas</option>
+              <option value="option2">Predios</option>
+              <option value="option2">Salon</option>
+              <option value="option2">Tinglado</option>
+              <option value="option2">Antena Interna</option>
+              <option value="option2">Antena Externa</option>
             </select>
           </section>
         </div>

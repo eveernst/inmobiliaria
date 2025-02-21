@@ -9,10 +9,9 @@ const Navbar = () => {
 
   const navLinks = [
     { name: 'Gestor de Documentos', href: '/document-manager' },
-    { name: 'Instalación', href: '/installation' },
-    { name: 'Iniciar Sesión', href: '/login' },
     { name: 'Propiedad', href: '/property' },
-    { name: 'Usuario', href: '/user' },
+    { name: 'Inicio', href: '/' },
+
   ];
 
   return (

@@ -29,6 +29,7 @@ interface FormData {
     quantity: number;
     file: File | null;
     details: string;
+    classification: number;
   }[];
   id?: number;
 }
@@ -49,8 +50,16 @@ const PropertyForm = ({ id }: any) => {
       if (id === undefined || id === 0) return;
       const data = await getProperty(id);
       console.log(data);
-      reset(data);
+      const processedData = {
+        ...data,
+        installations: data.installations.map((inst: any) => ({
+          ...inst,
+          classification: inst.classification.id
+        }))
+      }
+      reset(processedData);
       setValue("classification", data.classification.id);
+      
     }
     fetchProperty();
   }, [id]);
@@ -80,6 +89,7 @@ const PropertyForm = ({ id }: any) => {
         file: inst.file?.size ? inst.file : null, // Igual para las instalaciones
       })),
     };
+    console.log("Datos a enviar:", processedData);
 
     // Manejo de la lógica de `id`
     if (id !== undefined && id !== 0) {
@@ -158,9 +168,9 @@ const PropertyForm = ({ id }: any) => {
               className="bg-gray-700 p-2 rounded w-full"
             >
               <option value="" hidden>Provincia</option>
-              <option value="provincia1">Córdoba</option>
-              <option value="provincia2">Entre Ríos</option>
-              <option value="provincia3">Santa Fe</option>
+              <option value="Córdoba">Córdoba</option>
+              <option value="Entre Ríos">Entre Ríos</option>
+              <option value="Santa Fe">Santa Fe</option>
             </select>
             {errors.province && (
               <span className="text-red-500 text-sm mt-1">{errors.province.message}</span>
@@ -347,7 +357,8 @@ const PropertyForm = ({ id }: any) => {
               <div className="flex flex-col mb-4">
                 <label htmlFor="classification" className="block text-gray-300 mb-1">Clasificacion</label>
                 <input
-                  {...register(`installations[${index}].classification`, { required: "Este campo es obligatorio" })}
+                  type="number"
+                  {...register(`installations[${index}].classification`, { required: "Este campo es obligatorio", valueAsNumber: true })} // Se agrega valueAsNumber para que el valor sea un número
                   className="bg-gray-700 p-2 rounded w-full"
                 />
                 {errors.installations?.[index]?.classification && (
@@ -378,11 +389,11 @@ const PropertyForm = ({ id }: any) => {
               <div className="flex flex-col mb-4">
                 <label htmlFor="details" className="block text-gray-300 mb-1">Detalles</label>
                 <textarea
-                  {...register(`installations[${index}].name`, { required: "Este campo es obligatorio" })}
+                  {...register(`installations[${index}].details`, { required: "Este campo es obligatorio" })}
                   className="bg-gray-700 p-2 rounded w-full"
                 ></textarea>
-                {errors.installations?.[index]?.name && (
-                  <span className="text-red-500 text-sm mt-1">{errors.installations[index].name.message}</span>
+                {errors.installations?.[index]?.details && (
+                  <span className="text-red-500 text-sm mt-1">{errors.installations[index].details.message}</span>
                 )}
               </div>
 

@@ -39,25 +39,25 @@ export default function Formulario() {
       {/* Contenedor de Tabs */}
       <div className="flex space-x-4 mb-6">
         <button
-          className={`py-2 px-4 rounded ${activeTab === "insurance" ? "bg-blue-500 text-white" : "bg-gray-200"}`}
+          className={`py-2 px-4 rounded ${activeTab === "insurance" ? "bg-blue-500 text-white" : "bg-slate-700"}`}
           onClick={() => setActiveTab("insurance")}
         >
           Seguro Inmueble
         </button>
         <button
-          className={`py-2 px-4 rounded ${activeTab === "rented-property" ? "bg-blue-500 text-white" : "bg-gray-200"}`}
+          className={`py-2 px-4 rounded ${activeTab === "rented-property" ? "bg-blue-500 text-white" : "bg-slate-700"}`}
           onClick={() => setActiveTab("rented-property")}
         >
           Inmueble Alquilado
         </button>
         <button
-          className={`py-2 px-4 rounded ${activeTab === "plan" ? "bg-blue-500 text-white" : "bg-gray-200"}`}
+          className={`py-2 px-4 rounded ${activeTab === "plan" ? "bg-blue-500 text-white" : "bg-slate-700"}`}
           onClick={() => setActiveTab("plan")}
         >
           Plano Casa
         </button>
         <button
-          className={`py-2 px-4 rounded ${activeTab === "writing" ? "bg-blue-500 text-white" : "bg-gray-200"}`}
+          className={`py-2 px-4 rounded ${activeTab === "writing" ? "bg-blue-500 text-white" : "bg-slate-700"}`}
           onClick={() => setActiveTab("writing")}
         >
           Escritura

@@ -1,4 +1,5 @@
 'use client';
+
 import { getProperties } from '../api/propertyApi';
 import { useEffect, useState } from 'react';
 
@@ -34,7 +35,10 @@ const Home = () => {
       </header>
 
       <button>
-        <a href="/property" className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mb-8 inline-block">
+        <a
+          href="/property"
+          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mb-8 inline-block"
+        >
           Agregar propiedad
         </a>
       </button>
@@ -46,22 +50,11 @@ const Home = () => {
             className="bg-gray-800 shadow-lg rounded-lg overflow-hidden transition-transform transform hover:scale-105 hover:shadow-xl"
           >
             <div className="p-4 space-y-4">
-              <div className="space-x-4">
-                {/* Editar */}
-                <button className="bg-gray-700 text-white py-2 px-4 rounded hover:bg-gray-600">
-                  <a href={`/property?id=${property.id}`}>Editar</a>
-                </button>
-                <button className="bg-gray-700 text-white py-2 px-4 rounded hover:bg-gray-600">
-                  <a href={`/document-manager?propertyId=${property.id}`}>Agregar Documentos</a>
-                </button>
-                <button className="bg-gray-700 text-white py-2 px-4 rounded hover:bg-gray-600">
-                  <a href={`/property/${property.id}/details`}>Ver detalles</a>
-                </button>
-              </div>
-
               <div>
                 <h2 className="text-xl font-semibold mb-2">{property.address}</h2>
-                <p className="text-gray-400 text-sm">{property.locality}, {property.province}</p>
+                <p className="text-gray-400 text-sm">
+                  {property.locality}, {property.province}
+                </p>
                 <p className="mt-2">{property.destiny}</p>
 
                 <div className="mt-4 flex items-center justify-between">
@@ -81,6 +74,31 @@ const Home = () => {
                 <span className="px-3 py-1 text-sm font-medium bg-blue-600 text-white rounded-full">
                   Clasificación: {property.classification.name}
                 </span>
+              </div>
+
+              {/* Botones con el mismo color */}
+              <div className="flex flex-col space-y-3 mt-4">
+                {/* Editar */}
+                <a
+                  href={`/property?id=${property.id}`}
+                  className="flex items-center justify-center bg-slate-700 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg shadow-md transition"
+                >
+                  <span className="material-icons-outlined mr-2">Editar</span>
+                </a>
+                {/* Agregar Documentos */}
+                <a
+                  href={`/document-manager?propertyId=${property.id}`}
+                  className="flex items-center justify-center bg-slate-700 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg shadow-md transition"
+                >
+                  <span className="material-icons-outlined mr-2">Agregar Documentos</span>
+                </a>
+                {/* Ver Detalles */}
+                <a
+                  href={`/property/details?id=${property.id}`}
+                  className="flex items-center justify-center bg-slate-700 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg shadow-md transition"
+                >
+                  <span className="material-icons-outlined mr-2">Ver Detalles</span>
+                </a>
               </div>
             </div>
           </div>
