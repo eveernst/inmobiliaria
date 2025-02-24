@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState } from 'react';
-import Header from "../../components/header";
 import { ChevronUp, ChevronDown } from "lucide-react";
 
 export default function Installation() {
@@ -22,7 +21,6 @@ export default function Installation() {
 
   return (
     <main className="bg-gray-800 text-white min-h-screen p-8">
-      <Header />
       <div className="mt-7"> {/* Added margin-top to move the content down */}
         <h1 className="text-4xl font-bold text-center text-orange-500 mb-8">Alta Instalación</h1>
 

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
-import Header from "../../../components/header";
+import Header from "../../../components/Header";
 
 export default function Installation() {
   const [installationData, setInstallationData] = useState({
