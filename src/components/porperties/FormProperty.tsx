@@ -1,8 +1,12 @@
 "use client"
 import { saveProperty, editProperty, getProperty } from "@/api/propertyApi";
-import { Console } from "console";
 import React, { useState, useEffect } from "react";
 import { useForm, SubmitHandler, useFieldArray } from "react-hook-form";
+import { Trash2, Plus, X } from "lucide-react";
+import InsuranceForm from "../documents/insuranceForm";
+import RentedForm from "../documents/rentedForm";
+import WritingForm from "../documents/writingForm";
+import PlanForm from "../documents/planForm";
 
 interface FormData {
   goodUseCode: number;
@@ -16,7 +20,7 @@ interface FormData {
   betweenStreets1: string;
   betweenStreets2: string;
   district: string;
-  destiny: string;
+  destiny: number;
   state: number;
   active: boolean;
   clfc: string; // seria un number para elegir pero en la api esta como string
@@ -36,7 +40,12 @@ interface FormData {
 
 const PropertyForm = ({ id }: any) => {
 
-  const { register, handleSubmit, formState: { errors }, control, reset, setValue } = useForm<FormData>();
+  const { register, handleSubmit, formState: { errors }, control, reset, setValue } = useForm<FormData>({
+    defaultValues: {
+      installations: [],
+      active: true,
+    }
+  });
 
   const { fields, append, remove } = useFieldArray({
     control,
@@ -52,14 +61,14 @@ const PropertyForm = ({ id }: any) => {
       console.log(data);
       const processedData = {
         ...data,
-        installations: data.installations.map((inst: any) => ({
+        installations: data.installations?.map((inst: any) => ({
           ...inst,
           classification: inst.classification.id
         }))
       }
       reset(processedData);
       setValue("classification", data.classification.id);
-      
+
     }
     fetchProperty();
   }, [id]);
@@ -77,14 +86,14 @@ const PropertyForm = ({ id }: any) => {
   }, [id]);
 
 
-  const onSubmit: SubmitHandler<FormData> = async (data) => {
+  const onSubmit: SubmitHandler<FormData> = async (data: FormData) => {
     console.log("id de propiedad", id);
 
     // Preprocesamiento de datos antes de enviarlos
     const processedData = {
       ...data,
       file: data.file?.size ? data.file : null, // Asigna archivo si tiene tamaño, de lo contrario null
-      installations: data.installations.map(inst => ({
+      installations: data.installations?.map((inst: any) => ({
         ...inst,
         file: inst.file?.size ? inst.file : null, // Igual para las instalaciones
       })),
@@ -101,241 +110,253 @@ const PropertyForm = ({ id }: any) => {
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="max-w-4xl mx-auto p-6 bg-gray-800 rounded shadow-lg space-y-6">
-      <h1 className="text-3xl font-bold text-white text-center mb-6">{title}</h1>
-      {/* Campos del formulario como antes */}
-      <fieldset className="border border-gray-600 rounded p-4">
-        <legend className="text-lg font-semibold text-white px-2">Detalles de la Propiedad</legend>
-
-        {/* Código de Buen Uso */}
-        <div className="grid grid-cols-2 gap-4 mt-4">
-          <div>
-            <label htmlFor="goodUseCode" className="block text-gray-300 mb-1">Código de Buen Uso</label>
-            <input
-              id="goodUseCode"
-              {...register("goodUseCode", { required: "Este campo es obligatorio" })}
-              type="number"
-              className="bg-gray-700 p-2 rounded w-full"
-            />
-            {errors.goodUseCode && (
-              <span className="text-red-500 text-sm mt-1">{errors.goodUseCode.message}</span>
-            )}
-          </div>
-          <div>
-            <label htmlFor="description" className="block text-gray-300 mb-1">Descripcion</label>
-            <input
-              id="description"
-              {...register("description", { required: "Este campo es obligatorio" })}
-              type="string"
-              className="bg-gray-700 p-2 rounded w-full"
-            />
-            {errors.description && (
-              <span className="text-red-500 text-sm mt-1">{errors.description.message}</span>
-            )}
-          </div>
-
-          {/* Archivo */}
-          <div>
-            <label htmlFor="file" className="block text-gray-300 mb-1">Cargar Archivo</label>
-            <input
-              id="file"
-              {...register("file")}
-              type="file"
-              className="bg-gray-700 p-2 rounded w-full"
-            />
-          </div>
-
-          {/* Clasificación */}
-          <div>
-            <label htmlFor="classification" className="block text-gray-300 mb-1">Clasificación</label>
-            <input
-              type="number"
-              id="classification"
-              {...register("classification", { required: "Este campo es obligatorio" })}
-              className="bg-gray-700 p-2 rounded w-full"
-            />
-            {errors.classification && (
-              <span className="text-red-500 text-sm mt-1">{errors.classification.message}</span>
-            )}
-          </div>
-
-          {/* Provincia */}
-          <div>
-            <label htmlFor="province" className="block text-gray-300 mb-1">Provincia</label>
-            <select
-              id="province"
-              {...register("province", { required: "Este campo es obligatorio" })}
-              className="bg-gray-700 p-2 rounded w-full"
-            >
-              <option value="" hidden>Provincia</option>
-              <option value="Córdoba">Córdoba</option>
-              <option value="Entre Ríos">Entre Ríos</option>
-              <option value="Santa Fe">Santa Fe</option>
-            </select>
-            {errors.province && (
-              <span className="text-red-500 text-sm mt-1">{errors.province.message}</span>
-            )}
-          </div>
-
-          {/* Localidad */}
-          <div>
-            <label htmlFor="locality" className="block text-gray-300 mb-1">Localidad</label>
-            <input
-              id="locality"
-              {...register("locality", { required: "Este campo es obligatorio" })}
-              className="bg-gray-700 p-2 rounded w-full"
-            />
-            {errors.locality && (
-              <span className="text-red-500 text-sm mt-1">{errors.locality.message}</span>
-            )}
-          </div>
-
-          {/* Dirección */}
-          <div>
-            <label htmlFor="address" className="block text-gray-300 mb-1">Dirección</label>
-            <input
-              id="address"
-              {...register("address", { required: "Este campo es obligatorio" })}
-              className="bg-gray-700 p-2 rounded w-full"
-            />
-            {errors.address && (
-              <span className="text-red-500 text-sm mt-1">{errors.address.message}</span>
-            )}
-          </div>
-
-          {/* Código Postal */}
-          <div>
-            <label htmlFor="postalCode" className="block text-gray-300 mb-1">Código Postal</label>
-            <input
-              id="postalCode"
-              {...register("postalCode", { required: "Este campo es obligatorio", valueAsNumber: true })}
-              type="number"
-              className="bg-gray-700 p-2 rounded w-full"
-            />
-            {errors.postalCode && (
-              <span className="text-red-500 text-sm mt-1">{errors.postalCode.message}</span>
-            )}
-          </div>
-
-          {/* Entre Calles 1 */}
-          <div>
-            <label htmlFor="betweenStreets1" className="block text-gray-300 mb-1">Entre Calles 1</label>
-            <input
-              id="betweenStreets1"
-              {...register("betweenStreets1", { required: "Este campo es obligatorio" })}
-              className="bg-gray-700 p-2 rounded w-full"
-            />
-            {errors.betweenStreets1 && (
-              <span className="text-red-500 text-sm mt-1">{errors.betweenStreets1.message}</span>
-            )}
-          </div>
-
-          {/* Entre Calles 2 */}
-          <div>
-            <label htmlFor="betweenStreets2" className="block text-gray-300 mb-1">Entre Calles 2</label>
-            <input
-              id="betweenStreets2"
-              {...register("betweenStreets2", { required: "Este campo es obligatorio" })}
-              className="bg-gray-700 p-2 rounded w-full"
-            />
-            {errors.betweenStreets2 && (
-              <span className="text-red-500 text-sm mt-1">{errors.betweenStreets2.message}</span>
-            )}
-          </div>
-
-          {/* Distrito */}
-          <div>
-            <label htmlFor="district" className="block text-gray-300 mb-1">Distrito</label>
-            <input
-              id="district"
-              {...register("district", { required: "Este campo es obligatorio" })}
-              className="bg-gray-700 p-2 rounded w-full"
-            />
-            {errors.district && (
-              <span className="text-red-500 text-sm mt-1">{errors.district.message}</span>
-            )}
-          </div>
-
-          <div>
-            <label htmlFor="active" className="block text-gray-300 mb-1">Activo</label>
-            <input type="checkbox" {...register("active")} id="generalPlan" className="mr-2" />
-            {errors.active && (
-              <span className="text-red-500 text-sm mt-1">{errors.active.message}</span>
-            )}
-          </div>
-
-          <div>
-            <label htmlFor="detailsMaintenance" className="block text-gray-300 mb-1">Detalles</label>
-            <input type="text-area"
-              id="detailsMaintenance"
-              {...register("detailsMaintenance", { required: "Este campo es obligatorio" })}
-              className="bg-gray-700 p-2 rounded w-full"
-            />
-            {errors.detailsMaintenance && (
-              <span className="text-red-500 text-sm mt-1">{errors.detailsMaintenance.message}</span>
-            )}
-          </div>
-
-          {/* Destino */}
-          <div>
-            <label htmlFor="destiny" className="block text-gray-300 mb-1">Destino</label>
-            <select
-              id="destiny"
-              {...register("destiny", { required: "Este campo es obligatorio" })}
-              className="bg-gray-700 p-2 rounded w-full"
-            >
-              <option value="" hidden>Destino</option>
-              <option value="0">Templo</option>
-              <option value="1">Terreno</option>
-              <option value="2">Antena</option>
-              <option value="3">Casa</option>
-              <option value="4">Departamento</option>
-              <option value="5">Instituciones Educativas</option>
-              <option value="6">Predio</option>
-              <option value="7">Otro</option>
-            </select>
-            {errors.destiny && (
-              <span className="text-red-500 text-sm mt-1">{errors.destiny.message}</span>
-            )}
-          </div>
-
-          {/* CLFC */}
-          <div>
-            <label htmlFor="clfc" className="block text-gray-300 mb-1">CLFC</label>
-            <select
-              id="clfc"
-              {...register("clfc", { required: "Este campo es obligatorio" })}
-              className="bg-gray-700 p-2 rounded w-full"
-            >
-              <option value="" hidden>CLFC</option>
-              <option value="0">Sí</option>
-              <option value="1">Solicitar</option>
-              <option value="2">Solicitado</option>
-              <option value="3">No</option>
-            </select>
-            {errors.clfc && (
-              <span className="text-red-500 text-sm mt-1">{errors.clfc.message}</span>
-            )}
-          </div>
-
-          {/* Estado */}
-          <div>
-            <label htmlFor="state" className="block text-gray-300 mb-1">Estado</label>
-            <select
-              id="state"
-              {...register("state", { required: "Este campo es obligatorio" })}
-              className="bg-gray-700 p-2 rounded w-full"
-            >
-              <option value="" hidden>Estado</option>
-              <option value="0">Disponible</option>
-              <option value="1">Alquilado</option>
-            </select>
-            {errors.state && (
-              <span className="text-red-500 text-sm mt-1">{errors.state.message}</span>
-            )}
-          </div>
+    <form onSubmit={handleSubmit(onSubmit)} className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
+      <div className="max-w-6xl mx-auto p-6">
+        <div className="mb-8">
+          <h1 className="text-4xl font-bold text-slate-900 mb-2">{title}</h1>
+          <p className="text-slate-500">Completa todos los detalles de la propiedad</p>
         </div>
-      </fieldset>
+
+        {/* Property Details Section */}
+        <div className="bg-white rounded-xl shadow-md p-8 mb-6">
+          <h2 className="text-2xl font-bold text-slate-900 mb-6 flex items-center gap-2">
+            <div className="w-1 h-8 bg-blue-600 rounded"></div>
+            Detalles Principales
+          </h2>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {/* Código de Buen Uso */}
+            <div>
+              <label htmlFor="goodUseCode" className="block text-sm font-semibold text-slate-700 mb-2">Código de Buen Uso</label>
+              <input
+                id="goodUseCode"
+                {...register("goodUseCode", { required: "Este campo es obligatorio" })}
+                type="number"
+                className="w-full bg-slate-50 border border-slate-300 rounded-lg px-4 py-2 text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              />
+              {errors.goodUseCode && <span className="text-red-500 text-sm mt-1">{errors.goodUseCode.message}</span>}
+            </div>
+
+            {/* Descripción */}
+            <div>
+              <label htmlFor="description" className="block text-sm font-semibold text-slate-700 mb-2">Descripción</label>
+              <input
+                id="description"
+                {...register("description", { required: "Este campo es obligatorio" })}
+                className="w-full bg-slate-50 border border-slate-300 rounded-lg px-4 py-2 text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              />
+              {errors.description && <span className="text-red-500 text-sm mt-1">{errors.description.message}</span>}
+            </div>
+
+
+            {/* Clasificación */}
+            <div>
+              <label htmlFor="classification" className="block text-sm font-semibold text-slate-700 mb-2">Clasificación</label>
+              <input
+                type="number"
+                id="classification"
+                {...register("classification", { required: "Este campo es obligatorio" })}
+                className="w-full bg-slate-50 border border-slate-300 rounded-lg px-4 py-2 text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              />
+              {errors.classification && <span className="text-red-500 text-sm mt-1">{errors.classification.message}</span>}
+            </div>
+
+            {/* Provincia */}
+            <div>
+              <label htmlFor="province" className="block text-sm font-semibold text-slate-700 mb-2">Provincia</label>
+              <select
+                id="province"
+                {...register("province", { required: "Este campo es obligatorio" })}
+                className="w-full bg-slate-50 border border-slate-300 rounded-lg px-4 py-2 text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              >
+                <option value="">Seleccionar provincia</option>
+                <option value="Córdoba">Córdoba</option>
+                <option value="Entre Ríos">Entre Ríos</option>
+                <option value="Santa Fe">Santa Fe</option>
+              </select>
+              {errors.province && <span className="text-red-500 text-sm mt-1">{errors.province.message}</span>}
+            </div>
+
+            {/* Localidad */}
+            <div>
+              <label htmlFor="locality" className="block text-sm font-semibold text-slate-700 mb-2">Localidad</label>
+              <input
+                id="locality"
+                {...register("locality", { required: "Este campo es obligatorio" })}
+                className="w-full bg-slate-50 border border-slate-300 rounded-lg px-4 py-2 text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              />
+              {errors.locality && <span className="text-red-500 text-sm mt-1">{errors.locality.message}</span>}
+            </div>
+
+            {/* Dirección */}
+            <div>
+              <label htmlFor="address" className="block text-sm font-semibold text-slate-700 mb-2">Dirección</label>
+              <input
+                id="address"
+                {...register("address", { required: "Este campo es obligatorio" })}
+                className="w-full bg-slate-50 border border-slate-300 rounded-lg px-4 py-2 text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              />
+              {errors.address && <span className="text-red-500 text-sm mt-1">{errors.address.message}</span>}
+            </div>
+
+            {/* Código Postal */}
+            <div>
+              <label htmlFor="postalCode" className="block text-sm font-semibold text-slate-700 mb-2">Código Postal</label>
+              <input
+                id="postalCode"
+                {...register("postalCode", { required: "Este campo es obligatorio", valueAsNumber: true })}
+                type="number"
+                className="w-full bg-slate-50 border border-slate-300 rounded-lg px-4 py-2 text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              />
+              {errors.postalCode && <span className="text-red-500 text-sm mt-1">{errors.postalCode.message}</span>}
+            </div>
+
+            {/* Entre Calles 1 */}
+            <div>
+              <label htmlFor="betweenStreets1" className="block text-sm font-semibold text-slate-700 mb-2">Entre Calles 1</label>
+              <input
+                id="betweenStreets1"
+                {...register("betweenStreets1", { required: "Este campo es obligatorio" })}
+                className="w-full bg-slate-50 border border-slate-300 rounded-lg px-4 py-2 text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              />
+              {errors.betweenStreets1 && <span className="text-red-500 text-sm mt-1">{errors.betweenStreets1.message}</span>}
+            </div>
+
+            {/* Entre Calles 2 */}
+            <div>
+              <label htmlFor="betweenStreets2" className="block text-sm font-semibold text-slate-700 mb-2">Entre Calles 2</label>
+              <input
+                id="betweenStreets2"
+                {...register("betweenStreets2", { required: "Este campo es obligatorio" })}
+                className="w-full bg-slate-50 border border-slate-300 rounded-lg px-4 py-2 text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              />
+              {errors.betweenStreets2 && <span className="text-red-500 text-sm mt-1">{errors.betweenStreets2.message}</span>}
+            </div>
+
+            {/* Distrito */}
+            <div>
+              <label htmlFor="district" className="block text-sm font-semibold text-slate-700 mb-2">Distrito</label>
+              <input
+                id="district"
+                {...register("district", { required: "Este campo es obligatorio" })}
+                className="w-full bg-slate-50 border border-slate-300 rounded-lg px-4 py-2 text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              />
+              {errors.district && (
+                <span className="text-red-500 text-sm mt-1">{errors.district.message}</span>
+              )}
+            </div>
+
+            <div>
+              <label htmlFor="active" className="block text-sm font-semibold text-slate-700 mb-2">Activo</label>
+              <input type="checkbox" {...register("active")} id="generalPlan" className="" />
+              {errors.active && (
+                <span className="text-red-500 text-sm mt-1">{errors.active.message}</span>
+              )}
+            </div>
+
+            <div>
+              <label htmlFor="detailsMaintenance" className="block text-sm font-semibold text-slate-700 mb-2">Detalles</label>
+              <input type="text-area"
+                id="detailsMaintenance"
+                {...register("detailsMaintenance", { required: "Este campo es obligatorio" })}
+                className="w-full bg-slate-50 border border-slate-300 rounded-lg px-4 py-2 text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              />
+              {errors.detailsMaintenance && (
+                <span className="text-red-500 text-sm mt-1">{errors.detailsMaintenance.message}</span>
+              )}
+            </div>
+
+            {/* Destino */}
+            <div>
+              <label htmlFor="destiny" className="block text-sm font-semibold text-slate-700 mb-2">Tipo de Inmueble</label>
+              <select
+                id="destiny"
+                {...register("destiny", { required: "Este campo es obligatorio" })}
+                className="w-full bg-slate-50 border border-slate-300 rounded-lg px-4 py-2 text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              >
+                <option value="" hidden>Seleccionar tipo</option>
+                <option value="0">Templo</option>
+                <option value="1">Terreno</option>
+                <option value="2">Antena</option>
+                <option value="3">Casa</option>
+                <option value="4">Departamento</option>
+                <option value="5">Instituciones Educativas</option>
+                <option value="6">Predio</option>
+                <option value="7">Otro</option>
+              </select>
+              {errors.destiny && <span className="text-red-500 text-sm mt-1">{errors.destiny.message}</span>}
+            </div>
+
+            {/* CLFC */}
+            <div>
+              <label htmlFor="clfc" className="block text-sm font-semibold text-slate-700 mb-2">CLFC</label>
+              <select
+                id="clfc"
+                {...register("clfc", { required: "Este campo es obligatorio" })}
+                className="w-full bg-slate-50 border border-slate-300 rounded-lg px-4 py-2 text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              >
+                <option value="">Seleccionar</option>
+                <option value="0">Sí</option>
+                <option value="1">Solicitar</option>
+                <option value="2">Solicitado</option>
+                <option value="3">No</option>
+              </select>
+              {errors.clfc && <span className="text-red-500 text-sm mt-1">{errors.clfc.message}</span>}
+            </div>
+
+            {/* Estado */}
+            <div>
+              <label htmlFor="state" className="block text-sm font-semibold text-slate-700 mb-2">Estado</label>
+              <select
+                id="state"
+                {...register("state", { required: "Este campo es obligatorio" })}
+                className="w-full bg-slate-50 border border-slate-300 rounded-lg px-4 py-2 text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              >
+                <option value="">Seleccionar estado</option>
+                <option value="0">Disponible</option>
+                <option value="1">Alquilado</option>
+              </select>
+              {errors.state && <span className="text-red-500 text-sm mt-1">{errors.state.message}</span>}
+            </div>
+
+            {/* Archivo */}
+            <div>
+              <label htmlFor="file" className="block text-sm font-semibold text-slate-700 mb-2">Cargar Archivo</label>
+              <input
+                id="file"
+                {...register("file")}
+                type="file"
+                className="w-full bg-slate-50 border border-slate-300 rounded-lg px-4 py-2 text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              />
+            </div>
+
+            {/* Detalles de Mantenimiento */}
+            <div className="lg:col-span-2">
+              <label htmlFor="detailsMaintenance" className="block text-sm font-semibold text-slate-700 mb-2">Detalles de Mantenimiento</label>
+              <textarea
+                id="detailsMaintenance"
+                {...register("detailsMaintenance", { required: "Este campo es obligatorio" })}
+                rows={3}
+                className="w-full bg-slate-50 border border-slate-300 rounded-lg px-4 py-2 text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              />
+              {errors.detailsMaintenance && <span className="text-red-500 text-sm mt-1">{errors.detailsMaintenance.message}</span>}
+            </div>
+
+            {/* Activo Checkbox */}
+            <div className="flex items-center">
+              <label className="flex items-center gap-3 cursor-pointer">
+                <input
+                  type="checkbox"
+                  {...register("active")}
+                  className="w-4 h-4 text-blue-600 rounded"
+                />
+                <span className="text-sm font-semibold text-slate-700">Activo</span>
+              </label>
+            </div>
+          </div>
+
+        </div>
+      </div>
 
       <fieldset className="border border-gray-600 rounded p-4">
         {/* Instalaciones */}
@@ -397,6 +418,7 @@ const PropertyForm = ({ id }: any) => {
                 )}
               </div>
 
+
               {/* Botón para eliminar instalación */}
               <button
                 type="button"
@@ -426,9 +448,20 @@ const PropertyForm = ({ id }: any) => {
       >
         Guardar Propiedad
       </button>
-    </form>
+    </form >
   );
 };
 
 export default PropertyForm;
 
+let _isEditing = false;
+export function setIsEditing(value: boolean): void {
+  _isEditing = value;
+  if (typeof window !== "undefined") {
+    try {
+      sessionStorage.setItem("property_isEditing", JSON.stringify(value));
+    } catch {
+      // ignore sessionStorage errors
+    }
+  }
+}
