@@ -2,6 +2,7 @@
 
 import { getProperties } from '../api/propertyApi';
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 interface Property {
   province: string;
@@ -19,29 +20,69 @@ interface Property {
 
 const Home = () => {
   const [properties, setProperties] = useState<Property[]>([]);
+  const [user, setUser] = useState<any>(null);
+  const router = useRouter();
 
   useEffect(() => {
+    // Verificar autenticación
+    const token = localStorage.getItem('token');
+    const userData = localStorage.getItem('user');
+    
+    if (!token || !userData) {
+      router.push('/login');
+      return;
+    }
+
+    setUser(JSON.parse(userData));
+
     getProperties().then((data) => {
       console.log(data);
       setProperties(data);
     });
-  }, []);
+  }, [router]);
+
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    router.push('/login');
+  };
+
+  if (!user) {
+    return null; // Loading state
+  }
+
+  const isAdmin = user.role === 1;
 
   return (
     <div className="min-h-screen bg-gray-900 text-gray-200 p-8">
       <header className="text-center mb-10">
+        <div className="flex justify-between items-center mb-4">
+          <div>
+            <p className="text-sm text-gray-400">
+              Bienvenido, {user.name} ({isAdmin ? 'Admin' : 'Viewer'})
+            </p>
+          </div>
+          <button
+            onClick={handleLogout}
+            className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded"
+          >
+            Cerrar Sesión
+          </button>
+        </div>
         <h1 className="text-4xl font-bold mb-2">Propiedades</h1>
         <p className="text-gray-400">Explora las propiedades disponibles</p>
       </header>
 
-      <button>
-        <a
-          href="/property"
-          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mb-8 inline-block"
-        >
-          Agregar propiedad
-        </a>
-      </button>
+      {isAdmin && (
+        <button>
+          <a
+            href="/property"
+            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mb-8 inline-block"
+          >
+            Agregar propiedad
+          </a>
+        </button>
+      )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         {properties.map((property: Property) => (
@@ -79,19 +120,23 @@ const Home = () => {
               {/* Botones con el mismo color */}
               <div className="flex flex-col space-y-3 mt-4">
                 {/* Editar */}
-                <a
-                  href={`/property?id=${property.id}`}
-                  className="flex items-center justify-center bg-slate-700 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg shadow-md transition"
-                >
-                  <span className="material-icons-outlined mr-2">Editar</span>
-                </a>
+                {isAdmin && (
+                  <a
+                    href={`/property?id=${property.id}`}
+                    className="flex items-center justify-center bg-slate-700 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg shadow-md transition"
+                  >
+                    <span className="material-icons-outlined mr-2">Editar</span>
+                  </a>
+                )}
                 {/* Agregar Documentos */}
-                <a
-                  href={`/document-manager?propertyId=${property.id}`}
-                  className="flex items-center justify-center bg-slate-700 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg shadow-md transition"
-                >
-                  <span className="material-icons-outlined mr-2">Agregar Documentos</span>
-                </a>
+                {isAdmin && (
+                  <a
+                    href={`/document-manager?propertyId=${property.id}`}
+                    className="flex items-center justify-center bg-slate-700 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg shadow-md transition"
+                  >
+                    <span className="material-icons-outlined mr-2">Agregar Documentos</span>
+                  </a>
+                )}
                 {/* Ver Detalles */}
                 <a
                   href={`/property/details?id=${property.id}`}
