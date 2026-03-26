@@ -346,7 +346,7 @@ const PropertyForm = ({ id }: any) => {
               <div>
                 <label htmlFor="name" className="block text-gray-300 mb-1">Nombre de instalacion</label>
                 <input
-                  {...register(`installations[${index}].name`, { required: "Este campo es obligatorio" })}
+                  {...register(`installations.${index}.name`, { required: "Este campo es obligatorio" })}
                   className="bg-gray-700 p-2 rounded w-full"
                 />
                 {errors.installations?.[index]?.name && (
@@ -358,7 +358,7 @@ const PropertyForm = ({ id }: any) => {
                 <label htmlFor="classification" className="block text-gray-300 mb-1">Clasificacion</label>
                 <input
                   type="number"
-                  {...register(`installations[${index}].classification`, { required: "Este campo es obligatorio", valueAsNumber: true })} // Se agrega valueAsNumber para que el valor sea un número
+                  {...register(`installations.${index}.classification`, { required: "Este campo es obligatorio", valueAsNumber: true })} // Se agrega valueAsNumber para que el valor sea un número
                   className="bg-gray-700 p-2 rounded w-full"
                 />
                 {errors.installations?.[index]?.classification && (
@@ -369,7 +369,7 @@ const PropertyForm = ({ id }: any) => {
               <div className="flex flex-col mb-4">
                 <label htmlFor="quantity" className="block text-gray-300 mb-1">Cantidad</label>
                 <input
-                  {...register(`installations[${index}].quantity`, { required: "Este campo es obligatorio", valueAsNumber: true })}
+                  {...register(`installations.${index}.quantity`, { required: "Este campo es obligatorio", valueAsNumber: true })}
                   type="number"
                   className="bg-gray-700 p-2 rounded w-full"
                 />
@@ -381,7 +381,7 @@ const PropertyForm = ({ id }: any) => {
               <div className="flex flex-col mb-4">
                 <label htmlFor="file" className="block text-gray-300 mb-1">Archivo</label>
                 <input
-                  {...register(`installations[${index}].file`)}
+                  {...register(`installations.${index}.file`)}
                   type="file"
                   className="bg-gray-700 p-2 rounded w-full"
                 />
@@ -389,7 +389,7 @@ const PropertyForm = ({ id }: any) => {
               <div className="flex flex-col mb-4">
                 <label htmlFor="details" className="block text-gray-300 mb-1">Detalles</label>
                 <textarea
-                  {...register(`installations[${index}].details`, { required: "Este campo es obligatorio" })}
+                  {...register(`installations.${index}.details`, { required: "Este campo es obligatorio" })}
                   className="bg-gray-700 p-2 rounded w-full"
                 ></textarea>
                 {errors.installations?.[index]?.details && (
@@ -413,7 +413,7 @@ const PropertyForm = ({ id }: any) => {
       {/* Botón para agregar nueva instalación */}
       <button
         type="button"
-        onClick={() => append({ name: "", classification: 0, quantity: 0, file: null, details: "", property: 0 })}
+        onClick={() => append({ name: "", classification: 0, quantity: 0, file: null, details: "" })}
         className="w-full bg-blue-800 text-white py-2 px-4 rounded hover:bg-blue-700 transition-colors"
       >
         Agregar Instalación
