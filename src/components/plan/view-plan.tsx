@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import Header from "../Header";
+import Header from "../header";
 import { AiOutlineCheckCircle } from 'react-icons/ai';
 
 const ImageModal = ({ imageUrl, onClose }: { imageUrl: string; onClose: () => void }) => (
@@ -83,7 +83,7 @@ export default function ViewPlan() {
             <AiOutlineCheckCircle className="text-green-500 mr-2 text-xl" />
             <span>Plano General</span>
             <button
-              className="ml-auto bg-gray-700 text-white px-4 py-1 rounded-md ml-4"
+              className="ml-auto bg-gray-700 text-white px-4 py-1 rounded-md"
               onClick={() => handleImageClick(imageUrls.general)}
             >
               Mostrar Imagen

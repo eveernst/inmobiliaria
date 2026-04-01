@@ -98,29 +98,45 @@ const PropertiesTable: React.FC<TableProps> = ({ properties }) => {
         className="min-w-full table-auto text-white"
       >
         <thead>
-          {headerGroups.map((headerGroup) => (
-            <tr {...headerGroup.getHeaderGroupProps()} className="bg-gray-700">
-              {headerGroup.headers.map((column) => (
-                <th
-                  {...column.getHeaderProps()}
-                  className="px-4 py-2 text-left"
-                >
-                  {column.render("Header")}
-                </th>
-              ))}
-            </tr>
-          ))}
+          {headerGroups.map((headerGroup) => {
+            const { key: headerGroupKey, ...headerGroupProps } = headerGroup.getHeaderGroupProps();
+
+            return (
+              <tr key={String(headerGroupKey)} {...headerGroupProps} className="bg-gray-700">
+                {headerGroup.headers.map((column) => {
+                  const { key: columnKey, ...columnProps } = column.getHeaderProps();
+
+                  return (
+                    <th
+                      key={String(columnKey)}
+                      {...columnProps}
+                      className="px-4 py-2 text-left"
+                    >
+                      {column.render("Header")}
+                    </th>
+                  );
+                })}
+              </tr>
+            );
+          })}
         </thead>
         <tbody {...getTableBodyProps()}>
           {rows.map((row) => {
             prepareRow(row);
+
+            const { key: rowKey, ...rowProps } = row.getRowProps();
+
             return (
-              <tr {...row.getRowProps()} className="bg-gray-800 border-b border-gray-600">
-                {row.cells.map((cell) => (
-                  <td {...cell.getCellProps()} className="px-4 py-2">
-                    {cell.render("Cell")}
-                  </td>
-                ))}
+              <tr key={String(rowKey)} {...rowProps} className="bg-gray-800 border-b border-gray-600">
+                {row.cells.map((cell) => {
+                  const { key: cellKey, ...cellProps } = cell.getCellProps();
+
+                  return (
+                    <td key={String(cellKey)} {...cellProps} className="px-4 py-2">
+                      {cell.render("Cell")}
+                    </td>
+                  );
+                })}
               </tr>
             );
           })}

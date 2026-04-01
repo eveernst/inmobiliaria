@@ -41,4 +41,14 @@ const editProperty = async (data: any) => {
   }
 }
 
-export { saveProperty, getProperties, editProperty, getProperty };
+const deleteProperty = async (id: number) => {
+  try {
+    const response = await axiosInstance.delete(`/property/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error('Error al eliminar la propiedad:', error);
+    throw error;
+  }
+}
+
+export { saveProperty, getProperties, editProperty, getProperty, deleteProperty };

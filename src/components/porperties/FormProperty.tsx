@@ -1,14 +1,19 @@
 "use client"
 import { saveProperty, editProperty, getProperty } from "@/api/propertyApi";
-import { Console } from "console";
-import React, { useState, useEffect } from "react";
+import axiosInstance from "@/api/api";
+import { alertMissingFields, extractApiErrorMessage } from "@/lib/formFeedback";
+import { resolveImageUrl } from "@/lib/imageUpload";
+import ImageViewModal from "@/components/ui/ImageViewModal";
+import React, { useRef, useState, useEffect } from "react";
 import { useForm, SubmitHandler, useFieldArray } from "react-hook-form";
+
+type ImageFieldValue = File | string | null;
 
 interface FormData {
   goodUseCode: number;
   // innerImage: string | null;
   // outerImage: string | null;
-  file: File | null;
+  file: ImageFieldValue;
   province: string;
   locality: string;
   address: string;
@@ -27,11 +32,16 @@ interface FormData {
   installations: {
     name: string;
     quantity: number;
-    file: File | null;
+    file: ImageFieldValue;
     details: string;
     classification: number;
   }[];
   id?: number;
+}
+
+interface ClassificationOption {
+  id: number;
+  name: string;
 }
 
 const PropertyForm = ({ id }: any) => {
@@ -44,25 +54,150 @@ const PropertyForm = ({ id }: any) => {
   });
 
   const [title, setTitle] = useState<string>("Nueva Propiedad");
+  const [classifications, setClassifications] = useState<ClassificationOption[]>([]);
+  const [imagePreviews, setImagePreviews] = useState<Record<string, string>>({});
+  const [imageErrors, setImageErrors] = useState<Record<string, boolean>>({});
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveMessage, setSaveMessage] = useState<string>("");
+  const submittingLockRef = useRef(false);
+  const lastCreatedFingerprintRef = useRef<string>("");
+
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>, fieldName: string) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      const preview = reader.result as string;
+      setImagePreviews((prev) => ({ ...prev, [fieldName]: preview }));
+      setImageErrors((prev) => ({ ...prev, [fieldName]: false }));
+      setValue(fieldName as any, file as any, { shouldDirty: true });
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleRemoveImage = (fieldName: string) => {
+    setValue(fieldName as any, "" as any, { shouldDirty: true });
+    setImagePreviews((prev) => ({ ...prev, [fieldName]: "" }));
+    setImageErrors((prev) => ({ ...prev, [fieldName]: false }));
+  };
+
+  const handleRemoveInstallation = (indexToRemove: number) => {
+    remove(indexToRemove);
+    setImagePreviews((prev) => {
+      const nextPreviews: Record<string, string> = {};
+
+      Object.entries(prev).forEach(([key, value]) => {
+        const match = key.match(/^installations\.(\d+)\.file$/);
+
+        if (!match) {
+          nextPreviews[key] = value;
+          return;
+        }
+
+        const currentIndex = Number(match[1]);
+        if (currentIndex < indexToRemove) {
+          nextPreviews[key] = value;
+          return;
+        }
+
+        if (currentIndex > indexToRemove) {
+          nextPreviews[`installations.${currentIndex - 1}.file`] = value;
+        }
+      });
+
+      return nextPreviews;
+    });
+  };
+
+  const renderImagePreviewActions = (fieldName: string, imageName: string) => {
+    const imageUrl = resolveImageUrl(imagePreviews[fieldName]);
+    if (!imageUrl) return null;
+
+    return (
+      <div className="mt-3 flex flex-wrap items-center justify-center gap-3 rounded-md bg-gray-900/60 p-3">
+        {!imageErrors[fieldName] ? (
+          <img
+            src={imageUrl}
+            alt={imageName}
+            className="h-auto w-40 rounded border border-gray-600"
+            onError={() => setImageErrors((prev) => ({ ...prev, [fieldName]: true }))}
+          />
+        ) : (
+          <div className="rounded border border-amber-400/40 bg-amber-500/10 px-3 py-2 text-xs text-amber-200">
+            Imagen no disponible
+          </div>
+        )}
+        <button
+          type="button"
+          onClick={() => handleRemoveImage(fieldName)}
+          className="inline-flex items-center justify-center rounded bg-red-600 px-3 py-2 text-white hover:bg-red-700"
+          title="Eliminar imagen"
+        >
+          <span aria-hidden="true">X</span>
+        </button>
+        <ImageViewModal imageUrl={imageUrl} imageName={imageName} />
+      </div>
+    );
+  };
 
   useEffect(() => {
     async function fetchProperty() {
       if (id === undefined || id === 0) return;
-      const data = await getProperty(id);
-      console.log(data);
-      const processedData = {
-        ...data,
-        installations: data.installations.map((inst: any) => ({
-          ...inst,
-          classification: inst.classification.id
-        }))
+      try {
+        const data = await getProperty(id);
+        console.log(data);
+
+        const safeInstallations = Array.isArray(data?.installations) ? data.installations : [];
+        const processedData = {
+          ...data,
+          file: data?.file ?? data?.planImage ?? "",
+          installations: safeInstallations.map((inst: any) => ({
+            ...inst,
+            classification:
+              typeof inst?.classification === "object"
+                ? inst.classification?.id
+                : inst?.classification,
+          })),
+        };
+
+        reset(processedData);
+
+        if (data?.classification?.id) {
+          setValue("classification", data.classification.id);
+        }
+
+        const mainImage = resolveImageUrl(data?.file ?? data?.planImage ?? "") || "";
+        const previews: Record<string, string> = {
+          file: mainImage,
+        };
+
+        safeInstallations.forEach((inst: any, index: number) => {
+          previews[`installations.${index}.file`] = resolveImageUrl(inst?.file) || "";
+        });
+
+        setImagePreviews(previews);
+      } catch (error) {
+        console.error("Error cargando propiedad para edición:", error);
       }
-      reset(processedData);
-      setValue("classification", data.classification.id);
       
     }
     fetchProperty();
-  }, [id]);
+  }, [id, reset, setValue]);
+
+  useEffect(() => {
+    async function fetchClassifications() {
+      try {
+        const response = await axiosInstance.get("/classification");
+        setClassifications(response.data || []);
+      } catch (error) {
+        console.error("Error cargando clasificaciones:", error);
+        setClassifications([]);
+      }
+    }
+
+    fetchClassifications();
+  }, []);
 
   // useEffect precargará los datos de la propiedad si se está editando
   useEffect(() => {
@@ -78,30 +213,92 @@ const PropertyForm = ({ id }: any) => {
 
 
   const onSubmit: SubmitHandler<FormData> = async (data) => {
-    console.log("id de propiedad", id);
+    if (isSaving || submittingLockRef.current) {
+      return;
+    }
 
-    // Preprocesamiento de datos antes de enviarlos
-    const processedData = {
-      ...data,
-      file: data.file?.size ? data.file : null, // Asigna archivo si tiene tamaño, de lo contrario null
-      installations: data.installations.map(inst => ({
-        ...inst,
-        file: inst.file?.size ? inst.file : null, // Igual para las instalaciones
-      })),
-    };
-    console.log("Datos a enviar:", processedData);
+    try {
+      submittingLockRef.current = true;
+      setIsSaving(true);
+      setSaveMessage("Validando datos y preparando guardado...");
+      console.log("id de propiedad", id);
 
-    // Manejo de la lógica de `id`
-    if (id !== undefined && id !== 0) {
-      processedData.id = id; // Si existe `id` y no es 0, se asigna al objeto
-      await editProperty(processedData); // Llamada para editar propiedad
-    } else {
-      await saveProperty(processedData); // Llamada para guardar nueva propiedad
+      const normalizeFileValue = (value: ImageFieldValue) => {
+        if (value instanceof File) {
+          return value.size ? value : "";
+        }
+
+        if (typeof value === "string") {
+          return value;
+        }
+
+        return "";
+      };
+
+      const processedData = {
+        ...data,
+        file: normalizeFileValue(data.file),
+        installations: (data.installations || []).map(inst => ({
+          ...inst,
+          file: normalizeFileValue(inst.file),
+        })),
+      };
+
+      const creationFingerprint = JSON.stringify(processedData);
+      console.log("Datos a enviar:", processedData);
+
+      if (id !== undefined && id !== 0) {
+        setSaveMessage("Guardando cambios de la propiedad...");
+        processedData.id = id;
+        await editProperty(processedData);
+        setSaveMessage("Propiedad actualizada correctamente.");
+        alert("Propiedad actualizada exitosamente");
+      } else {
+        if (lastCreatedFingerprintRef.current === creationFingerprint) {
+          setSaveMessage("Esta propiedad ya fue creada. Cambiá algún dato antes de volver a guardar.");
+          alert("Esta propiedad ya fue guardada. Evitamos un guardado duplicado.");
+          return;
+        }
+
+        setSaveMessage("Creando nueva propiedad...");
+        await saveProperty(processedData);
+        lastCreatedFingerprintRef.current = creationFingerprint;
+        setSaveMessage("Propiedad creada correctamente.");
+        alert("Propiedad guardada exitosamente");
+      }
+    } catch (error: any) {
+      console.error("Error saving property:", error);
+      setSaveMessage("No se pudo guardar la propiedad.");
+      alert(`Error al guardar la propiedad: ${extractApiErrorMessage(error)}`);
+    } finally {
+      setIsSaving(false);
+      submittingLockRef.current = false;
     }
   };
 
+  const onInvalid = (formErrors: Record<string, unknown>) => {
+    const labels: Record<string, string> = {
+      goodUseCode: "Codigo de Buen Uso",
+      description: "Descripcion",
+      classification: "Clasificacion",
+      province: "Provincia",
+      locality: "Localidad",
+      address: "Direccion",
+      postalCode: "Codigo Postal",
+      betweenStreets1: "Entre Calles 1",
+      betweenStreets2: "Entre Calles 2",
+      district: "Distrito",
+      detailsMaintenance: "Detalles",
+      destiny: "Destino",
+      clfc: "CLFC",
+      state: "Estado",
+    };
+
+    alertMissingFields(formErrors, labels);
+  };
+
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="max-w-4xl mx-auto p-6 bg-gray-800 rounded shadow-lg space-y-6">
+    <form onSubmit={handleSubmit(onSubmit, onInvalid)} className="max-w-4xl mx-auto p-6 bg-gray-800 rounded shadow-lg space-y-6">
       <h1 className="text-3xl font-bold text-white text-center mb-6">{title}</h1>
       {/* Campos del formulario como antes */}
       <fieldset className="border border-gray-600 rounded p-4">
@@ -139,21 +336,32 @@ const PropertyForm = ({ id }: any) => {
             <label htmlFor="file" className="block text-gray-300 mb-1">Cargar Archivo</label>
             <input
               id="file"
-              {...register("file")}
               type="file"
+              accept="image/*"
               className="bg-gray-700 p-2 rounded w-full"
+              onChange={(e) => handleImageUpload(e, "file")}
             />
+            {renderImagePreviewActions("file", "Imagen de la propiedad")}
           </div>
 
           {/* Clasificación */}
           <div>
             <label htmlFor="classification" className="block text-gray-300 mb-1">Clasificación</label>
-            <input
-              type="number"
+            <select
               id="classification"
-              {...register("classification", { required: "Este campo es obligatorio" })}
+              {...register("classification", {
+                required: "Este campo es obligatorio",
+                valueAsNumber: true,
+              })}
               className="bg-gray-700 p-2 rounded w-full"
-            />
+            >
+              <option value="" hidden>Seleccionar clasificación</option>
+              {classifications.map((option) => (
+                <option key={option.id} value={option.id}>
+                  {option.name} (ID: {option.id})
+                </option>
+              ))}
+            </select>
             {errors.classification && (
               <span className="text-red-500 text-sm mt-1">{errors.classification.message}</span>
             )}
@@ -381,10 +589,12 @@ const PropertyForm = ({ id }: any) => {
               <div className="flex flex-col mb-4">
                 <label htmlFor="file" className="block text-gray-300 mb-1">Archivo</label>
                 <input
-                  {...register(`installations.${index}.file`)}
                   type="file"
+                  accept="image/*"
                   className="bg-gray-700 p-2 rounded w-full"
+                  onChange={(e) => handleImageUpload(e, `installations.${index}.file`)}
                 />
+                {renderImagePreviewActions(`installations.${index}.file`, `Instalación ${index + 1}`)}
               </div>
               <div className="flex flex-col mb-4">
                 <label htmlFor="details" className="block text-gray-300 mb-1">Detalles</label>
@@ -400,7 +610,7 @@ const PropertyForm = ({ id }: any) => {
               {/* Botón para eliminar instalación */}
               <button
                 type="button"
-                onClick={() => remove(index)}
+                onClick={() => handleRemoveInstallation(index)}
                 className="w-full h-10 bg-blue-800 text-white py-1 px-3 rounded hover:bg-blue-700 transition-colors mt-10"
               >
                 Eliminar Instalación
@@ -413,18 +623,25 @@ const PropertyForm = ({ id }: any) => {
       {/* Botón para agregar nueva instalación */}
       <button
         type="button"
-        onClick={() => append({ name: "", classification: 0, quantity: 0, file: null, details: "" })}
+        onClick={() => append({ name: "", classification: 0, quantity: 0, file: "", details: "" })}
         className="w-full bg-blue-800 text-white py-2 px-4 rounded hover:bg-blue-700 transition-colors"
       >
         Agregar Instalación
       </button>
 
       {/* Botón para enviar el formulario */}
+      {saveMessage && (
+        <div className="rounded-md border border-slate-600 bg-slate-900/70 px-4 py-3 text-center text-sm text-slate-200">
+          {saveMessage}
+        </div>
+      )}
+
       <button
         type="submit"
-        className="w-full bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 transition-colors"
+        disabled={isSaving}
+        className="w-full bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60 transition-colors"
       >
-        Guardar Propiedad
+        {isSaving ? "Guardando..." : "Guardar Propiedad"}
       </button>
     </form>
   );

@@ -31,3 +31,41 @@ body {
     text-wrap: balance;
   }
 }
+
+@layer components {
+  .doc-form {
+    @apply max-w-4xl mx-auto space-y-6 rounded-3xl border-[0.5px] border-slate-700/80 bg-gradient-to-b from-slate-800 to-slate-900 p-6 shadow-xl ring-1 ring-slate-600/20;
+  }
+
+  .doc-title {
+    @apply mb-1 text-center text-3xl font-bold text-white;
+  }
+
+  .doc-subtitle {
+    @apply text-center text-sm text-slate-300;
+  }
+
+  .doc-fieldset {
+    @apply rounded-2xl border-[0.5px] border-slate-600 bg-slate-900/40 p-4;
+  }
+
+  .doc-legend {
+    @apply px-2 text-lg font-semibold text-white;
+  }
+
+  .doc-input {
+    @apply w-full rounded-xl border-[0.5px] border-slate-600 bg-slate-800 p-2 text-slate-100 outline-none transition focus:border-sky-400 focus:ring-2 focus:ring-sky-500/25;
+  }
+
+  .doc-checkbox-card {
+    @apply flex items-center gap-3 rounded-xl border-[0.5px] border-slate-600 bg-slate-900/50 p-3;
+  }
+
+  .doc-submit-btn {
+    @apply w-full rounded-2xl bg-sky-600 py-2 px-4 font-semibold text-white transition hover:bg-sky-500 disabled:cursor-not-allowed disabled:opacity-60;
+  }
+
+  .doc-preview-card {
+    @apply mt-3 flex flex-wrap items-center justify-center gap-3 rounded-xl border-[0.5px] border-slate-700 bg-slate-950/60 p-3;
+  }
+}

@@ -5,7 +5,7 @@ import { Select } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Textarea } from "@/components/ui/textarea";
 
-export default function () {
+function NewInsurance() {
   return (
     <div className="min-h-screen bg-gray-900 text-gray-100 p-6">
       <header className="flex justify-between items-center mb-6">
@@ -149,3 +149,5 @@ export default function () {
     </div>
   );
 }
+
+export default NewInsurance;

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
-import Header from "../Header";
+import Header from "../header";
 import { AiOutlineCheckCircle } from 'react-icons/ai'; // Icono visual
 
 // Modal de imagen
@@ -66,7 +66,7 @@ export default function NewPlan() {
             <AiOutlineCheckCircle className="text-green-500 mr-2 text-xl" /> {/* Icono visual */}
             <label htmlFor="planoGeneral">Plano General</label>
             <button
-              className="ml-auto bg-gray-700 text-white px-4 py-1 rounded-md ml-4"
+              className="ml-auto bg-gray-700 text-white px-4 py-1 rounded-md"
               onClick={() => handleImageClick(imageUrls.general)}
             >
               Mostrar Imagen

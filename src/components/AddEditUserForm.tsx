@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import Select from "react-select";
 import { UserData } from "@/lib/types";
 import { addUser, updateUser } from "@/lib/api";
+import { extractApiErrorMessage } from "@/lib/formFeedback";
 
 interface AddEditUserFormProps {
   user?: UserData | null;
@@ -39,12 +40,21 @@ export default function AddEditUserForm({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (user) {
-      await updateUser(formData);
-    } else {
-      await addUser(formData);
+    if (!formData.name?.trim() || !formData.email?.trim()) {
+      alert("Faltan completar campos obligatorios:\n- Nombre\n- Email");
+      return;
     }
-    onSave();
+
+    try {
+      if (user) {
+        await updateUser(formData);
+      } else {
+        await addUser(formData);
+      }
+      onSave();
+    } catch (error: any) {
+      alert(`Error al guardar el usuario: ${extractApiErrorMessage(error)}`);
+    }
   };
 
   // Opciones para el Select

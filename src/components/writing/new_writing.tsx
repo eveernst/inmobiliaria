@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useState, ChangeEvent } from 'react';
-import Header from "../Header";
+import Header from "../header";
+import ImageViewModal from '@/components/ui/ImageViewModal';
 
 export default function FormWriting() {
   const [tipoDocumento, setTipoDocumento] = useState<string>('Escritura');
@@ -14,11 +15,27 @@ export default function FormWriting() {
   const [documentacion, setDocumentacion] = useState<string>('');
   const [detalleEspaciosAdicional, setDetalleEspaciosAdicional] = useState<string>('');
   const [informeCatastral, setInformeCatastral] = useState<string>('Link');
+  const [imagePreviews, setImagePreviews] = useState<Record<string, string>>({});
 
-  const handleFileChange = (setter: React.Dispatch<React.SetStateAction<File | null>>) => (event: ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = (
+    setter: React.Dispatch<React.SetStateAction<File | null>>,
+    fieldName: string,
+  ) => (event: ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files[0]) {
-      setter(event.target.files[0]);
+      const file = event.target.files[0];
+      setter(file);
+
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreviews((prev) => ({ ...prev, [fieldName]: (reader.result as string) || '' }));
+      };
+      reader.readAsDataURL(file);
     }
+  };
+
+  const handleRemoveImage = (fieldName: string, setter: React.Dispatch<React.SetStateAction<File | null>>) => {
+    setter(null);
+    setImagePreviews((prev) => ({ ...prev, [fieldName]: '' }));
   };
 
   return (
@@ -44,12 +61,16 @@ export default function FormWriting() {
             <InputField label="N° de Voto de JD AAC" />
             <FileInput 
               label="Imagen de Voto de JD AAC"
-              onChange={handleFileChange(setImagenJDAAC)}
+              onChange={handleFileChange(setImagenJDAAC, 'imagenJDAAC')}
+              preview={imagePreviews.imagenJDAAC}
+              onRemove={() => handleRemoveImage('imagenJDAAC', setImagenJDAAC)}
             />
             <InputField label="N° de Voto de JD UA" />
             <FileInput 
               label="Imagen de Voto de JD UA"
-              onChange={handleFileChange(setImagenJDUA)}
+              onChange={handleFileChange(setImagenJDUA, 'imagenJDUA')}
+              preview={imagePreviews.imagenJDUA}
+              onRemove={() => handleRemoveImage('imagenJDUA', setImagenJDUA)}
             />
           </div>
           <div>
@@ -104,11 +125,15 @@ export default function FormWriting() {
         <div className="grid grid-cols-2 gap-4 mb-6">
           <FileInput 
             label="Foto interior 1"
-            onChange={handleFileChange(setFotoInterior1)}
+            onChange={handleFileChange(setFotoInterior1, 'fotoInterior1')}
+            preview={imagePreviews.fotoInterior1}
+            onRemove={() => handleRemoveImage('fotoInterior1', setFotoInterior1)}
           />
           <FileInput 
             label="Foto interior 2"
-            onChange={handleFileChange(setFotoInterior2)}
+            onChange={handleFileChange(setFotoInterior2, 'fotoInterior2')}
+            preview={imagePreviews.fotoInterior2}
+            onRemove={() => handleRemoveImage('fotoInterior2', setFotoInterior2)}
           />
         </div>
 
@@ -168,23 +193,50 @@ function InputField({ label }: { label: string }) {
   );
 }
 
-function FileInput({ label, onChange }: { label: string, onChange: (event: ChangeEvent<HTMLInputElement>) => void }) {
+function FileInput({
+  label,
+  onChange,
+  preview,
+  onRemove,
+}: {
+  label: string,
+  onChange: (event: ChangeEvent<HTMLInputElement>) => void,
+  preview?: string,
+  onRemove?: () => void,
+}) {
+  const safeId = `file-${label.replace(/[^a-zA-Z0-9]/g, '-').toLowerCase()}`;
+
   return (
     <div className="mb-4">
       <label className="block mb-2">{label}</label>
       <button 
+        type="button"
         className="bg-gray-700 text-white px-4 py-2 rounded-md w-full"
-        onClick={() => document.getElementById(label)?.click()}
+        onClick={() => document.getElementById(safeId)?.click()}
       >
         imagen
       </button>
       <input
-        id={label}
+        id={safeId}
         type="file"
         accept="image/*"
         onChange={onChange}
         className="hidden"
       />
+      {preview && (
+        <div className="mt-2 flex items-center gap-2">
+          <img src={preview} alt={label} className="w-32 h-auto rounded" />
+          <button
+            type="button"
+            onClick={onRemove}
+            className="inline-flex items-center justify-center rounded bg-red-600 px-3 py-2 text-white hover:bg-red-700"
+            title="Eliminar imagen"
+          >
+            <span aria-hidden="true">X</span>
+          </button>
+          <ImageViewModal imageUrl={preview} imageName={label} />
+        </div>
+      )}
     </div>
   );
 }
