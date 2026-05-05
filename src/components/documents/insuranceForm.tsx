@@ -12,7 +12,7 @@ interface InsuranceFormProps {
 
 interface FormData {
   name: string;
-  phone: number;
+  phone: string;
   email: string;
   insuredProperty: string;
   insuranceARM: boolean;
@@ -213,9 +213,9 @@ const InsuranceForm = ({ propertyId }: InsuranceFormProps) => {
             <label htmlFor="telefono" className="block text-gray-300 mb-1">Teléfono</label>
             <input
               id="telefono"
-              type="number"
+              type="tel"
               className="doc-input"
-              {...register("phone", { required: "Este campo es obligatorio", valueAsNumber: true })}
+              {...register("phone", { required: "Este campo es obligatorio" })}
             />
             {errors.phone && <p className="text-red-400 text-sm mt-1">{errors.phone.message}</p>}
           </section>
