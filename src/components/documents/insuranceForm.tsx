@@ -12,7 +12,7 @@ interface InsuranceFormProps {
 
 interface FormData {
   name: string;
-  phone: number;
+  phone: string;
   email: string;
   insuredProperty: string;
   insuranceARM: boolean;
@@ -20,9 +20,9 @@ interface FormData {
   team: boolean;
   content: boolean;
   values: boolean;
-  insuranceDate: string;
+  insuranceDate?: string;
   insuranceImage?: string;
-  AnualFormDate: string;
+  AnualFormDate?: string;
   AnualFormImage?: string;
   observations: string;
   propertyId?: number;
@@ -137,7 +137,7 @@ const InsuranceForm = ({ propertyId }: InsuranceFormProps) => {
 
         fieldsToSet.forEach((field) => {
           if (latest[field] !== undefined && latest[field] !== null) {
-            setValue(field, latest[field]);
+            setValue(field, field === "phone" ? String(latest[field]) : latest[field]);
           }
         });
 
@@ -170,8 +170,14 @@ const InsuranceForm = ({ propertyId }: InsuranceFormProps) => {
 
       setLoading(true);
       console.log("Datos del formulario:", data);
-      data.propertyId = propertyId;
-      await saveInsurance(data);
+      const payload = {
+        ...data,
+        propertyId,
+        insuranceDate: data.insuranceDate?.trim() || undefined,
+        AnualFormDate: data.AnualFormDate?.trim() || undefined,
+      };
+
+      await saveInsurance(payload);
       alert("Póliza de seguros guardada exitosamente");
     } catch (error: any) {
       console.error("Error saving insurance:", error);
@@ -213,9 +219,10 @@ const InsuranceForm = ({ propertyId }: InsuranceFormProps) => {
             <label htmlFor="telefono" className="block text-gray-300 mb-1">Teléfono</label>
             <input
               id="telefono"
-              type="number"
+              type="tel"
+              inputMode="numeric"
               className="doc-input"
-              {...register("phone", { required: "Este campo es obligatorio", valueAsNumber: true })}
+              {...register("phone", { required: "Este campo es obligatorio" })}
             />
             {errors.phone && <p className="text-red-400 text-sm mt-1">{errors.phone.message}</p>}
           </section>
