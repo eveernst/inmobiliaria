@@ -13,7 +13,11 @@ const TEST_USERS = [
   { email: "viewer@test.com", password: "admin123", role: "Viewer" },
 ];
 
-export default function LoginScreen() {
+interface LoginScreenProps {
+  onLoginSuccess?: () => void;
+}
+
+export default function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -35,6 +39,8 @@ export default function LoginScreen() {
       localStorage.setItem("token", response.data.access_token);
       localStorage.setItem("user", JSON.stringify(response.data.user));
 
+      onLoginSuccess?.();
+
       // Redirigir a la página principal
       router.push("/");
     } catch (err: any) {
@@ -50,15 +56,19 @@ export default function LoginScreen() {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center p-4 min-h-screen bg-gray-900">
-      <div className="w-full max-w-md">
-        <Card className="w-full bg-slate-700 text-white">
-          <CardHeader>
-            <CardTitle className="text-2xl font-bold text-center">
+    <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-slate-950 px-4 py-10">
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(59,130,246,0.22),_transparent_45%),radial-gradient(circle_at_bottom_right,_rgba(14,165,233,0.15),_transparent_40%)]" />
+      <div className="relative w-full max-w-md">
+        <Card className="w-full rounded-2xl border border-slate-800 bg-slate-900/90 text-slate-100 shadow-2xl backdrop-blur">
+          <CardHeader className="space-y-2 pb-2">
+            <CardTitle className="text-center text-3xl font-semibold tracking-tight">
               Inicio de Sesión
             </CardTitle>
+            <p className="text-center text-sm text-slate-400">
+              Accede para administrar tus propiedades
+            </p>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-5">
             <form onSubmit={handleLogin} className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
@@ -68,7 +78,7 @@ export default function LoginScreen() {
                   placeholder="email@ejemplo.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="bg-gray-800 text-white border-gray-600"
+                  className="border-slate-700 bg-slate-950 text-white focus-visible:ring-sky-500"
                   required
                 />
               </div>
@@ -81,26 +91,26 @@ export default function LoginScreen() {
                   placeholder="••••••••"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="bg-gray-800 text-white border-gray-600"
+                  className="border-slate-700 bg-slate-950 text-white focus-visible:ring-sky-500"
                   required
                 />
               </div>
 
               {error && (
-                <p className="text-red-400 text-sm text-center">{error}</p>
+                <p className="text-center text-sm text-red-400">{error}</p>
               )}
 
               <Button
                 type="submit"
-                className="w-full bg-orange-500 hover:bg-orange-600 text-white"
+                className="w-full bg-sky-600 text-white hover:bg-sky-500"
                 disabled={loading}
               >
                 {loading ? "Ingresando..." : "Iniciar Sesión"}
               </Button>
             </form>
 
-            <div className="mt-6 pt-6 border-t border-gray-600">
-              <p className="text-sm text-gray-400 mb-3 text-center">
+            <div className="mt-6 border-t border-slate-800 pt-6">
+              <p className="mb-3 text-center text-sm text-slate-400">
                 Usuarios de prueba:
               </p>
               <div className="space-y-2">
@@ -109,7 +119,7 @@ export default function LoginScreen() {
                     key={index}
                     type="button"
                     onClick={() => handleTestUser(user)}
-                    className="w-full bg-slate-600 hover:bg-slate-500 text-white text-sm"
+                    className="w-full border border-slate-700 bg-slate-800 text-sm text-slate-100 hover:bg-slate-700"
                     variant="outline"
                   >
                     {user.role}: {user.email}
