@@ -1,24 +1,30 @@
 // components/Navbar.tsx
 "use client";
 
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+// import Link from 'next/link';
+// import { usePathname } from 'next/navigation';
 
-const Navbar = () => {
-  const pathname = usePathname();
+// const Navbar = () => {
+//   const pathname = usePathname();
 
-  const navLinks = [
-    { name: 'Gestor de Documentos', href: '/document-manager' },
-    { name: 'Propiedad', href: '/property' },
-    { name: 'Inicio', href: '/' },
+//   const navLinks = [
+//     { name: 'Gestor de Documentos', href: '/document-manager' },
+//     { name: 'Propiedad', href: '/property' },
+//     { name: 'Inicio', href: '/' },
 
-  ];
+//   ];
+
+type NavbarProps = {
+  onLogout?: () => void;
+};
+
+const Navbar = ({ onLogout }: NavbarProps) => {
 
   return (
     <nav className="bg-gray-800/95 px-4 py-3 border-b border-[0.5px] border-slate-700/80">
-      <div className="container mx-auto flex flex-wrap items-center justify-between gap-3">
+      <div className="container mx-auto flex items-center justify-between gap-3">
         <h1 className="text-white text-lg font-semibold tracking-wide">Gestion Propiedades AAC</h1>
-        <ul className="flex items-center rounded-2xl border-[0.5px] border-slate-600 bg-slate-800/80 p-1 shadow-inner">
+        {/* <ul className="flex items-center rounded-2xl border-[0.5px] border-slate-600 bg-slate-800/80 p-1 shadow-inner">
           {navLinks.map((link) => (
             <li key={link.href} className="relative">
               {link.href !== navLinks[0].href && (
@@ -36,7 +42,15 @@ const Navbar = () => {
               </Link>
             </li>
           ))}
-        </ul>
+        </ul> */}
+        {onLogout && (
+          <button
+            onClick={onLogout}
+            className="rounded-lg border-[0.5px] border-slate-600 bg-slate-800/80 px-3 py-1 text-sm text-slate-200 hover:border-slate-500/60 hover:bg-slate-700/70"
+          >
+            Logout
+          </button>
+        )}
       </div>
     </nav>
   );

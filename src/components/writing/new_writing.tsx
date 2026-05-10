@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, ChangeEvent } from 'react';
-import Header from "../header";
+import Header from "../Header";
 import ImageViewModal from '@/components/ui/ImageViewModal';
 
 export default function FormWriting() {

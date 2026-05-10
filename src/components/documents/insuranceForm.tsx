@@ -220,10 +220,7 @@ const InsuranceForm = ({ propertyId }: InsuranceFormProps) => {
             <input
               id="telefono"
               type="tel"
-<<<<<<< HEAD
-=======
               inputMode="numeric"
->>>>>>> f9993aa48835711454eddfc5c2da24af35b026a0
               className="doc-input"
               {...register("phone", { required: "Este campo es obligatorio" })}
             />

@@ -9,6 +9,7 @@ import { getPlan } from '@/api/planApi';
 import { getRented } from '@/api/rentedApi';
 import { getWriting } from '@/api/writingApi';
 import { deleteImageByPublicUrl, resolveImageUrl } from '@/lib/imageUpload';
+import Navbar from './Navbar';
 
 interface Property {
   province: string;
@@ -36,7 +37,8 @@ const Home = () => {
     const userData = localStorage.getItem('user');
     
     if (!token || !userData) {
-      router.push('/login');
+      // router.push('/login');
+      setUser
       return;
     }
 
@@ -185,15 +187,16 @@ const Home = () => {
   const isAdmin = user.role === 1;
 
   return (
-    <div className="min-h-screen bg-[radial-gradient(circle_at_top,_#1f2937_0%,_#0f172a_45%,_#020617_100%)] text-gray-200 p-6 md:p-8">
-      <header className="mb-10 rounded-3xl border-[0.5px] border-slate-700/70 bg-slate-900/45 px-6 py-6 shadow-2xl backdrop-blur-sm">
-        <div className="mb-4 flex items-center justify-between">
-          <div>
+    <div className="min-h-screen bg-[radial-gradient(circle_at_top,_#1f2937_0%,_#0f172a_45%,_#020617_100%)] text-gray-200">
+      <Navbar onLogout={handleLogout} />
+      <div className='p-6 md:p-8'>
+        <header className="mb-10 rounded-3xl border-[0.5px] border-slate-700/70 bg-slate-900/45 px-6 py-6 shadow-2xl backdrop-blur-sm">
+          <div className="mb-4">
             <p className="text-sm text-gray-400">
               Bienvenido, {user.name} ({isAdmin ? 'Admin' : 'Viewer'})
             </p>
           </div>
-          <button
+          {/* <button
             onClick={handleLogout}
             className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded"
           >
@@ -202,7 +205,10 @@ const Home = () => {
         </div>
         <h1 className="text-center text-4xl font-bold tracking-tight text-slate-100 mb-2">Propiedades</h1>
         <p className="text-center text-slate-300">Explora las propiedades disponibles</p>
-      </header>
+      </header> */}
+      <h1 className="text-center text-4xl font-bold tracking-tight text-slate-100 mb-2">Propiedades</h1>
+          <p className="text-center text-slate-300">Explora las propiedades disponibles</p>
+        </header>
 
       {isAdmin && (
         <button>
@@ -289,6 +295,7 @@ const Home = () => {
             </div>
           </div>
         ))}
+      </div>
       </div>
     </div>
   );
