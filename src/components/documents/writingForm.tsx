@@ -238,7 +238,7 @@ const WritingForm = ({ propertyId, isReadOnly = false }: WritingFormProps) => {
   return (
     <form
       onSubmit={handleSubmit(onSubmit, onInvalid)}
-      className="doc-form"
+      className="doc-form w-full"
     >
       <fieldset disabled={isReadOnly} className="contents">
       <h1 className="doc-title">Formulario de Escritura</h1>
@@ -246,7 +246,7 @@ const WritingForm = ({ propertyId, isReadOnly = false }: WritingFormProps) => {
         
       <fieldset className="doc-fieldset">
         <legend className="doc-legend">Información de Escritura</legend>
-        <div className="grid grid-cols-2 gap-4 mt-4">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 mt-4">
           <div>
             <label htmlFor="writingNumber" className="block text-gray-300 mb-1">Número de escritura</label>
             <input id="writingNumber" type="number" className="doc-input" {...register("writingNumber", { required: "Campo obligatorio", valueAsNumber: true })} />
@@ -287,7 +287,7 @@ const WritingForm = ({ propertyId, isReadOnly = false }: WritingFormProps) => {
 
       <fieldset className="doc-fieldset">
         <legend className="doc-legend">Detalles Técnicos</legend>
-        <div className="grid grid-cols-2 gap-4 mt-4">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 mt-4">
           <div>
             <label htmlFor="domain" className="block text-gray-300 mb-1">Dominio</label>
             <input id="domain" className="doc-input" {...register("domain")} />
@@ -341,7 +341,7 @@ const WritingForm = ({ propertyId, isReadOnly = false }: WritingFormProps) => {
 
       <fieldset className="doc-fieldset">
         <legend className="doc-legend">Imágenes de la Propiedad</legend>
-        <div className="grid grid-cols-2 gap-4 mt-4">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 mt-4">
           <div>
             <label htmlFor="interiorImage" className="block text-gray-300 mb-1">Imagen Interior</label>
             <input id="interiorImage" type="file" accept="image/*" className="doc-input" onChange={(e) => handleImageUpload(e, "interiorImage")} />
@@ -357,7 +357,7 @@ const WritingForm = ({ propertyId, isReadOnly = false }: WritingFormProps) => {
 
       <fieldset className="doc-fieldset">
         <legend className="doc-legend">Datos Adicionales</legend>
-        <div className="grid grid-cols-2 gap-4 mt-4">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 mt-4">
           <div>
             <label htmlFor="actingNotary" className="block text-gray-300 mb-1">Escribano Actuante</label>
             <input id="actingNotary" className="doc-input" {...register("actingNotary")} />
