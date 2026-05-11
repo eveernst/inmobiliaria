@@ -10,6 +10,7 @@ import { useEffect, useState } from "react";
 
 interface WritingFormProps {
   propertyId: number;
+  isReadOnly?: boolean;
 }
 
 interface FormData {
@@ -42,7 +43,7 @@ interface FormData {
   propertyId?: number;
 }
 
-const WritingForm = ({ propertyId }: WritingFormProps) => {
+const WritingForm = ({ propertyId, isReadOnly = false }: WritingFormProps) => {
   const { register, handleSubmit, setValue, getValues, reset, formState: { errors } } = useForm<FormData>();
   const [loading, setLoading] = useState(false);
   const [imagePreviews, setImagePreviews] = useState<Record<string, string>>({});
@@ -66,6 +67,7 @@ const WritingForm = ({ propertyId }: WritingFormProps) => {
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>, fieldName: string) => {
     const file = e.target.files?.[0];
+    if (isReadOnly) return;
     if (file) {
       const reader = new FileReader();
       reader.onloadend = async () => {
@@ -108,6 +110,7 @@ const WritingForm = ({ propertyId }: WritingFormProps) => {
         <button
           type="button"
           onClick={() => handleRemoveImage(fieldName)}
+          disabled={isReadOnly}
           className="inline-flex items-center justify-center rounded bg-red-600 px-3 py-2 text-white hover:bg-red-700"
           title="Eliminar imagen"
         >
@@ -237,9 +240,10 @@ const WritingForm = ({ propertyId }: WritingFormProps) => {
       onSubmit={handleSubmit(onSubmit, onInvalid)}
       className="doc-form"
     >
+      <fieldset disabled={isReadOnly} className="contents">
       <h1 className="doc-title">Formulario de Escritura</h1>
       <p className="doc-subtitle">Propiedad actual: #{propertyId || "sin seleccionar"}</p>
-      
+        
       <fieldset className="doc-fieldset">
         <legend className="doc-legend">Información de Escritura</legend>
         <div className="grid grid-cols-2 gap-4 mt-4">
@@ -378,10 +382,13 @@ const WritingForm = ({ propertyId }: WritingFormProps) => {
           </div>
         </div>
       </fieldset>
+      </fieldset>
 
-      <button type="submit" disabled={loading} className="doc-submit-btn">
-        {loading ? "Guardando..." : "Guardar"}
-      </button>
+      {!isReadOnly && (
+        <button type="submit" disabled={loading} className="doc-submit-btn">
+          {loading ? "Guardando..." : "Guardar"}
+        </button>
+      )}
     </form>
   );
 }

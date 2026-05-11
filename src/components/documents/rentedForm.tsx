@@ -7,7 +7,12 @@ import ImageViewModal from "@/components/ui/ImageViewModal";
 import { alertMissingFields, extractApiErrorMessage } from "@/lib/formFeedback";
 import { useEffect } from "react";
 
-const RentedForm = ({ propertyId }: any) => {
+interface RentedFormProps {
+  propertyId: number;
+  isReadOnly?: boolean;
+}
+
+const RentedForm = ({ propertyId, isReadOnly = false }: RentedFormProps) => {
   const { register, handleSubmit, setValue, getValues, reset, formState: { errors } } = useForm();
   const [loading, setLoading] = useState(false);
   const [imagePreviews, setImagePreviews] = useState<Record<string, string>>({});
@@ -31,6 +36,7 @@ const RentedForm = ({ propertyId }: any) => {
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>, fieldName: string) => {
     const file = e.target.files?.[0];
+    if (isReadOnly) return;
     if (file) {
       const reader = new FileReader();
       reader.onloadend = async () => {
@@ -142,6 +148,7 @@ const RentedForm = ({ propertyId }: any) => {
 
   return (
     <form onSubmit={handleSubmit(onSubmit, onInvalid)} className="doc-form">
+      <fieldset disabled={isReadOnly} className="contents">
       <h1 className="doc-title">Formulario de Inmueble Alquilado</h1>
       <p className="doc-subtitle">Propiedad actual: #{propertyId || "sin seleccionar"}</p>
       <section>
@@ -310,6 +317,7 @@ const RentedForm = ({ propertyId }: any) => {
                   <button
                     type="button"
                     onClick={() => handleRemoveImage("contractImage")}
+                    disabled={isReadOnly}
                     className="inline-flex items-center justify-center rounded bg-red-600 px-3 py-2 text-white hover:bg-red-700"
                     title="Eliminar imagen"
                   >
@@ -322,10 +330,13 @@ const RentedForm = ({ propertyId }: any) => {
           </div>
         </fieldset>
       </section>
+      </fieldset>
 
-      <button type="submit" disabled={loading} className="doc-submit-btn">
-        {loading ? "Guardando..." : "Guardar"}
-      </button>
+      {!isReadOnly && (
+        <button type="submit" disabled={loading} className="doc-submit-btn">
+          {loading ? "Guardando..." : "Guardar"}
+        </button>
+      )}
     </form>
   );
 };

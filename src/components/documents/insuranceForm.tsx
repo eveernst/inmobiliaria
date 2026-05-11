@@ -8,6 +8,7 @@ import { useEffect, useState } from "react";
 
 interface InsuranceFormProps {
   propertyId: number;
+  isReadOnly?: boolean;
 }
 
 interface FormData {
@@ -28,7 +29,7 @@ interface FormData {
   propertyId?: number;
 }
 
-const InsuranceForm = ({ propertyId }: InsuranceFormProps) => {
+const InsuranceForm = ({ propertyId, isReadOnly=false }: InsuranceFormProps) => {
   const { register, handleSubmit, setValue, getValues, reset, formState: { errors } } = useForm<FormData>();
   const [loading, setLoading] = useState(false);
   const [imagePreviews, setImagePreviews] = useState<Record<string, string>>({});
@@ -52,6 +53,7 @@ const InsuranceForm = ({ propertyId }: InsuranceFormProps) => {
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>, fieldName: string) => {
     const file = e.target.files?.[0];
+    if (isReadOnly) return;
     if (file) {
       const reader = new FileReader();
       reader.onloadend = async () => {
@@ -93,6 +95,7 @@ const InsuranceForm = ({ propertyId }: InsuranceFormProps) => {
         <img src={imageUrl} alt="Preview" className="h-auto w-40 rounded border border-gray-600" />
         <button
           type="button"
+          disabled={isReadOnly}
           onClick={() => handleRemoveImage(fieldName)}
           className="inline-flex items-center justify-center rounded bg-red-600 px-3 py-2 text-white hover:bg-red-700"
           title="Eliminar imagen"
@@ -211,6 +214,7 @@ const InsuranceForm = ({ propertyId }: InsuranceFormProps) => {
               id="nombre-completo"
               type="text"
               className="doc-input"
+              readOnly={isReadOnly}
               {...register("name", { required: "Este campo es obligatorio" })}
             />
             {errors.name && <p className="text-red-400 text-sm mt-1">{errors.name.message}</p>}
@@ -222,6 +226,7 @@ const InsuranceForm = ({ propertyId }: InsuranceFormProps) => {
               type="tel"
               inputMode="numeric"
               className="doc-input"
+              readOnly={isReadOnly}
               {...register("phone", { required: "Este campo es obligatorio" })}
             />
             {errors.phone && <p className="text-red-400 text-sm mt-1">{errors.phone.message}</p>}
@@ -238,6 +243,7 @@ const InsuranceForm = ({ propertyId }: InsuranceFormProps) => {
               id="email"
               type="email"
               className="doc-input"
+              readOnly={isReadOnly}
               {...register("email", { required: "Este campo es obligatorio" })}
             />
             {errors.email && <p className="text-red-400 text-sm mt-1">{errors.email.message}</p>}
@@ -247,6 +253,7 @@ const InsuranceForm = ({ propertyId }: InsuranceFormProps) => {
             <select
               id="bien-asegurado"
               className="doc-input"
+              disabled={isReadOnly}
               {...register("insuredProperty", { required: "Este campo es obligatorio" })}
             >
               <option value="">Seleccionar</option>
@@ -274,26 +281,26 @@ const InsuranceForm = ({ propertyId }: InsuranceFormProps) => {
             <label className="block text-gray-300 mb-1">Responsabilidad Civil</label>
             <div className="flex flex-col">
               <label className="block text-gray-300 mb-1">
-                <input type="checkbox" {...register("insuranceARM")} className="mr-2" />
+                <input type="checkbox" disabled={isReadOnly} {...register("insuranceARM")} className="mr-2" />
                 Aseguradora ARM
               </label>
               <label className="block text-gray-300 mb-1">
-                <input type="checkbox" {...register("insuranceASE")} className="mr-2" />
+                <input type="checkbox" disabled={isReadOnly} {...register("insuranceASE")} className="mr-2" />
                 Aseguradora ART
               </label>
             </div>
           </div>
           <div className="flex justify-center items-center w-full space-x-4">
             <label className="block text-gray-300 mb-1 flex-1 p-4">
-              <input type="checkbox" {...register("team")} className="mr-2" />
+              <input type="checkbox" disabled={isReadOnly} {...register("team")} className="mr-2" />
               Equipo
             </label>
             <label className="block text-gray-300 mb-1 flex-1 p-4">
-              <input type="checkbox" {...register("content")} className="mr-2" />
+              <input type="checkbox" disabled={isReadOnly} {...register("content")} className="mr-2" />
               Contenido
             </label>
             <label className="block text-gray-300 mb-1 flex-1 p-4">
-              <input type="checkbox" {...register("values")} className="mr-2" />
+              <input type="checkbox" disabled={isReadOnly} {...register("values")} className="mr-2" />
               Valores
             </label>
           </div>
@@ -308,12 +315,13 @@ const InsuranceForm = ({ propertyId }: InsuranceFormProps) => {
               id="insuranceDate"
               type="date"
               className="doc-input"
+              readOnly={isReadOnly}
               {...register("insuranceDate")}
             />
           </div>
           <div>
             <label htmlFor="insuranceImage" className="block text-gray-300 mb-1">Imagen de Póliza</label>
-            <input id="insuranceImage" type="file" accept="image/*" className="doc-input" onChange={(e) => handleImageUpload(e, "insuranceImage")} />
+            <input id="insuranceImage" type="file" accept="image/*" className="doc-input" disabled={isReadOnly} onChange={(e) => handleImageUpload(e, "insuranceImage")} />
             {renderImagePreviewActions("insuranceImage", "Póliza")}
           </div>
         </div>
@@ -327,12 +335,13 @@ const InsuranceForm = ({ propertyId }: InsuranceFormProps) => {
               id="AnualFormDate"
               type="date"
               className="doc-input"
+              readOnly={isReadOnly}
               {...register("AnualFormDate")}
             />
           </div>
           <div>
             <label htmlFor="AnualFormImage" className="block text-gray-300 mb-1">Imagen de Formulario Anual</label>
-            <input id="AnualFormImage" type="file" accept="image/*" className="doc-input" onChange={(e) => handleImageUpload(e, "AnualFormImage")} />
+            <input id="AnualFormImage" type="file" accept="image/*" className="doc-input" disabled={isReadOnly} onChange={(e) => handleImageUpload(e, "AnualFormImage")} />
             {renderImagePreviewActions("AnualFormImage", "Formulario Anual")}
           </div>
         </div>
@@ -343,14 +352,17 @@ const InsuranceForm = ({ propertyId }: InsuranceFormProps) => {
           <textarea
             id="observaciones"
             className="doc-input"
+            readOnly={isReadOnly}
             {...register("observations")}
           />
         </section>
       </fieldset>
 
-      <button type="submit" disabled={loading} className="doc-submit-btn">
-        {loading ? "Guardando..." : "Guardar"}
-      </button>
+      {!isReadOnly && (
+        <button type="submit" disabled={loading} className="doc-submit-btn">
+          {loading ? "Guardando..." : "Guardar"}
+        </button>
+      )}
     </form>
   );
 };

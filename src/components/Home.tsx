@@ -38,7 +38,7 @@ const Home = () => {
     
     if (!token || !userData) {
       // router.push('/login');
-      setUser
+      setUser(null);
       return;
     }
 
@@ -196,16 +196,7 @@ const Home = () => {
               Bienvenido, {user.name} ({isAdmin ? 'Admin' : 'Viewer'})
             </p>
           </div>
-          {/* <button
-            onClick={handleLogout}
-            className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded"
-          >
-            Cerrar Sesión
-          </button>
-        </div>
-        <h1 className="text-center text-4xl font-bold tracking-tight text-slate-100 mb-2">Propiedades</h1>
-        <p className="text-center text-slate-300">Explora las propiedades disponibles</p>
-      </header> */}
+
       <h1 className="text-center text-4xl font-bold tracking-tight text-slate-100 mb-2">Propiedades</h1>
           <p className="text-center text-slate-300">Explora las propiedades disponibles</p>
         </header>

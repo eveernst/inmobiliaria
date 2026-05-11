@@ -9,6 +9,7 @@ import { useEffect, useState } from "react";
 
 interface PlanFormProps {
   propertyId: number;
+  isReadOnly?: boolean;
 }
 
 interface FormData {
@@ -43,7 +44,7 @@ interface FormData {
   propertyId?: number;
 }
 
-const PlanForm = ({ propertyId }: PlanFormProps) => {
+const PlanForm = ({ propertyId, isReadOnly=false }: PlanFormProps) => {
   const { register, handleSubmit, setValue, getValues, reset, formState: { errors } } = useForm<FormData>({
     defaultValues: {
       generalPlan: false,
@@ -77,6 +78,7 @@ const PlanForm = ({ propertyId }: PlanFormProps) => {
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>, fieldName: string) => {
     const file = e.target.files?.[0];
+    if (isReadOnly) return;
     if (file) {
       const reader = new FileReader();
       reader.onloadend = async () => {
@@ -120,6 +122,7 @@ const PlanForm = ({ propertyId }: PlanFormProps) => {
         <button
           type="button"
           onClick={() => handleRemoveImage(fieldName)}
+          disabled={isReadOnly}
           className="inline-flex items-center justify-center rounded bg-red-600 px-3 py-2 text-white hover:bg-red-700"
           title="Eliminar imagen"
         >
@@ -252,6 +255,8 @@ const PlanForm = ({ propertyId }: PlanFormProps) => {
 
   return (
     <form onSubmit={handleSubmit(onSubmit, onInvalid)} className="doc-form">
+      <fieldset disabled={isReadOnly} className="contents">
+
       <h1 className="doc-title">Formulario de Plano de Casa</h1>
       <p className="doc-subtitle">Propiedad actual: #{propertyId || "sin seleccionar"}</p>
       
@@ -411,10 +416,13 @@ const PlanForm = ({ propertyId }: PlanFormProps) => {
           </div>
         </section>
       </fieldset>
+      </fieldset>
 
-      <button type="submit" disabled={loading} className="doc-submit-btn">
+      {!isReadOnly && (
+        <button type="submit" disabled={loading} className="doc-submit-btn">
         {loading ? "Guardando..." : "Guardar"}
       </button>
+      )}
     </form>
   );
 };

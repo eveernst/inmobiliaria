@@ -7,6 +7,7 @@ import PlanForm from "./documents/planForm";
 import { usePathname, useRouter } from "next/navigation";
 import RentedForm from "./documents/rentedForm";
 import { getProperties, getProperty } from "@/api/propertyApi";
+import { set } from "react-hook-form";
 
 type PropertyListItem = {
   id: number;
@@ -31,8 +32,18 @@ export default function Formulario() {
   const [propertyInfo, setPropertyInfo] = useState<PropertyInfo | null>(null);
   const [properties, setProperties] = useState<PropertyListItem[]>([]);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isViewer, setIsViewer] = useState(false);
 
   useEffect(() => {
+    const savedUser = localStorage.getItem("user");
+    if (savedUser) {
+      try {
+        const parsedUser = JSON.parse(savedUser);
+        setIsViewer(parsedUser?.role !== 1);
+      } catch {
+        setIsViewer(false);
+      }
+    }
     const query = new URLSearchParams(window.location.search);
     const id = Number(query.get("propertyId"));
     if (id) setPropertyId(id);
@@ -104,15 +115,15 @@ export default function Formulario() {
 
     switch (activeTab) {
       case "insurance":
-        return <InsuranceForm key={`insurance-${propertyId}`} propertyId={propertyId} />;
+        return <InsuranceForm key={`insurance-${propertyId}`} propertyId={propertyId} isReadOnly={isViewer} />;
       case "rented-property":
-        return <RentedForm key={`rented-${propertyId}`} propertyId={propertyId} />;
+        return <RentedForm key={`rented-${propertyId}`} propertyId={propertyId} isReadOnly={isViewer} />;
       case "plan":
-        return <PlanForm key={`plan-${propertyId}`} propertyId={propertyId} />;
+        return <PlanForm key={`plan-${propertyId}`} propertyId={propertyId} isReadOnly={isViewer} />;
       case "writing":
-        return <WritingForm key={`writing-${propertyId}`} propertyId={propertyId} />;
+        return <WritingForm key={`writing-${propertyId}`} propertyId={propertyId} isReadOnly={isViewer} />;
       default:
-        return <InsuranceForm key={`insurance-${propertyId}`} propertyId={propertyId} />;
+        return <InsuranceForm key={`insurance-${propertyId}`} propertyId={propertyId} isReadOnly={isViewer} />;
     }
   };
 
