@@ -147,14 +147,14 @@ const RentedForm = ({ propertyId, isReadOnly = false }: RentedFormProps) => {
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit, onInvalid)} className="doc-form">
+    <form onSubmit={handleSubmit(onSubmit, onInvalid)} className="doc-form w-full">
       <fieldset disabled={isReadOnly} className="contents">
       <h1 className="doc-title">Formulario de Inmueble Alquilado</h1>
       <p className="doc-subtitle">Propiedad actual: #{propertyId || "sin seleccionar"}</p>
       <section>
         <fieldset className="doc-fieldset">
           <legend className="doc-legend">Datos del Propietario</legend>
-          <div className="grid grid-cols-2 gap-4 mt-4">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 mt-4">
             <div>
               <label htmlFor="ownerDetails" className="block text-gray-300 mb-1">Datos del propietario</label>
               <input
@@ -194,7 +194,7 @@ const RentedForm = ({ propertyId, isReadOnly = false }: RentedFormProps) => {
       <section>
         <fieldset className="doc-fieldset">
           <legend className="doc-legend">Datos del Inquilino</legend>
-          <div className="grid grid-cols-2 gap-4 mt-4">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 mt-4">
             <div>
               <label htmlFor="renterDetails" className="block text-gray-300 mb-1">Datos del inquilino</label>
               <input
@@ -234,7 +234,7 @@ const RentedForm = ({ propertyId, isReadOnly = false }: RentedFormProps) => {
       <section>
         <fieldset className="doc-fieldset">
           <legend className="doc-legend">Detalles del Contrato</legend>
-          <div className="grid grid-cols-2 gap-4 mt-4">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 mt-4">
             <div>
               <label htmlFor="contratStartDate" className="block text-gray-300 mb-1">Fecha de comienzo</label>
               <input
@@ -276,7 +276,7 @@ const RentedForm = ({ propertyId, isReadOnly = false }: RentedFormProps) => {
       <section>
         <fieldset className="doc-fieldset">
           <legend className="doc-legend">Detalles Financieros</legend>
-          <div className="grid grid-cols-2 gap-4 mt-4">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 mt-4">
             <div>
               <label htmlFor="price" className="block text-gray-300 mb-1">Monto ($)</label>
               <input

@@ -128,14 +128,14 @@ export default function Formulario() {
   };
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-6">
+    <div className="mx-0 w-full px-4 py-6 md:px-8">
       <div className="mb-6 rounded-3xl border-[0.5px] border-slate-700/80 bg-gradient-to-b from-slate-800 to-slate-900 p-6 text-white shadow-xl ring-1 ring-slate-600/30">
         <h2 className="text-center text-2xl font-bold">Gestor de Documentos</h2>
         <p className="mt-1 text-center text-sm text-slate-300">
           Elegí una propiedad para trabajar con Seguro, Alquiler, Plano y Escritura.
         </p>
 
-        <div className="relative mx-auto mt-5 max-w-3xl">
+        <div className="relative mt-5 w-full">
           <button
             type="button"
             onClick={() => setIsMenuOpen((prev) => !prev)}

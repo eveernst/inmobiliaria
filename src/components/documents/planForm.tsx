@@ -254,7 +254,7 @@ const PlanForm = ({ propertyId, isReadOnly=false }: PlanFormProps) => {
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit, onInvalid)} className="doc-form">
+    <form onSubmit={handleSubmit(onSubmit, onInvalid)} className="doc-form w-full">
       <fieldset disabled={isReadOnly} className="contents">
 
       <h1 className="doc-title">Formulario de Plano de Casa</h1>
@@ -262,7 +262,7 @@ const PlanForm = ({ propertyId, isReadOnly=false }: PlanFormProps) => {
       
       <fieldset className="doc-fieldset">
         <legend className="doc-legend">Detalles del Plano</legend>
-        <section className="grid grid-cols-2 gap-4 mt-4">
+        <section className="grid grid-cols-1 gap-4 md:grid-cols-2 mt-4">
           <div className="doc-checkbox-card">
             <input type="checkbox" {...register("generalPlan")} id="generalPlan" className="h-4 w-4" />
             <label htmlFor="generalPlan" className="text-gray-200">Plano General</label>
@@ -297,7 +297,7 @@ const PlanForm = ({ propertyId, isReadOnly=false }: PlanFormProps) => {
 
       <fieldset className="doc-fieldset">
         <legend className="doc-legend">Planos Adicionales</legend>
-        <section className="grid grid-cols-2 gap-4 mt-4">
+        <section className="grid grid-cols-1 gap-4 md:grid-cols-2 mt-4">
           <div className="doc-checkbox-card">
             <input type="checkbox" {...register("structurePlan")} id="structurePlan" className="h-4 w-4" />
             <label htmlFor="structurePlan" className="text-gray-200">Plano Estructura</label>
@@ -357,7 +357,7 @@ const PlanForm = ({ propertyId, isReadOnly=false }: PlanFormProps) => {
 
       <fieldset className="doc-fieldset">
         <legend className="doc-legend">Actualización</legend>
-        <section className="grid grid-cols-2 gap-4 mt-4">
+        <section className="grid grid-cols-1 gap-4 md:grid-cols-2 mt-4">
           <div>
             <label htmlFor="planType" className="block text-gray-300 mb-1">Tipo de Plano</label>
             <select id="planType" className="doc-input" {...register("planType", { required: "Campo obligatorio" })}>
