@@ -202,12 +202,12 @@ const InsuranceForm = ({ propertyId, isReadOnly=false }: InsuranceFormProps) => 
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit, onInvalid)} className="doc-form">
+    <form onSubmit={handleSubmit(onSubmit, onInvalid)} className="doc-form w-full">
       <h1 className="doc-title">Formulario de Seguro Inmueble</h1>
       <p className="doc-subtitle">Propiedad actual: #{propertyId || "sin seleccionar"}</p>
       <fieldset className="doc-fieldset">
         <legend className="doc-legend">Responsable del Seguro ARM</legend>
-        <div className="grid grid-cols-2 gap-4 mt-4">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap mt-4">
           <section>
             <label htmlFor="name" className="block text-gray-300 mb-1">Nombre completo</label>
             <input
@@ -236,7 +236,7 @@ const InsuranceForm = ({ propertyId, isReadOnly=false }: InsuranceFormProps) => 
 
       <fieldset className="doc-fieldset">
         <legend className="doc-legend">Contacto</legend>
-        <div className="grid grid-cols-2 gap-4 mt-4">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 mt-4">
           <section>
             <label htmlFor="email" className="block text-gray-300 mb-1">E-mail</label>
             <input
@@ -277,7 +277,7 @@ const InsuranceForm = ({ propertyId, isReadOnly=false }: InsuranceFormProps) => 
       <fieldset className="doc-fieldset">
         <legend className="doc-legend">Tipo de seguro que se registra</legend>
         <section>
-          <div className="grid grid-cols-2 gap-4 mt-4">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 mt-4">
             <label className="block text-gray-300 mb-1">Responsabilidad Civil</label>
             <div className="flex flex-col">
               <label className="block text-gray-300 mb-1">
@@ -306,9 +306,10 @@ const InsuranceForm = ({ propertyId, isReadOnly=false }: InsuranceFormProps) => 
           </div>
         </section>
       </fieldset>
+
       <fieldset className="doc-fieldset">
         <legend className="doc-legend">Formulario del seguro</legend>
-        <div className="grid grid-cols-2 gap-4 mt-4">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 mt-4">
           <div>
             <label htmlFor="insuranceDate" className="block text-gray-300 mb-1">Fecha</label>
             <input
@@ -328,7 +329,7 @@ const InsuranceForm = ({ propertyId, isReadOnly=false }: InsuranceFormProps) => 
       </fieldset>
       <fieldset className="doc-fieldset">
         <legend className="doc-legend">Formulario anual</legend>
-        <div className="grid grid-cols-2 gap-4 mt-4">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 mt-4">
           <div>
             <label htmlFor="AnualFormDate" className="block text-gray-300 mb-1">Fecha</label>
             <input

@@ -9,7 +9,7 @@ import { getPlan } from '@/api/planApi';
 import { getRented } from '@/api/rentedApi';
 import { getWriting } from '@/api/writingApi';
 import { deleteImageByPublicUrl, resolveImageUrl } from '@/lib/imageUpload';
-import Navbar from './Navbar';
+// import Navbar from './Navbar';
 
 interface Property {
   province: string;
@@ -50,11 +50,11 @@ const Home = () => {
     });
   }, [router]);
 
-  const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    router.push('/login');
-  };
+  // const handleLogout = () => {
+  //   localStorage.removeItem('token');
+  //   localStorage.removeItem('user');
+  //   router.push('/login');
+  // };
 
   const handleDeleteProperty = async (property: Property) => {
     const confirmed = window.confirm(
@@ -187,9 +187,11 @@ const Home = () => {
   const isAdmin = user.role === 1;
 
   return (
-    <div className="min-h-screen bg-[radial-gradient(circle_at_top,_#1f2937_0%,_#0f172a_45%,_#020617_100%)] text-gray-200">
-      <Navbar onLogout={handleLogout} />
-      <div className='p-6 md:p-8'>
+    // <div className="min-h-screen bg-[radial-gradient(circle_at_top,_#1f2937_0%,_#0f172a_45%,_#020617_100%)] text-gray-200">
+    //   <Navbar onLogout={handleLogout} />
+    //   <div className='p-6 md:p-8'>
+    <div className="min-h-screen w-full text-gray-200">
+      <div className='w-full p-6 md:p-8'>
         <header className="mb-10 rounded-3xl border-[0.5px] border-slate-700/70 bg-slate-900/45 px-6 py-6 shadow-2xl backdrop-blur-sm">
           <div className="mb-4">
             <p className="text-sm text-gray-400">
