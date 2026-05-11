@@ -9,7 +9,10 @@ import { getPlan } from '@/api/planApi';
 import { getRented } from '@/api/rentedApi';
 import { getWriting } from '@/api/writingApi';
 import { deleteImageByPublicUrl, resolveImageUrl } from '@/lib/imageUpload';
+<<<<<<< HEAD
 // import Navbar from './Navbar';
+=======
+>>>>>>> 8204bdfc8281730e2125a27e1140b03b98120cfe
 
 interface Property {
   province: string;
@@ -50,12 +53,15 @@ const Home = () => {
     });
   }, [router]);
 
+<<<<<<< HEAD
   // const handleLogout = () => {
   //   localStorage.removeItem('token');
   //   localStorage.removeItem('user');
   //   router.push('/login');
   // };
 
+=======
+>>>>>>> 8204bdfc8281730e2125a27e1140b03b98120cfe
   const handleDeleteProperty = async (property: Property) => {
     const confirmed = window.confirm(
       `Vas a eliminar la propiedad ${property.address} (${property.locality}, ${property.province}) y toda su documentación asociada. Esta acción no se puede deshacer. ¿Deseas continuar?`
@@ -187,9 +193,12 @@ const Home = () => {
   const isAdmin = user.role === 1;
 
   return (
+<<<<<<< HEAD
     // <div className="min-h-screen bg-[radial-gradient(circle_at_top,_#1f2937_0%,_#0f172a_45%,_#020617_100%)] text-gray-200">
     //   <Navbar onLogout={handleLogout} />
     //   <div className='p-6 md:p-8'>
+=======
+>>>>>>> 8204bdfc8281730e2125a27e1140b03b98120cfe
     <div className="min-h-screen w-full text-gray-200">
       <div className='w-full p-6 md:p-8'>
         <header className="mb-10 rounded-3xl border-[0.5px] border-slate-700/70 bg-slate-900/45 px-6 py-6 shadow-2xl backdrop-blur-sm">
