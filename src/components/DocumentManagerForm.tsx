@@ -129,7 +129,7 @@ export default function Formulario() {
 
   return (
     <div className="mx-0 w-full px-4 py-6 md:px-8">
-      <div className="mb-6 rounded-3xl border-[0.5px] border-slate-700/80 bg-gradient-to-b from-slate-800 to-slate-900 p-6 text-white shadow-xl ring-1 ring-slate-600/30">
+      <div className="mb-6 rounded-2xl border border-slate-700 bg-slate-900 p-6 text-white">
         <h2 className="text-center text-2xl font-bold">Gestor de Documentos</h2>
         <p className="mt-1 text-center text-sm text-slate-300">
           Elegí una propiedad para trabajar con Seguro, Alquiler, Plano y Escritura.
@@ -139,7 +139,7 @@ export default function Formulario() {
           <button
             type="button"
             onClick={() => setIsMenuOpen((prev) => !prev)}
-            className="flex w-full items-center justify-between rounded-2xl border-[0.5px] border-slate-600 bg-slate-800 px-4 py-3 text-left text-sm text-white transition hover:border-sky-400"
+            className="flex w-full items-center justify-between rounded-lg border border-slate-700 bg-slate-900 px-4 py-3 text-left text-sm text-white transition hover:border-sky-400"
           >
             <span>
               {selectedPropertyListItem
@@ -150,7 +150,7 @@ export default function Formulario() {
           </button>
 
           {isMenuOpen && (
-            <div className="absolute z-30 mt-2 max-h-72 w-full overflow-y-auto rounded-2xl border-[0.5px] border-slate-600 bg-slate-800 shadow-2xl ring-1 ring-slate-500/30">
+            <div className="absolute z-30 mt-2 max-h-72 w-full overflow-y-auto rounded-lg border border-slate-700 bg-slate-900 shadow-2xl ring-1 ring-slate-500/30">
               {properties.length === 0 && (
                 <p className="px-4 py-3 text-sm text-slate-300">No hay propiedades disponibles.</p>
               )}
@@ -163,9 +163,8 @@ export default function Formulario() {
                     key={property.id}
                     type="button"
                     onClick={() => handlePropertySelect(property.id)}
-                    className={`w-full border-b border-slate-700 px-4 py-3 text-left text-sm transition last:border-b-0 ${
-                      isSelected ? "bg-sky-700/40 text-white" : "text-slate-200 hover:bg-slate-700"
-                    }`}
+                    className={`w-full border-b border-slate-700 px-4 py-3 text-left text-sm transition last:border-b-0 ${isSelected ? "bg-sky-700/40 text-white" : "text-slate-200 hover:bg-slate-700"
+                      }`}
                   >
                     <p className="font-medium">#{property.id} - {property.address}</p>
                     <p className="text-xs text-slate-300">{property.locality}, {property.province}</p>
@@ -176,7 +175,7 @@ export default function Formulario() {
           )}
         </div>
 
-        <div className="mt-4 rounded-2xl border-[0.5px] border-slate-700 bg-slate-800/70 p-3 text-center">
+        <div className="mt-4 rounded-lg border border-slate-700 bg-slate-900/70 p-3 text-center">
           {propertyInfo ? (
             <>
               <p className="text-sm text-slate-200">
@@ -196,32 +195,32 @@ export default function Formulario() {
 
       <div className="mb-6 flex flex-wrap items-center justify-center gap-3">
         <button
-          className={`rounded-2xl border-[0.5px] px-5 py-2 text-sm font-semibold transition ${activeTab === "insurance" ? "border-sky-400 bg-sky-500 text-white shadow-lg shadow-sky-900/40" : "border-slate-600 bg-slate-700 text-slate-200 hover:bg-slate-600"}`}
+          className={`rounded-lg border px-5 py-2.5 text-sm font-semibold transition ${activeTab === "insurance" ? "border-sky-400 bg-sky-500 text-white " : "border-slate-600 bg-slate-700 text-slate-200 hover:bg-slate-600"}`}
           onClick={() => setActiveTab("insurance")}
         >
           Seguro Inmueble
         </button>
         <button
-          className={`rounded-2xl border-[0.5px] px-5 py-2 text-sm font-semibold transition ${activeTab === "rented-property" ? "border-sky-400 bg-sky-500 text-white shadow-lg shadow-sky-900/40" : "border-slate-600 bg-slate-700 text-slate-200 hover:bg-slate-600"}`}
+          className={`rounded-lg border px-5 py-2.5 text-sm font-semibold transition ${activeTab === "rented-property" ? "border-sky-400 bg-sky-500 text-white " : "border-slate-600 bg-slate-700 text-slate-200 hover:bg-slate-600"}`}
           onClick={() => setActiveTab("rented-property")}
         >
           Inmueble Alquilado
         </button>
         <button
-          className={`rounded-2xl border-[0.5px] px-5 py-2 text-sm font-semibold transition ${activeTab === "plan" ? "border-sky-400 bg-sky-500 text-white shadow-lg shadow-sky-900/40" : "border-slate-600 bg-slate-700 text-slate-200 hover:bg-slate-600"}`}
+          className={`rounded-lg border px-5 py-2.5 text-sm font-semibold transition ${activeTab === "plan" ? "border-sky-400 bg-sky-500 text-white " : "border-slate-600 bg-slate-700 text-slate-200 hover:bg-slate-600"}`}
           onClick={() => setActiveTab("plan")}
         >
           Plano Casa
         </button>
         <button
-          className={`rounded-2xl border-[0.5px] px-5 py-2 text-sm font-semibold transition ${activeTab === "writing" ? "border-sky-400 bg-sky-500 text-white shadow-lg shadow-sky-900/40" : "border-slate-600 bg-slate-700 text-slate-200 hover:bg-slate-600"}`}
+          className={`rounded-lg border px-5 py-2.5 text-sm font-semibold transition ${activeTab === "writing" ? "border-sky-400 bg-sky-500 text-white " : "border-slate-600 bg-slate-700 text-slate-200 hover:bg-slate-600"}`}
           onClick={() => setActiveTab("writing")}
         >
           Escritura
         </button>
       </div>
 
-      <div className="rounded-3xl border-[0.5px] border-slate-700/60 bg-slate-900/30 p-2 md:p-4">
+      <div className="rounded-2xl border border-slate-700/70 bg-slate-900/40 p-3 md:p-4">
         {renderTabContent()}
       </div>
     </div>

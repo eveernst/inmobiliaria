@@ -29,7 +29,7 @@ interface FormData {
   propertyId?: number;
 }
 
-const InsuranceForm = ({ propertyId, isReadOnly=false }: InsuranceFormProps) => {
+const InsuranceForm = ({ propertyId, isReadOnly = false }: InsuranceFormProps) => {
   const { register, handleSubmit, setValue, getValues, reset, formState: { errors } } = useForm<FormData>();
   const [loading, setLoading] = useState(false);
   const [imagePreviews, setImagePreviews] = useState<Record<string, string>>({});
@@ -59,7 +59,7 @@ const InsuranceForm = ({ propertyId, isReadOnly=false }: InsuranceFormProps) => 
       reader.onloadend = async () => {
         const preview = reader.result as string;
         setImagePreviews((prev) => ({ ...prev, [fieldName]: preview }));
-        
+
         const url = await uploadImageToSupabase(file, `insurance/property-${propertyId}`);
         if (url) {
           setValue(fieldName as any, url);

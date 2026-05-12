@@ -5,7 +5,7 @@ import Home from "@/components/Home";
 import LoginScreen from "@/components/Login";
 
 const HomePage = () => {
-    const [isAuthenticated, setIsAuthenticated] = useState<boolean|null>(null);
+    const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
 
     useEffect(() => {
         const token = localStorage.getItem("token");

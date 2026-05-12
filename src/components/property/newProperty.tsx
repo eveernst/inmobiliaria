@@ -44,7 +44,7 @@ export default function NewProperty() {
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
- 
+
   const handleSelectChange = (name: string, value: string) => {
     setFormData({ ...formData, [name]: value });
   };
@@ -71,11 +71,11 @@ export default function NewProperty() {
       // Aquí iría la lógica para enviar el formulario al backend
     }
   };
-  
+
   const renderPropertyForm = (title: string) => (
-    <Card className="w-full max-w-4xl mx-auto bg-gray-800 text-gray-100">
+    <Card className="w-full max-w-4xl mx-auto bg-slate-900 text-slate-100 border border-slate-700 rounded-2xl">
       <CardHeader>
-        <CardTitle className="text-2xl font-bold text-orange-500">
+        <CardTitle className="text-2xl font-bold text-blue-400">
           {title}
         </CardTitle>
       </CardHeader>
@@ -86,7 +86,7 @@ export default function NewProperty() {
             name="securityCodeARM"
             value={formData.securityCodeARM}
             onChange={handleInputChange}
-            className="bg-gray-700 border-gray-600"
+            className="bg-slate-900 border-slate-700"
             placeholder="Código Bien de Uso"
             required
           />
@@ -97,7 +97,7 @@ export default function NewProperty() {
               name="innerImage"
               value={formData.innerImage}
               variant="outline"
-              className="flex-1 bg-gray-700 border-gray-600 text-gray-300"
+              className="flex-1 bg-slate-900 border-slate-700 text-slate-300"
             >
               Imagen interior
             </Button>
@@ -105,7 +105,7 @@ export default function NewProperty() {
               name="outerImage"
               value={formData.outerImage}
               variant="outline"
-              className="flex-1 bg-gray-700 border-gray-600 text-gray-300"
+              className="flex-1 bg-slate-900 border-slate-700 text-slate-300"
             >
               Imagen exterior
             </Button>
@@ -113,7 +113,7 @@ export default function NewProperty() {
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <Select name="province" onValueChange={(value) => handleSelectChange("province", value)} required>
-            <SelectTrigger className="bg-gray-700 border-gray-600">
+            <SelectTrigger className="bg-slate-900 border-slate-700">
               <SelectValue placeholder="Provincia" />
             </SelectTrigger>
             <SelectContent>
@@ -128,7 +128,7 @@ export default function NewProperty() {
             name="locality"
             value={formData.locality}
             onChange={handleInputChange}
-            className="bg-gray-700 border-gray-600"
+            className="bg-slate-900 border-slate-700"
             placeholder="Localidad"
             required
           />
@@ -139,7 +139,7 @@ export default function NewProperty() {
             id="address"
             value={formData.address}
             onChange={handleInputChange}
-            className="bg-gray-700 border-gray-600"
+            className="bg-slate-900 border-slate-700"
             placeholder="Dirección completa"
           />
           {errors.address && <p className="text-red-500">{errors.address}</p>}
@@ -151,7 +151,7 @@ export default function NewProperty() {
             name="postalCode"
             value={formData.postalCode}
             onChange={handleInputChange}
-            className="bg-gray-700 border-gray-600"
+            className="bg-slate-900 border-slate-700"
             placeholder="Código postal"
             required
           />
@@ -162,7 +162,7 @@ export default function NewProperty() {
             name="betweenStreets"
             value={formData.betweenStreets}
             onChange={handleInputChange}
-            className="bg-gray-700 border-gray-600"
+            className="bg-slate-900 border-slate-700"
             placeholder="Entre calles"
             required
           />
@@ -173,16 +173,16 @@ export default function NewProperty() {
             name="district"
             value={formData.district}
             onChange={handleInputChange}
-            className="bg-gray-700 border-gray-600"
+            className="bg-slate-900 border-slate-700"
             placeholder="Distrito"
             required
           />
           {errors.district && <p className="text-red-500">{errors.district}</p>}
-        
+
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           <Select name="destinyUse" onValueChange={(value) => handleSelectChange("destinyUse", value)} required>
-            <SelectTrigger className="bg-gray-700 border-gray-600">
+            <SelectTrigger className="bg-slate-900 border-slate-700">
               <SelectValue placeholder="Destino de uso" />
             </SelectTrigger>
             <SelectContent>
@@ -200,7 +200,7 @@ export default function NewProperty() {
           </Select>
 
           <Select name="clfc" onValueChange={(value) => handleSelectChange("clfc", value)} required>
-            <SelectTrigger className="bg-gray-700 border-gray-600">
+            <SelectTrigger className="bg-slate-900 border-slate-700">
               <SelectValue placeholder="CLFC" />
             </SelectTrigger>
             <SelectContent>
@@ -211,7 +211,7 @@ export default function NewProperty() {
           </Select>
 
           <Select name="state" onValueChange={(value) => handleSelectChange("state", value)} required>
-            <SelectTrigger className="bg-gray-700 border-gray-600">
+            <SelectTrigger className="bg-slate-900 border-slate-700">
               <SelectValue placeholder="Estado" />
             </SelectTrigger>
             <SelectContent>
@@ -226,7 +226,7 @@ export default function NewProperty() {
           </Select>
 
           <Select name="status" onValueChange={(value) => handleSelectChange("status", value)} required>
-            <SelectTrigger className="bg-gray-700 border-gray-600">
+            <SelectTrigger className="bg-slate-900 border-slate-700">
               <SelectValue placeholder="Estatus" />
             </SelectTrigger>
             <SelectContent>
@@ -245,7 +245,7 @@ export default function NewProperty() {
               name="detailsMaintenance"
               value={formData.detailsMaintenance}
               onChange={handleInputChange}
-              className="bg-gray-700 border-gray-600"
+              className="bg-slate-900 border-slate-700"
               placeholder="Ingrese detalles de mantenimiento"
             />
           </div>
@@ -256,7 +256,7 @@ export default function NewProperty() {
               name="description"
               value={formData.description}
               onChange={handleInputChange}
-              className="bg-gray-700 border-gray-600"
+              className="bg-slate-900 border-slate-700"
               placeholder="Ingrese una descripción"
               required
             />
@@ -265,7 +265,7 @@ export default function NewProperty() {
         </div>
         <div className="flex justify-between items-center">
           <Select name="userId" onValueChange={(value) => handleSelectChange("userId", value)} required>
-            <SelectTrigger className="bg-gray-700 border-gray-600 w-48">
+            <SelectTrigger className="bg-slate-900 border-slate-700 w-48">
               <SelectValue placeholder="Usuario responsable" />
             </SelectTrigger>
             <SelectContent>
@@ -276,13 +276,13 @@ export default function NewProperty() {
           <div className="space-x-2">
             <Button
               variant="outline"
-              className="bg-orange-500 hover:bg-orange-600 text-white"
+              className="bg-blue-600 hover:bg-blue-500 text-white rounded-lg"
             >
               Agregar Instalación
             </Button>
             <Button
               variant="outline"
-              className="bg-orange-500 hover:bg-orange-600 text-white"
+              className="bg-blue-600 hover:bg-blue-500 text-white rounded-lg"
             >
               Agregar Documentación
             </Button>
@@ -291,25 +291,25 @@ export default function NewProperty() {
         <div className="flex justify-end space-x-2 mt-6">
           <Button
             variant="outline"
-            className="bg-orange-500 hover:bg-orange-600 text-white"
+            className="bg-blue-600 hover:bg-blue-500 text-white rounded-lg"
             onClick={() => setView("initial")}
           >
             Cancelar
           </Button>
-          <Button onClick={handleSubmit} className="bg-gray-700 hover:bg-gray-600">Aceptar</Button>
+          <Button onClick={handleSubmit} className="bg-blue-600 hover:bg-blue-500 rounded-lg">Aceptar</Button>
         </div>
       </CardContent>
     </Card>
   );
 
   return (
-    <div className="min-h-screen bg-gray-900 text-gray-100 p-4">
+    <div className="min-h-screen bg-slate-950 text-slate-100 p-6">
       <header className="flex justify-between items-center mb-6">
         <div className="flex items-center space-x-2">
-          <div className="w-8 h-8 bg-orange-500 rounded-full" />
+          <div className="w-8 h-8 bg-blue-500 rounded-full" />
           <span className="text-xl font-bold">AAC</span>
         </div>
-        <Button variant="ghost" className="text-gray-300">
+        <Button variant="ghost" className="text-slate-300">
           Usuario
         </Button>
       </header>

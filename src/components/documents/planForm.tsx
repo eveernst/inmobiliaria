@@ -44,7 +44,7 @@ interface FormData {
   propertyId?: number;
 }
 
-const PlanForm = ({ propertyId, isReadOnly=false }: PlanFormProps) => {
+const PlanForm = ({ propertyId, isReadOnly = false }: PlanFormProps) => {
   const { register, handleSubmit, setValue, getValues, reset, formState: { errors } } = useForm<FormData>({
     defaultValues: {
       generalPlan: false,
@@ -84,7 +84,7 @@ const PlanForm = ({ propertyId, isReadOnly=false }: PlanFormProps) => {
       reader.onloadend = async () => {
         const preview = reader.result as string;
         setImagePreviews((prev) => ({ ...prev, [fieldName]: preview }));
-        
+
         // Upload to Supabase
         const url = await uploadImageToSupabase(file, `plans/property-${propertyId}`);
         if (url) {
@@ -257,171 +257,171 @@ const PlanForm = ({ propertyId, isReadOnly=false }: PlanFormProps) => {
     <form onSubmit={handleSubmit(onSubmit, onInvalid)} className="doc-form w-full">
       <fieldset disabled={isReadOnly} className="contents">
 
-      <h1 className="doc-title">Formulario de Plano de Casa</h1>
-      <p className="doc-subtitle">Propiedad actual: #{propertyId || "sin seleccionar"}</p>
-      
-      <fieldset className="doc-fieldset">
-        <legend className="doc-legend">Detalles del Plano</legend>
-        <section className="grid grid-cols-1 gap-4 md:grid-cols-2 mt-4">
-          <div className="doc-checkbox-card">
-            <input type="checkbox" {...register("generalPlan")} id="generalPlan" className="h-4 w-4" />
-            <label htmlFor="generalPlan" className="text-gray-200">Plano General</label>
-          </div>
-          <div>
-            <label htmlFor="planImage" className="block text-gray-300 mb-1">Imagen Plano General</label>
-            <input id="planImage" type="file" accept="image/*" className="doc-input" onChange={(e) => handleImageUpload(e, "planImage")} />
-            {renderImagePreviewActions("planImage", "Plano General")}
-          </div>
-          <div>
-            <label htmlFor="nro-plano" className="block text-gray-300 mb-1">N° de Plano</label>
-            <input id="nro-plano" type="number" className="doc-input" {...register("planNumber", { required: "Campo obligatorio", valueAsNumber: true })} />
-            {errors.planNumber && <p className="text-red-400 text-sm mt-1">{errors.planNumber.message}</p>}
-          </div>
-          <div>
-            <label htmlFor="year" className="block text-gray-300 mb-1">Año</label>
-            <input id="year" type="number" className="doc-input" {...register("year", { required: "Campo obligatorio", valueAsNumber: true })} />
-            {errors.year && <p className="text-red-400 text-sm mt-1">{errors.year.message}</p>}
-          </div>
-          <div>
-            <label htmlFor="profesional" className="block text-gray-300 mb-1">Profesional</label>
-            <input id="profesional" className="doc-input" {...register("professional", { required: "Campo obligatorio" })} />
-            {errors.professional && <p className="text-red-400 text-sm mt-1">{errors.professional.message}</p>}
-          </div>
-          <div>
-            <label htmlFor="contactoProfesional" className="block text-gray-300 mb-1">Contacto Profesional</label>
-            <input id="contactoProfesional" className="doc-input" {...register("professionalContact", { required: "Campo obligatorio" })} />
-            {errors.professionalContact && <p className="text-red-400 text-sm mt-1">{errors.professionalContact.message}</p>}
-          </div>
-        </section>
-      </fieldset>
+        <h1 className="doc-title">Formulario de Plano de Casa</h1>
+        <p className="doc-subtitle">Propiedad actual: #{propertyId || "sin seleccionar"}</p>
 
-      <fieldset className="doc-fieldset">
-        <legend className="doc-legend">Planos Adicionales</legend>
-        <section className="grid grid-cols-1 gap-4 md:grid-cols-2 mt-4">
-          <div className="doc-checkbox-card">
-            <input type="checkbox" {...register("structurePlan")} id="structurePlan" className="h-4 w-4" />
-            <label htmlFor="structurePlan" className="text-gray-200">Plano Estructura</label>
-          </div>
-          <div>
-            <label htmlFor="structureImage" className="block text-gray-300 mb-1">Imagen</label>
-            <input id="structureImage" type="file" accept="image/*" className="doc-input" onChange={(e) => handleImageUpload(e, "structureImage")} />
-            {renderImagePreviewActions("structureImage", "Plano Estructura")}
-          </div>
-          <div className="doc-checkbox-card">
-            <input type="checkbox" {...register("gasPlan")} id="gasPlan" className="h-4 w-4" />
-            <label htmlFor="gasPlan" className="text-gray-200">Plano Gas</label>
-          </div>
-          <div>
-            <label htmlFor="gasImage" className="block text-gray-300 mb-1">Imagen</label>
-            <input id="gasImage" type="file" accept="image/*" className="doc-input" onChange={(e) => handleImageUpload(e, "gasImage")} />
-            {renderImagePreviewActions("gasImage", "Plano Gas")}
-          </div>
-          <div className="doc-checkbox-card">
-            <input type="checkbox" {...register("waterPlan")} id="waterPlan" className="h-4 w-4" />
-            <label htmlFor="waterPlan" className="text-gray-200">Plano Agua</label>
-          </div>
-          <div>
-            <label htmlFor="waterImage" className="block text-gray-300 mb-1">Imagen</label>
-            <input id="waterImage" type="file" accept="image/*" className="doc-input" onChange={(e) => handleImageUpload(e, "waterImage")} />
-            {renderImagePreviewActions("waterImage", "Plano Agua")}
-          </div>
-          <div className="doc-checkbox-card">
-            <input type="checkbox" {...register("lightPlan")} id="lightPlan" className="h-4 w-4" />
-            <label htmlFor="lightPlan" className="text-gray-200">Plano Luz</label>
-          </div>
-          <div>
-            <label htmlFor="lightImage" className="block text-gray-300 mb-1">Imagen</label>
-            <input id="lightImage" type="file" accept="image/*" className="doc-input" onChange={(e) => handleImageUpload(e, "lightImage")} />
-            {renderImagePreviewActions("lightImage", "Plano Luz")}
-          </div>
-          <div className="doc-checkbox-card">
-            <input type="checkbox" {...register("projectPlan")} id="projectPlan" className="h-4 w-4" />
-            <label htmlFor="projectPlan" className="text-gray-200">Anteproyecto</label>
-          </div>
-          <div>
-            <label htmlFor="projectImage" className="block text-gray-300 mb-1">Imagen</label>
-            <input id="projectImage" type="file" accept="image/*" className="doc-input" onChange={(e) => handleImageUpload(e, "projectImage")} />
-            {renderImagePreviewActions("projectImage", "Anteproyecto")}
-          </div>
-          <div className="doc-checkbox-card">
-            <input type="checkbox" {...register("finalPlan")} id="finalPlan" className="h-4 w-4" />
-            <label htmlFor="finalPlan" className="text-gray-200">Final de Obra</label>
-          </div>
-          <div>
-            <label htmlFor="finalImage" className="block text-gray-300 mb-1">Imagen</label>
-            <input id="finalImage" type="file" accept="image/*" className="doc-input" onChange={(e) => handleImageUpload(e, "finalImage")} />
-            {renderImagePreviewActions("finalImage", "Final de Obra")}
-          </div>
-        </section>
-      </fieldset>
+        <fieldset className="doc-fieldset">
+          <legend className="doc-legend">Detalles del Plano</legend>
+          <section className="grid grid-cols-1 gap-4 md:grid-cols-2 mt-4">
+            <div className="doc-checkbox-card">
+              <input type="checkbox" {...register("generalPlan")} id="generalPlan" className="h-4 w-4" />
+              <label htmlFor="generalPlan" className="text-gray-200">Plano General</label>
+            </div>
+            <div>
+              <label htmlFor="planImage" className="block text-gray-300 mb-1">Imagen Plano General</label>
+              <input id="planImage" type="file" accept="image/*" className="doc-input" onChange={(e) => handleImageUpload(e, "planImage")} />
+              {renderImagePreviewActions("planImage", "Plano General")}
+            </div>
+            <div>
+              <label htmlFor="nro-plano" className="block text-gray-300 mb-1">N° de Plano</label>
+              <input id="nro-plano" type="number" className="doc-input" {...register("planNumber", { required: "Campo obligatorio", valueAsNumber: true })} />
+              {errors.planNumber && <p className="text-red-400 text-sm mt-1">{errors.planNumber.message}</p>}
+            </div>
+            <div>
+              <label htmlFor="year" className="block text-gray-300 mb-1">Año</label>
+              <input id="year" type="number" className="doc-input" {...register("year", { required: "Campo obligatorio", valueAsNumber: true })} />
+              {errors.year && <p className="text-red-400 text-sm mt-1">{errors.year.message}</p>}
+            </div>
+            <div>
+              <label htmlFor="profesional" className="block text-gray-300 mb-1">Profesional</label>
+              <input id="profesional" className="doc-input" {...register("professional", { required: "Campo obligatorio" })} />
+              {errors.professional && <p className="text-red-400 text-sm mt-1">{errors.professional.message}</p>}
+            </div>
+            <div>
+              <label htmlFor="contactoProfesional" className="block text-gray-300 mb-1">Contacto Profesional</label>
+              <input id="contactoProfesional" className="doc-input" {...register("professionalContact", { required: "Campo obligatorio" })} />
+              {errors.professionalContact && <p className="text-red-400 text-sm mt-1">{errors.professionalContact.message}</p>}
+            </div>
+          </section>
+        </fieldset>
 
-      <fieldset className="doc-fieldset">
-        <legend className="doc-legend">Actualización</legend>
-        <section className="grid grid-cols-1 gap-4 md:grid-cols-2 mt-4">
-          <div>
-            <label htmlFor="planType" className="block text-gray-300 mb-1">Tipo de Plano</label>
-            <select id="planType" className="doc-input" {...register("planType", { required: "Campo obligatorio" })}>
-              <option value="">Seleccionar</option>
-              <option value="General">General</option>
-              <option value="Electricidad">Electricidad</option>
-              <option value="Gas">Gas</option>
-              <option value="Agua">Agua</option>
-            </select>
-            {errors.planType && <p className="text-red-400 text-sm mt-1">{errors.planType.message}</p>}
-          </div>
-          <div>
-            <label htmlFor="planNumberUpdate" className="block text-gray-300 mb-1">N° de Plano</label>
-            <input id="planNumberUpdate" type="number" className="doc-input" {...register("planNumberUpdate", { required: "Campo obligatorio", valueAsNumber: true })} />
-            {errors.planNumberUpdate && <p className="text-red-400 text-sm mt-1">{errors.planNumberUpdate.message}</p>}
-          </div>
-          <div>
-            <label htmlFor="yearUpdate" className="block text-gray-300 mb-1">Año</label>
-            <input id="yearUpdate" type="number" className="doc-input" {...register("yearUpdate", { required: "Campo obligatorio", valueAsNumber: true })} />
-            {errors.yearUpdate && <p className="text-red-400 text-sm mt-1">{errors.yearUpdate.message}</p>}
-          </div>
-          <div>
-            <label htmlFor="formalities" className="block text-gray-300 mb-1">Formalidades</label>
-            <input id="formalities" className="doc-input" {...register("formalities", { required: "Campo obligatorio" })} />
-            {errors.formalities && <p className="text-red-400 text-sm mt-1">{errors.formalities.message}</p>}
-          </div>
-          <div>
-            <label htmlFor="documentation" className="block text-gray-300 mb-1">Documentación</label>
-            <input id="documentation" className="doc-input" {...register("documentation", { required: "Campo obligatorio" })} />
-            {errors.documentation && <p className="text-red-400 text-sm mt-1">{errors.documentation.message}</p>}
-          </div>
-          <div>
-            <label htmlFor="contacts" className="block text-gray-300 mb-1">Contactos</label>
-            <input id="contacts" className="doc-input" {...register("contacts", { required: "Campo obligatorio" })} />
-            {errors.contacts && <p className="text-red-400 text-sm mt-1">{errors.contacts.message}</p>}
-          </div>
-          <div>
-            <label htmlFor="numberVisado" className="block text-gray-300 mb-1">Visado Municipal</label>
-            <input id="numberVisado" type="number" className="doc-input" {...register("numberVisado", { required: "Campo obligatorio", valueAsNumber: true })} />
-            {errors.numberVisado && <p className="text-red-400 text-sm mt-1">{errors.numberVisado.message}</p>}
-          </div>
-          <div>
-            <label htmlFor="dateVisado" className="block text-gray-300 mb-1">Fecha Visado</label>
-            <input id="dateVisado" type="date" className="doc-input" {...register("dateVisado", { required: "Campo obligatorio" })} />
-            {errors.dateVisado && <p className="text-red-400 text-sm mt-1">{errors.dateVisado.message}</p>}
-          </div>
-          <div>
-            <label htmlFor="imageVisado" className="block text-gray-300 mb-1">Imagen Visado</label>
-            <input id="imageVisado" type="file" accept="image/*" className="doc-input" onChange={(e) => handleImageUpload(e, "imageVisado")} />
-            {renderImagePreviewActions("imageVisado", "Imagen Visado")}
-          </div>
-          <div>
-            <label htmlFor="stateImage" className="block text-gray-300 mb-1">Imagen Estado</label>
-            <input id="stateImage" type="file" accept="image/*" className="doc-input" onChange={(e) => handleImageUpload(e, "stateImage")} />
-            {renderImagePreviewActions("stateImage", "Imagen Estado")}
-          </div>
-        </section>
-      </fieldset>
+        <fieldset className="doc-fieldset">
+          <legend className="doc-legend">Planos Adicionales</legend>
+          <section className="grid grid-cols-1 gap-4 md:grid-cols-2 mt-4">
+            <div className="doc-checkbox-card">
+              <input type="checkbox" {...register("structurePlan")} id="structurePlan" className="h-4 w-4" />
+              <label htmlFor="structurePlan" className="text-gray-200">Plano Estructura</label>
+            </div>
+            <div>
+              <label htmlFor="structureImage" className="block text-gray-300 mb-1">Imagen</label>
+              <input id="structureImage" type="file" accept="image/*" className="doc-input" onChange={(e) => handleImageUpload(e, "structureImage")} />
+              {renderImagePreviewActions("structureImage", "Plano Estructura")}
+            </div>
+            <div className="doc-checkbox-card">
+              <input type="checkbox" {...register("gasPlan")} id="gasPlan" className="h-4 w-4" />
+              <label htmlFor="gasPlan" className="text-gray-200">Plano Gas</label>
+            </div>
+            <div>
+              <label htmlFor="gasImage" className="block text-gray-300 mb-1">Imagen</label>
+              <input id="gasImage" type="file" accept="image/*" className="doc-input" onChange={(e) => handleImageUpload(e, "gasImage")} />
+              {renderImagePreviewActions("gasImage", "Plano Gas")}
+            </div>
+            <div className="doc-checkbox-card">
+              <input type="checkbox" {...register("waterPlan")} id="waterPlan" className="h-4 w-4" />
+              <label htmlFor="waterPlan" className="text-gray-200">Plano Agua</label>
+            </div>
+            <div>
+              <label htmlFor="waterImage" className="block text-gray-300 mb-1">Imagen</label>
+              <input id="waterImage" type="file" accept="image/*" className="doc-input" onChange={(e) => handleImageUpload(e, "waterImage")} />
+              {renderImagePreviewActions("waterImage", "Plano Agua")}
+            </div>
+            <div className="doc-checkbox-card">
+              <input type="checkbox" {...register("lightPlan")} id="lightPlan" className="h-4 w-4" />
+              <label htmlFor="lightPlan" className="text-gray-200">Plano Luz</label>
+            </div>
+            <div>
+              <label htmlFor="lightImage" className="block text-gray-300 mb-1">Imagen</label>
+              <input id="lightImage" type="file" accept="image/*" className="doc-input" onChange={(e) => handleImageUpload(e, "lightImage")} />
+              {renderImagePreviewActions("lightImage", "Plano Luz")}
+            </div>
+            <div className="doc-checkbox-card">
+              <input type="checkbox" {...register("projectPlan")} id="projectPlan" className="h-4 w-4" />
+              <label htmlFor="projectPlan" className="text-gray-200">Anteproyecto</label>
+            </div>
+            <div>
+              <label htmlFor="projectImage" className="block text-gray-300 mb-1">Imagen</label>
+              <input id="projectImage" type="file" accept="image/*" className="doc-input" onChange={(e) => handleImageUpload(e, "projectImage")} />
+              {renderImagePreviewActions("projectImage", "Anteproyecto")}
+            </div>
+            <div className="doc-checkbox-card">
+              <input type="checkbox" {...register("finalPlan")} id="finalPlan" className="h-4 w-4" />
+              <label htmlFor="finalPlan" className="text-gray-200">Final de Obra</label>
+            </div>
+            <div>
+              <label htmlFor="finalImage" className="block text-gray-300 mb-1">Imagen</label>
+              <input id="finalImage" type="file" accept="image/*" className="doc-input" onChange={(e) => handleImageUpload(e, "finalImage")} />
+              {renderImagePreviewActions("finalImage", "Final de Obra")}
+            </div>
+          </section>
+        </fieldset>
+
+        <fieldset className="doc-fieldset">
+          <legend className="doc-legend">Actualización</legend>
+          <section className="grid grid-cols-1 gap-4 md:grid-cols-2 mt-4">
+            <div>
+              <label htmlFor="planType" className="block text-gray-300 mb-1">Tipo de Plano</label>
+              <select id="planType" className="doc-input" {...register("planType", { required: "Campo obligatorio" })}>
+                <option value="">Seleccionar</option>
+                <option value="General">General</option>
+                <option value="Electricidad">Electricidad</option>
+                <option value="Gas">Gas</option>
+                <option value="Agua">Agua</option>
+              </select>
+              {errors.planType && <p className="text-red-400 text-sm mt-1">{errors.planType.message}</p>}
+            </div>
+            <div>
+              <label htmlFor="planNumberUpdate" className="block text-gray-300 mb-1">N° de Plano</label>
+              <input id="planNumberUpdate" type="number" className="doc-input" {...register("planNumberUpdate", { required: "Campo obligatorio", valueAsNumber: true })} />
+              {errors.planNumberUpdate && <p className="text-red-400 text-sm mt-1">{errors.planNumberUpdate.message}</p>}
+            </div>
+            <div>
+              <label htmlFor="yearUpdate" className="block text-gray-300 mb-1">Año</label>
+              <input id="yearUpdate" type="number" className="doc-input" {...register("yearUpdate", { required: "Campo obligatorio", valueAsNumber: true })} />
+              {errors.yearUpdate && <p className="text-red-400 text-sm mt-1">{errors.yearUpdate.message}</p>}
+            </div>
+            <div>
+              <label htmlFor="formalities" className="block text-gray-300 mb-1">Formalidades</label>
+              <input id="formalities" className="doc-input" {...register("formalities", { required: "Campo obligatorio" })} />
+              {errors.formalities && <p className="text-red-400 text-sm mt-1">{errors.formalities.message}</p>}
+            </div>
+            <div>
+              <label htmlFor="documentation" className="block text-gray-300 mb-1">Documentación</label>
+              <input id="documentation" className="doc-input" {...register("documentation", { required: "Campo obligatorio" })} />
+              {errors.documentation && <p className="text-red-400 text-sm mt-1">{errors.documentation.message}</p>}
+            </div>
+            <div>
+              <label htmlFor="contacts" className="block text-gray-300 mb-1">Contactos</label>
+              <input id="contacts" className="doc-input" {...register("contacts", { required: "Campo obligatorio" })} />
+              {errors.contacts && <p className="text-red-400 text-sm mt-1">{errors.contacts.message}</p>}
+            </div>
+            <div>
+              <label htmlFor="numberVisado" className="block text-gray-300 mb-1">Visado Municipal</label>
+              <input id="numberVisado" type="number" className="doc-input" {...register("numberVisado", { required: "Campo obligatorio", valueAsNumber: true })} />
+              {errors.numberVisado && <p className="text-red-400 text-sm mt-1">{errors.numberVisado.message}</p>}
+            </div>
+            <div>
+              <label htmlFor="dateVisado" className="block text-gray-300 mb-1">Fecha Visado</label>
+              <input id="dateVisado" type="date" className="doc-input" {...register("dateVisado", { required: "Campo obligatorio" })} />
+              {errors.dateVisado && <p className="text-red-400 text-sm mt-1">{errors.dateVisado.message}</p>}
+            </div>
+            <div>
+              <label htmlFor="imageVisado" className="block text-gray-300 mb-1">Imagen Visado</label>
+              <input id="imageVisado" type="file" accept="image/*" className="doc-input" onChange={(e) => handleImageUpload(e, "imageVisado")} />
+              {renderImagePreviewActions("imageVisado", "Imagen Visado")}
+            </div>
+            <div>
+              <label htmlFor="stateImage" className="block text-gray-300 mb-1">Imagen Estado</label>
+              <input id="stateImage" type="file" accept="image/*" className="doc-input" onChange={(e) => handleImageUpload(e, "stateImage")} />
+              {renderImagePreviewActions("stateImage", "Imagen Estado")}
+            </div>
+          </section>
+        </fieldset>
       </fieldset>
 
       {!isReadOnly && (
         <button type="submit" disabled={loading} className="doc-submit-btn">
-        {loading ? "Guardando..." : "Guardar"}
-      </button>
+          {loading ? "Guardando..." : "Guardar"}
+        </button>
       )}
     </form>
   );

@@ -42,7 +42,7 @@ const RentedForm = ({ propertyId, isReadOnly = false }: RentedFormProps) => {
       reader.onloadend = async () => {
         const preview = reader.result as string;
         setImagePreviews((prev) => ({ ...prev, [fieldName]: preview }));
-        
+
         const url = await uploadImageToSupabase(file, `rented/property-${propertyId}`);
         if (url) {
           setValue(fieldName as any, url);
@@ -149,187 +149,187 @@ const RentedForm = ({ propertyId, isReadOnly = false }: RentedFormProps) => {
   return (
     <form onSubmit={handleSubmit(onSubmit, onInvalid)} className="doc-form w-full">
       <fieldset disabled={isReadOnly} className="contents">
-      <h1 className="doc-title">Formulario de Inmueble Alquilado</h1>
-      <p className="doc-subtitle">Propiedad actual: #{propertyId || "sin seleccionar"}</p>
-      <section>
-        <fieldset className="doc-fieldset">
-          <legend className="doc-legend">Datos del Propietario</legend>
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 mt-4">
-            <div>
-              <label htmlFor="ownerDetails" className="block text-gray-300 mb-1">Datos del propietario</label>
-              <input
-                id="ownerDetails"
-                className="doc-input"
-                {...register("ownerDetails")}
-              />
+        <h1 className="doc-title">Formulario de Inmueble Alquilado</h1>
+        <p className="doc-subtitle">Propiedad actual: #{propertyId || "sin seleccionar"}</p>
+        <section>
+          <fieldset className="doc-fieldset">
+            <legend className="doc-legend">Datos del Propietario</legend>
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 mt-4">
+              <div>
+                <label htmlFor="ownerDetails" className="block text-gray-300 mb-1">Datos del propietario</label>
+                <input
+                  id="ownerDetails"
+                  className="doc-input"
+                  {...register("ownerDetails")}
+                />
+              </div>
+              <div>
+                <label htmlFor="affectation" className="block text-gray-300 mb-1">Afectación</label>
+                <select
+                  id="affectation"
+                  className="doc-input"
+                  {...register("affectation", { required: "Este campo es obligatorio" })}
+                >
+                  <option value="">Seleccionar</option>
+                  <option value="Habitacional">Habitacional</option>
+                  <option value="Templo">Templo</option>
+                  <option value="Comercial">Comercial</option>
+                </select>
+                {errors.affectation && (
+                  <p className="text-red-500 text-sm">{(errors.affectation as FieldError).message}</p>
+                )}
+              </div>
+              <div>
+                <label htmlFor="ownerContact" className="block text-gray-300 mb-1">Contacto del propietario</label>
+                <input
+                  id="ownerContact"
+                  className="doc-input"
+                  {...register("ownerContact")}
+                />
+              </div>
             </div>
-            <div>
-              <label htmlFor="affectation" className="block text-gray-300 mb-1">Afectación</label>
-              <select
-                id="affectation"
-                className="doc-input"
-                {...register("affectation", { required: "Este campo es obligatorio" })}
-              >
-                <option value="">Seleccionar</option>
-                <option value="Habitacional">Habitacional</option>
-                <option value="Templo">Templo</option>
-                <option value="Comercial">Comercial</option>
-              </select>
-              {errors.affectation && (
-                <p className="text-red-500 text-sm">{(errors.affectation as FieldError).message}</p>
-              )}
-            </div>
-            <div>
-              <label htmlFor="ownerContact" className="block text-gray-300 mb-1">Contacto del propietario</label>
-              <input
-                id="ownerContact"
-                className="doc-input"
-                {...register("ownerContact")}
-              />
-            </div>
-          </div>
-        </fieldset>
-      </section>
+          </fieldset>
+        </section>
 
-      <section>
-        <fieldset className="doc-fieldset">
-          <legend className="doc-legend">Datos del Inquilino</legend>
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 mt-4">
-            <div>
-              <label htmlFor="renterDetails" className="block text-gray-300 mb-1">Datos del inquilino</label>
-              <input
-                id="renterDetails"
-                className="doc-input"
-                {...register("renterDetails")}
-              />
+        <section>
+          <fieldset className="doc-fieldset">
+            <legend className="doc-legend">Datos del Inquilino</legend>
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 mt-4">
+              <div>
+                <label htmlFor="renterDetails" className="block text-gray-300 mb-1">Datos del inquilino</label>
+                <input
+                  id="renterDetails"
+                  className="doc-input"
+                  {...register("renterDetails")}
+                />
+              </div>
+              <div>
+                <label htmlFor="address" className="block text-gray-300 mb-1">Dirección</label>
+                <input
+                  id="address"
+                  className="doc-input"
+                  {...register("address")}
+                />
+              </div>
+              <div>
+                <label htmlFor="renterContact" className="block text-gray-300 mb-1">Contacto del inquilino</label>
+                <input
+                  id="renterContact"
+                  className="doc-input"
+                  {...register("renterContact")}
+                />
+              </div>
+              <div>
+                <label htmlFor="locality" className="block text-gray-300 mb-1">Localidad</label>
+                <input
+                  id="locality"
+                  className="doc-input"
+                  {...register("locality")}
+                />
+              </div>
             </div>
-            <div>
-              <label htmlFor="address" className="block text-gray-300 mb-1">Dirección</label>
-              <input
-                id="address"
-                className="doc-input"
-                {...register("address")}
-              />
-            </div>
-            <div>
-              <label htmlFor="renterContact" className="block text-gray-300 mb-1">Contacto del inquilino</label>
-              <input
-                id="renterContact"
-                className="doc-input"
-                {...register("renterContact")}
-              />
-            </div>
-            <div>
-              <label htmlFor="locality" className="block text-gray-300 mb-1">Localidad</label>
-              <input
-                id="locality"
-                className="doc-input"
-                {...register("locality")}
-              />
-            </div>
-          </div>
-        </fieldset>
-      </section>
+          </fieldset>
+        </section>
 
-      <section>
-        <fieldset className="doc-fieldset">
-          <legend className="doc-legend">Detalles del Contrato</legend>
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 mt-4">
-            <div>
-              <label htmlFor="contratStartDate" className="block text-gray-300 mb-1">Fecha de comienzo</label>
-              <input
-                id="contratStartDate"
-                type="date"
-                className="doc-input"
-                {...register("contratStartDate")}
-              />
+        <section>
+          <fieldset className="doc-fieldset">
+            <legend className="doc-legend">Detalles del Contrato</legend>
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 mt-4">
+              <div>
+                <label htmlFor="contratStartDate" className="block text-gray-300 mb-1">Fecha de comienzo</label>
+                <input
+                  id="contratStartDate"
+                  type="date"
+                  className="doc-input"
+                  {...register("contratStartDate")}
+                />
+              </div>
+              <div>
+                <label htmlFor="province" className="block text-gray-300 mb-1">Provincia</label>
+                <select
+                  id="province"
+                  className="doc-input"
+                  {...register("province", { required: "Este campo es obligatorio" })}
+                >
+                  <option value="">Seleccionar</option>
+                  <option value="Cordoba">Cordoba</option>
+                  <option value="Entre Rios">Entre Rios</option>
+                  <option value="Santa Fe">Santa Fe</option>
+                </select>
+                {errors.province && (
+                  <p className="text-red-500 text-sm">{(errors.province as FieldError).message}</p>
+                )}
+              </div>
+              <div>
+                <label htmlFor="contratEndDate" className="block text-gray-300 mb-1">Fecha de finalización</label>
+                <input
+                  id="contratEndDate"
+                  type="date"
+                  className="doc-input"
+                  {...register("contratEndDate")}
+                />
+              </div>
             </div>
-            <div>
-              <label htmlFor="province" className="block text-gray-300 mb-1">Provincia</label>
-              <select
-                id="province"
-                className="doc-input"
-                {...register("province", { required: "Este campo es obligatorio" })}
-              >
-                <option value="">Seleccionar</option>
-                <option value="Cordoba">Cordoba</option>
-                <option value="Entre Rios">Entre Rios</option>
-                <option value="Santa Fe">Santa Fe</option>
-              </select>
-              {errors.province && (
-                <p className="text-red-500 text-sm">{(errors.province as FieldError).message}</p>
-              )}
-            </div>
-            <div>
-              <label htmlFor="contratEndDate" className="block text-gray-300 mb-1">Fecha de finalización</label>
-              <input
-                id="contratEndDate"
-                type="date"
-                className="doc-input"
-                {...register("contratEndDate")}
-              />
-            </div>
-          </div>
-        </fieldset>
-      </section>
+          </fieldset>
+        </section>
 
-      <section>
-        <fieldset className="doc-fieldset">
-          <legend className="doc-legend">Detalles Financieros</legend>
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 mt-4">
-            <div>
-              <label htmlFor="price" className="block text-gray-300 mb-1">Monto ($)</label>
-              <input
-                id="price"
-                type="number"
-                className="doc-input"
-                {...register("price", { valueAsNumber: true })}
-              />
+        <section>
+          <fieldset className="doc-fieldset">
+            <legend className="doc-legend">Detalles Financieros</legend>
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 mt-4">
+              <div>
+                <label htmlFor="price" className="block text-gray-300 mb-1">Monto ($)</label>
+                <input
+                  id="price"
+                  type="number"
+                  className="doc-input"
+                  {...register("price", { valueAsNumber: true })}
+                />
+              </div>
+              <div>
+                <label htmlFor="adjustmentType" className="block text-gray-300 mb-1">Tipo de ajuste</label>
+                <input
+                  id="adjustmentType"
+                  className="doc-input"
+                  {...register("adjustmentType")}
+                />
+              </div>
             </div>
-            <div>
-              <label htmlFor="adjustmentType" className="block text-gray-300 mb-1">Tipo de ajuste</label>
-              <input
-                id="adjustmentType"
-                className="doc-input"
-                {...register("adjustmentType")}
-              />
-            </div>
-          </div>
-        </fieldset>
-      </section>
+          </fieldset>
+        </section>
 
-      <section>
-        <fieldset className="doc-fieldset">
-          <legend className="doc-legend">Archivos Adjuntos</legend>
-          <div className="grid grid-cols-1 gap-4 mt-4">
-            <div>
-              <label htmlFor="contractImage" className="block text-gray-300 mb-1">Imagen de Contrato</label>
-              <input
-                id="contractImage"
-                type="file"
-                accept="image/*"
-                className="doc-input"
-                onChange={(e) => handleImageUpload(e, "contractImage")}
-              />
-              {imagePreviews.contractImage && (
-                <div className="doc-preview-card">
-                  <img src={resolveImageUrl(imagePreviews.contractImage)} alt="Preview" className="h-auto w-40 rounded border border-gray-600" />
-                  <button
-                    type="button"
-                    onClick={() => handleRemoveImage("contractImage")}
-                    disabled={isReadOnly}
-                    className="inline-flex items-center justify-center rounded bg-red-600 px-3 py-2 text-white hover:bg-red-700"
-                    title="Eliminar imagen"
-                  >
-                    <span aria-hidden="true">🗑</span>
-                  </button>
-                  <ImageViewModal imageUrl={imagePreviews.contractImage} imageName="Contrato" />
-                </div>
-              )}
+        <section>
+          <fieldset className="doc-fieldset">
+            <legend className="doc-legend">Archivos Adjuntos</legend>
+            <div className="grid grid-cols-1 gap-4 mt-4">
+              <div>
+                <label htmlFor="contractImage" className="block text-gray-300 mb-1">Imagen de Contrato</label>
+                <input
+                  id="contractImage"
+                  type="file"
+                  accept="image/*"
+                  className="doc-input"
+                  onChange={(e) => handleImageUpload(e, "contractImage")}
+                />
+                {imagePreviews.contractImage && (
+                  <div className="doc-preview-card">
+                    <img src={resolveImageUrl(imagePreviews.contractImage)} alt="Preview" className="h-auto w-40 rounded border border-gray-600" />
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveImage("contractImage")}
+                      disabled={isReadOnly}
+                      className="inline-flex items-center justify-center rounded bg-red-600 px-3 py-2 text-white hover:bg-red-700"
+                      title="Eliminar imagen"
+                    >
+                      <span aria-hidden="true">🗑</span>
+                    </button>
+                    <ImageViewModal imageUrl={imagePreviews.contractImage} imageName="Contrato" />
+                  </div>
+                )}
+              </div>
             </div>
-          </div>
-        </fieldset>
-      </section>
+          </fieldset>
+        </section>
       </fieldset>
 
       {!isReadOnly && (

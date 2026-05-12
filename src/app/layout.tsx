@@ -3,7 +3,7 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./global.css";
-import AppShell from "../components/AppShell";
+import AppShell from "@/components/AppShell";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -21,7 +21,6 @@ export default function RootLayout({
     <html lang="es">
       <body className={inter.className}>
         <AppShell>
-          {/* <main className="min-h-screen w-full flex-1">{children}</main> */}
           {children}
         </AppShell>
       </body>

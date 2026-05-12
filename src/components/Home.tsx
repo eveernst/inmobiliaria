@@ -9,7 +9,6 @@ import { getPlan } from '@/api/planApi';
 import { getRented } from '@/api/rentedApi';
 import { getWriting } from '@/api/writingApi';
 import { deleteImageByPublicUrl, resolveImageUrl } from '@/lib/imageUpload';
-// import Navbar from './Navbar';
 
 interface Property {
   province: string;
@@ -35,7 +34,7 @@ const Home = () => {
     // Verificar autenticación
     const token = localStorage.getItem('token');
     const userData = localStorage.getItem('user');
-    
+
     if (!token || !userData) {
       // router.push('/login');
       setUser(null);
@@ -49,12 +48,6 @@ const Home = () => {
       setProperties(data);
     });
   }, [router]);
-
-  // const handleLogout = () => {
-  //   localStorage.removeItem('token');
-  //   localStorage.removeItem('user');
-  //   router.push('/login');
-  // };
 
   const handleDeleteProperty = async (property: Property) => {
     const confirmed = window.confirm(
@@ -187,9 +180,6 @@ const Home = () => {
   const isAdmin = user.role === 1;
 
   return (
-    // <div className="min-h-screen bg-[radial-gradient(circle_at_top,_#1f2937_0%,_#0f172a_45%,_#020617_100%)] text-gray-200">
-    //   <Navbar onLogout={handleLogout} />
-    //   <div className='p-6 md:p-8'>
     <div className="min-h-screen w-full text-gray-200">
       <div className='w-full p-6 md:p-8'>
         <header className="mb-10 rounded-3xl border-[0.5px] border-slate-700/70 bg-slate-900/45 px-6 py-6 shadow-2xl backdrop-blur-sm">
@@ -199,96 +189,95 @@ const Home = () => {
             </p>
           </div>
 
-      <h1 className="text-center text-4xl font-bold tracking-tight text-slate-100 mb-2">Propiedades</h1>
+          <h1 className="text-center text-4xl font-bold tracking-tight text-slate-100 mb-2">Propiedades</h1>
           <p className="text-center text-slate-300">Explora las propiedades disponibles</p>
         </header>
 
-      {isAdmin && (
-        <button>
-          <a
-            href="/property"
-            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mb-8 inline-block"
-          >
-            Agregar propiedad
-          </a>
-        </button>
-      )}
+        {isAdmin && (
+          // <button>
+            <a
+              href="/property"
+              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mb-8 inline-block"
+            >
+              Agregar propiedad
+            </a>
+          // </button>
+        )}
 
-      <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
-        {properties.map((property: Property) => (
-          <div
-            key={property.id}
-            className="group overflow-hidden rounded-2xl border-[0.5px] border-slate-700/80 bg-gradient-to-b from-slate-800 to-slate-900 shadow-xl transition duration-300 hover:-translate-y-1 hover:shadow-2xl"
-          >
-            <div className="space-y-4 p-5 text-center">
-              <div className="space-y-2">
-                <h2 className="text-xl font-semibold text-slate-100">{property.address}</h2>
-                <p className="text-sm text-slate-300">
-                  {property.locality}, {property.province}
-                </p>
-                <p className="mt-2 text-slate-200">{property.destiny}</p>
+        <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
+          {properties.map((property: Property) => (
+            <div
+              key={property.id}
+              className="group overflow-hidden rounded-2xl border-[0.5px] border-slate-700/80 bg-gradient-to-b from-slate-800 to-slate-900 shadow-xl transition duration-300 hover:-translate-y-1 hover:shadow-2xl"
+            >
+              <div className="space-y-4 p-5 text-center">
+                <div className="space-y-2">
+                  <h2 className="text-xl font-semibold text-slate-100">{property.address}</h2>
+                  <p className="text-sm text-slate-300">
+                    {property.locality}, {property.province}
+                  </p>
+                  <p className="mt-2 text-slate-200">{property.destiny}</p>
 
-                <div className="mt-4 flex items-center justify-center">
-                  <button
-                    className={`rounded-full px-3 py-1 text-sm font-medium focus:outline-none ${
-                      property.active ? 'bg-emerald-500 text-white' : 'bg-rose-500 text-white'
-                    }`}
-                  >
-                    {property.active ? 'Activo' : 'Inactivo'}
-                  </button>
+                  <div className="mt-4 flex items-center justify-center">
+                    <button
+                      className={`rounded-full px-3 py-1 text-sm font-medium focus:outline-none ${property.active ? 'bg-emerald-500 text-white' : 'bg-rose-500 text-white'
+                        }`}
+                    >
+                      {property.active ? 'Activo' : 'Inactivo'}
+                    </button>
+                  </div>
+
+                  <p className="mt-4 text-sm leading-relaxed text-slate-300">{property.description}</p>
                 </div>
 
-                <p className="mt-4 text-sm leading-relaxed text-slate-300">{property.description}</p>
-              </div>
+                <div className="mt-4 flex justify-center">
+                  <span className="rounded-full border-[0.5px] border-sky-400/50 bg-sky-500/25 px-3 py-1 text-sm font-medium text-sky-100">
+                    Clasificación: {property.classification.name}
+                  </span>
+                </div>
 
-              <div className="mt-4 flex justify-center">
-                <span className="rounded-full border-[0.5px] border-sky-400/50 bg-sky-500/25 px-3 py-1 text-sm font-medium text-sky-100">
-                  Clasificación: {property.classification.name}
-                </span>
-              </div>
-
-              {/* Botones con el mismo color */}
-              <div className="flex flex-col space-y-3 mt-4">
-                {/* Editar */}
-                {isAdmin && (
+                {/* Botones con el mismo color */}
+                <div className="flex flex-col space-y-3 mt-4">
+                  {/* Editar */}
+                  {isAdmin && (
+                    <a
+                      href={`/property?id=${property.id}`}
+                      className="flex items-center justify-center bg-slate-700 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg shadow-md transition"
+                    >
+                      <span className="material-icons-outlined mr-2">Editar</span>
+                    </a>
+                  )}
+                  {isAdmin && (
+                    <button
+                      type="button"
+                      onClick={() => handleDeleteProperty(property)}
+                      disabled={deletingId === property.id}
+                      className="flex items-center justify-center bg-red-700 hover:bg-red-600 disabled:opacity-60 text-white font-semibold py-2 px-4 rounded-lg shadow-md transition"
+                    >
+                      <span className="material-icons-outlined mr-2">Eliminar Propiedad</span>
+                    </button>
+                  )}
+                  {/* Agregar Documentos */}
+                  {isAdmin && (
+                    <a
+                      href={`/document-manager?propertyId=${property.id}`}
+                      className="flex items-center justify-center bg-slate-700 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg shadow-md transition"
+                    >
+                      <span className="material-icons-outlined mr-2">Agregar Documentos</span>
+                    </a>
+                  )}
+                  {/* Ver Detalles */}
                   <a
-                    href={`/property?id=${property.id}`}
+                    href={`/property/details?id=${property.id}`}
                     className="flex items-center justify-center bg-slate-700 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg shadow-md transition"
                   >
-                    <span className="material-icons-outlined mr-2">Editar</span>
+                    <span className="material-icons-outlined mr-2">Ver Detalles</span>
                   </a>
-                )}
-                {isAdmin && (
-                  <button
-                    type="button"
-                    onClick={() => handleDeleteProperty(property)}
-                    disabled={deletingId === property.id}
-                    className="flex items-center justify-center bg-red-700 hover:bg-red-600 disabled:opacity-60 text-white font-semibold py-2 px-4 rounded-lg shadow-md transition"
-                  >
-                    <span className="material-icons-outlined mr-2">Eliminar Propiedad</span>
-                  </button>
-                )}
-                {/* Agregar Documentos */}
-                {isAdmin && (
-                  <a
-                    href={`/document-manager?propertyId=${property.id}`}
-                    className="flex items-center justify-center bg-slate-700 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg shadow-md transition"
-                  >
-                    <span className="material-icons-outlined mr-2">Agregar Documentos</span>
-                  </a>
-                )}
-                {/* Ver Detalles */}
-                <a
-                  href={`/property/details?id=${property.id}`}
-                  className="flex items-center justify-center bg-slate-700 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg shadow-md transition"
-                >
-                  <span className="material-icons-outlined mr-2">Ver Detalles</span>
-                </a>
+                </div>
               </div>
             </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
       </div>
     </div>
   );
