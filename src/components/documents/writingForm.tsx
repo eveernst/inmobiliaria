@@ -1,6 +1,6 @@
 'use client';
 
-import { useForm, SubmitHandler, FieldErrors } from "react-hook-form";
+import { useForm, SubmitHandler, FieldErrors, Path } from "react-hook-form";
 import { saveWriting } from "@/api/writingApi";
 import { getWriting } from "@/api/writingApi";
 import { deleteImageByPublicUrl, resolveImageUrl, uploadImageToSupabase } from "@/lib/imageUpload";
@@ -43,6 +43,11 @@ interface FormData {
   propertyId?: number;
 }
 
+interface RemoteWritingRecord extends Partial<FormData> {
+  id?: number;
+  property?: { id: number };
+}
+
 const WritingForm = ({ propertyId, isReadOnly = false }: WritingFormProps) => {
   const { register, handleSubmit, setValue, getValues, reset, formState: { errors } } = useForm<FormData>();
   const [loading, setLoading] = useState(false);
@@ -76,7 +81,7 @@ const WritingForm = ({ propertyId, isReadOnly = false }: WritingFormProps) => {
 
         const url = await uploadImageToSupabase(file, `writings/property-${propertyId}`);
         if (url) {
-          setValue(fieldName as any, url);
+          setValue(fieldName as Path<FormData>, url);
         } else {
           alert("No se pudo subir la imagen. Verifica que el bucket 'documents' exista y tenga acceso permitido.");
         }
@@ -86,7 +91,7 @@ const WritingForm = ({ propertyId, isReadOnly = false }: WritingFormProps) => {
   };
 
   const handleRemoveImage = async (fieldName: keyof FormData) => {
-    const currentUrl = getValues(fieldName as any) as string | undefined;
+    const currentUrl = getValues(fieldName as Path<FormData>) as string | undefined;
 
     if (currentUrl) {
       const deleted = await deleteImageByPublicUrl(currentUrl);
@@ -96,7 +101,7 @@ const WritingForm = ({ propertyId, isReadOnly = false }: WritingFormProps) => {
       }
     }
 
-    setValue(fieldName as any, null as any);
+    setValue(fieldName as Path<FormData>, "");
     setImagePreviews((prev) => ({ ...prev, [fieldName]: "" }));
   };
 
@@ -130,10 +135,10 @@ const WritingForm = ({ propertyId, isReadOnly = false }: WritingFormProps) => {
 
       try {
         const response = await getWriting();
-        const allItems = Array.isArray(response) ? response : [];
+        const allItems: RemoteWritingRecord[] = Array.isArray(response) ? response : [];
         const propertyItems = allItems
-          .filter((item: any) => item?.property?.id === propertyId || item?.propertyId === propertyId)
-          .sort((a: any, b: any) => (b?.id || 0) - (a?.id || 0));
+          .filter((item) => item?.property?.id === propertyId || item?.propertyId === propertyId)
+          .sort((a, b) => (b?.id || 0) - (a?.id || 0));
 
         const latest = propertyItems[0];
         if (!latest) return;
@@ -201,7 +206,7 @@ const WritingForm = ({ propertyId, isReadOnly = false }: WritingFormProps) => {
       data.propertyId = propertyId;
       await saveWriting(data);
       alert("Escritura guardada exitosamente");
-    } catch (error: any) {
+    } catch (error) {
       console.error("Error saving writing:", error);
       alert(`Error al guardar la escritura: ${extractApiErrorMessage(error)}`);
     } finally {

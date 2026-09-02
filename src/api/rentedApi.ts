@@ -21,4 +21,14 @@ const getRented = async () => {
   }
 };
 
-export { saveRented, getRented };
+const deleteRented = async (id: number) => {
+  try {
+    const response = await axiosInstance.delete(`/rented/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error('Error al eliminar el documento:', error);
+    throw error;
+  }
+};
+
+export { saveRented, getRented, deleteRented };

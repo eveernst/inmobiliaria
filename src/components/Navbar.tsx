@@ -3,24 +3,12 @@
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-
-interface UserInfo {
-  id: number;
-  name: string;
-  email: string;
-  role: number; // 1=Admin, 2=Viewer, 3=Superusuario
-}
-
-const ROLE_LABELS: Record<number, string> = {
-  1: "Administrador",
-  2: "Usuario",
-  3: "Superusuario",
-};
+import { UserData, ROLE_LABELS } from "@/lib/types";
 
 const Navbar = () => {
   const router = useRouter();
   const pathname = usePathname();
-  const [user, setUser] = useState<UserInfo | null>(null);
+  const [user, setUser] = useState<UserData | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
@@ -41,11 +29,6 @@ const Navbar = () => {
 
   const isAdmin = user?.role === 1 || user?.role === 3;
   const isSuperuser = user?.role === 3;
-
-  const navLinks = [
-    { href: "/", label: "Propiedades", always: true },
-    { href: "/user", label: "Usuarios", always: false, adminOnly: true, superOnly: true },
-  ];
 
   return (
     <nav className="w-full border-b border-slate-700/60 bg-slate-900/95 backdrop-blur-sm px-4 py-3 sticky top-0 z-40">
@@ -73,6 +56,17 @@ const Navbar = () => {
               }`}
             >
               Propiedades
+            </Link>
+
+            <Link
+              href="/document-manager"
+              className={`rounded-lg px-3 py-1.5 text-sm font-medium transition ${
+                pathname === "/document-manager"
+                  ? "bg-orange-500/20 text-orange-400"
+                  : "text-slate-300 hover:bg-slate-800 hover:text-slate-100"
+              }`}
+            >
+              Documentos
             </Link>
 
             {isSuperuser && (

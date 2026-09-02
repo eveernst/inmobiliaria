@@ -7,7 +7,6 @@ import PlanForm from "./documents/planForm";
 import { usePathname, useRouter } from "next/navigation";
 import RentedForm from "./documents/rentedForm";
 import { getProperties, getProperty } from "@/api/propertyApi";
-import { set } from "react-hook-form";
 
 type PropertyListItem = {
   id: number;

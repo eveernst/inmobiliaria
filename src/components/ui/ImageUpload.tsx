@@ -1,10 +1,12 @@
+"use client";
+
 import React, { useState } from "react";
-import { useForm, Controller } from "react-hook-form";
+import { useForm, Controller, Control, FieldValues } from "react-hook-form";
 
 interface ImageUploadProps {
   fieldName: string;
   label: string;
-  control: any;
+  control: Control<FieldValues>;
   onImageSelect?: (file: File, preview: string) => void;
 }
 

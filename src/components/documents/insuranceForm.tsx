@@ -1,6 +1,8 @@
+"use client";
+
 import { saveInsurance } from "@/api/insuranceApi";
 import { getInsurance } from "@/api/insuranceApi";
-import { useForm, SubmitHandler, FieldErrors } from "react-hook-form";
+import { useForm, SubmitHandler, FieldErrors, Path } from "react-hook-form";
 import { deleteImageByPublicUrl, resolveImageUrl, uploadImageToSupabase } from "@/lib/imageUpload";
 import ImageViewModal from "@/components/ui/ImageViewModal";
 import { alertMissingFields, extractApiErrorMessage } from "@/lib/formFeedback";
@@ -27,6 +29,12 @@ interface FormData {
   AnualFormImage?: string;
   observations: string;
   propertyId?: number;
+}
+
+interface RemoteInsuranceRecord extends Partial<FormData> {
+  id?: number;
+  property?: { id: number };
+  anualFormImage?: string;
 }
 
 const InsuranceForm = ({ propertyId, isReadOnly = false }: InsuranceFormProps) => {
@@ -62,7 +70,7 @@ const InsuranceForm = ({ propertyId, isReadOnly = false }: InsuranceFormProps) =
 
         const url = await uploadImageToSupabase(file, `insurance/property-${propertyId}`);
         if (url) {
-          setValue(fieldName as any, url);
+          setValue(fieldName as Path<FormData>, url);
         } else {
           alert("No se pudo subir la imagen. Verifica que el bucket 'documents' exista y tenga acceso permitido.");
         }
@@ -72,7 +80,7 @@ const InsuranceForm = ({ propertyId, isReadOnly = false }: InsuranceFormProps) =
   };
 
   const handleRemoveImage = async (fieldName: keyof FormData) => {
-    const currentUrl = getValues(fieldName as any) as string | undefined;
+    const currentUrl = getValues(fieldName as Path<FormData>) as string | undefined;
 
     if (currentUrl) {
       const deleted = await deleteImageByPublicUrl(currentUrl);
@@ -82,7 +90,7 @@ const InsuranceForm = ({ propertyId, isReadOnly = false }: InsuranceFormProps) =
       }
     }
 
-    setValue(fieldName as any, null as any);
+    setValue(fieldName as Path<FormData>, "");
     setImagePreviews((prev) => ({ ...prev, [fieldName]: "" }));
   };
 
@@ -116,10 +124,10 @@ const InsuranceForm = ({ propertyId, isReadOnly = false }: InsuranceFormProps) =
 
       try {
         const response = await getInsurance();
-        const allItems = Array.isArray(response) ? response : [];
+        const allItems: RemoteInsuranceRecord[] = Array.isArray(response) ? response : [];
         const propertyItems = allItems
-          .filter((item: any) => item?.property?.id === propertyId || item?.propertyId === propertyId)
-          .sort((a: any, b: any) => (b?.id || 0) - (a?.id || 0));
+          .filter((item) => item?.property?.id === propertyId || item?.propertyId === propertyId)
+          .sort((a, b) => (b?.id || 0) - (a?.id || 0));
 
         const latest = propertyItems[0];
         if (!latest) return;
@@ -182,7 +190,7 @@ const InsuranceForm = ({ propertyId, isReadOnly = false }: InsuranceFormProps) =
 
       await saveInsurance(payload);
       alert("Póliza de seguros guardada exitosamente");
-    } catch (error: any) {
+    } catch (error) {
       console.error("Error saving insurance:", error);
       alert(`Error al guardar la póliza de seguros: ${extractApiErrorMessage(error)}`);
     } finally {

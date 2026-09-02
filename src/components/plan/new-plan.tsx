@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
-import Header from "../Header";
+import Header from "../header";
 import { AiOutlineCheckCircle } from 'react-icons/ai'; // Icono visual
 
 // Modal de imagen

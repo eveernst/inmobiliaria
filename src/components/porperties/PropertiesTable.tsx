@@ -1,3 +1,5 @@
+"use client";
+
 import React from "react";
 import { Column, useTable } from "react-table";
 

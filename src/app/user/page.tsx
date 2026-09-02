@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { UserData, ROLE_LABELS, ROLE_OPTIONS } from "@/lib/types";
 import { fetchUsers, deleteUser, addUser, updateUser } from "@/lib/api";
+import { extractApiErrorMessage } from "@/lib/formFeedback";
 import { useRouter } from "next/navigation";
 
 // ── Modal de confirmación ─────────────────────────────────────────────────────
@@ -68,8 +69,8 @@ const UserForm = ({
         await addUser(formData);
       }
       onSave();
-    } catch (err: any) {
-      setError(err?.response?.data?.message ?? "Error al guardar.");
+    } catch (err) {
+      setError(extractApiErrorMessage(err));
     } finally {
       setSaving(false);
     }

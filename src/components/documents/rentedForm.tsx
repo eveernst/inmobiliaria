@@ -1,5 +1,7 @@
+"use client";
+
 import React, { useState } from "react";
-import { useForm, FieldError } from "react-hook-form";
+import { useForm, FieldError, Path, SubmitHandler } from "react-hook-form";
 import { saveRented } from "@/api/rentedApi";
 import { getRented } from "@/api/rentedApi";
 import { deleteImageByPublicUrl, resolveImageUrl, uploadImageToSupabase } from "@/lib/imageUpload";
@@ -12,8 +14,30 @@ interface RentedFormProps {
   isReadOnly?: boolean;
 }
 
+interface FormData {
+  ownerDetails: string;
+  affectation: string;
+  ownerContact: string;
+  renterDetails: string;
+  address: string;
+  renterContact: string;
+  locality: string;
+  contratStartDate?: string;
+  province: string;
+  contratEndDate?: string;
+  price?: number;
+  adjustmentType?: string;
+  contractImage?: string;
+  propertyId?: number;
+}
+
+interface RemoteRentedRecord extends Partial<FormData> {
+  id?: number;
+  property?: { id: number };
+}
+
 const RentedForm = ({ propertyId, isReadOnly = false }: RentedFormProps) => {
-  const { register, handleSubmit, setValue, getValues, reset, formState: { errors } } = useForm();
+  const { register, handleSubmit, setValue, getValues, reset, formState: { errors } } = useForm<FormData>();
   const [loading, setLoading] = useState(false);
   const [imagePreviews, setImagePreviews] = useState<Record<string, string>>({});
 
@@ -45,7 +69,7 @@ const RentedForm = ({ propertyId, isReadOnly = false }: RentedFormProps) => {
 
         const url = await uploadImageToSupabase(file, `rented/property-${propertyId}`);
         if (url) {
-          setValue(fieldName as any, url);
+          setValue(fieldName as Path<FormData>, url);
         } else {
           alert("No se pudo subir la imagen. Verifica que el bucket 'documents' exista y tenga acceso permitido.");
         }
@@ -55,7 +79,7 @@ const RentedForm = ({ propertyId, isReadOnly = false }: RentedFormProps) => {
   };
 
   const handleRemoveImage = async (fieldName: string) => {
-    const currentUrl = getValues(fieldName) as string | undefined;
+    const currentUrl = getValues(fieldName as Path<FormData>) as string | undefined;
 
     if (currentUrl) {
       const deleted = await deleteImageByPublicUrl(currentUrl);
@@ -65,12 +89,12 @@ const RentedForm = ({ propertyId, isReadOnly = false }: RentedFormProps) => {
       }
     }
 
-    setValue(fieldName, null);
+    setValue(fieldName as Path<FormData>, "");
     setImagePreviews((prev) => ({ ...prev, [fieldName]: "" }));
   };
 
   useEffect(() => {
-    reset({});
+    reset({} as FormData);
     setImagePreviews({});
 
     const loadLatestRented = async () => {
@@ -78,15 +102,15 @@ const RentedForm = ({ propertyId, isReadOnly = false }: RentedFormProps) => {
 
       try {
         const response = await getRented();
-        const allItems = Array.isArray(response) ? response : [];
+        const allItems: RemoteRentedRecord[] = Array.isArray(response) ? response : [];
         const propertyItems = allItems
-          .filter((item: any) => item?.property?.id === propertyId || item?.propertyId === propertyId)
-          .sort((a: any, b: any) => (b?.id || 0) - (a?.id || 0));
+          .filter((item) => item?.property?.id === propertyId || item?.propertyId === propertyId)
+          .sort((a, b) => (b?.id || 0) - (a?.id || 0));
 
         const latest = propertyItems[0];
         if (!latest) return;
 
-        const fields = [
+        const fields: (keyof FormData)[] = [
           "ownerDetails",
           "affectation",
           "ownerContact",
@@ -104,7 +128,7 @@ const RentedForm = ({ propertyId, isReadOnly = false }: RentedFormProps) => {
 
         fields.forEach((field) => {
           if (latest[field] !== undefined && latest[field] !== null) {
-            setValue(field as any, latest[field]);
+            setValue(field, latest[field]);
           }
         });
 
@@ -122,14 +146,14 @@ const RentedForm = ({ propertyId, isReadOnly = false }: RentedFormProps) => {
     loadLatestRented();
   }, [propertyId, reset, setValue]);
 
-  const onSubmit = async (data: any) => {
+  const onSubmit: SubmitHandler<FormData> = async (data) => {
     try {
       setLoading(true);
       console.log("Formulario enviado:", data);
       data.propertyId = propertyId;
       await saveRented(data);
       alert("Inmueble alquilado guardado exitosamente");
-    } catch (error: any) {
+    } catch (error) {
       console.error("Error saving rented property:", error);
       alert(`Error al guardar el inmueble alquilado: ${extractApiErrorMessage(error)}`);
     } finally {

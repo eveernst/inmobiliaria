@@ -1,7 +1,11 @@
 'use client';
 
 import { getProperty } from '@/api/propertyApi';
-import axiosInstance from '@/api/api';
+import { deleteInstallation } from '@/api/installationApi';
+import { deleteInsurance } from '@/api/insuranceApi';
+import { deletePlan } from '@/api/planApi';
+import { deleteRented } from '@/api/rentedApi';
+import { deleteWriting } from '@/api/writingApi';
 import { resolveImageUrl } from '@/lib/imageUpload';
 import { useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
@@ -66,7 +70,7 @@ const CLFC_LABELS: Record<string, string> = {
   '0': 'Sí', '1': 'Solicitar', '2': 'Solicitado', '3': 'No',
 };
 
-const docTypeLabel = (ins: Insurance | Plan | Rented | Writing, type: string) => {
+const docTypeLabel = (ins: DocBase, type: string) => {
   if (type === 'insurance') return (ins as Insurance).insuredProperty || `Seguro #${ins.id}`;
   if (type === 'plan')      return (ins as Plan).planType || `Plano #${ins.id}`;
   if (type === 'rented')    return (ins as Rented).ownerDetails || `Alquiler #${ins.id}`;
@@ -150,7 +154,7 @@ const PropertyView: React.FC = () => {
       onConfirm: async () => {
         setConfirm(c => ({ ...c, show: false }));
         try {
-          await axiosInstance.delete(`/installation/${instId}`);
+          await deleteInstallation(instId);
           setProperty(p => p ? {
             ...p,
             installations: p.installations.filter(i => i.id !== instId)
@@ -165,11 +169,11 @@ const PropertyView: React.FC = () => {
 
   // ── Eliminación de documentación ───────────────────────────────────────────
   const handleDeleteDoc = (docId: number, type: string, label: string) => {
-    const endpointMap: Record<string, string> = {
-      insurance: 'insurance',
-      plan: 'plans',
-      rented: 'rented',
-      writing: 'writing',
+    const deleteFns: Record<string, (id: number) => Promise<unknown>> = {
+      insurance: deleteInsurance,
+      plan: deletePlan,
+      rented: deleteRented,
+      writing: deleteWriting,
     };
     setConfirm({
       show: true,
@@ -177,7 +181,7 @@ const PropertyView: React.FC = () => {
       onConfirm: async () => {
         setConfirm(c => ({ ...c, show: false }));
         try {
-          await axiosInstance.delete(`/${endpointMap[type]}/${docId}`);
+          await deleteFns[type](docId);
           setProperty(p => {
             if (!p) return p;
             const key = `${type}s` as keyof Property;
@@ -459,7 +463,7 @@ const PropertyView: React.FC = () => {
                   </thead>
                   <tbody>
                     {allDocs.map(({ item, type }) => {
-                      const label = docTypeLabel(item as any, type);
+                      const label = docTypeLabel(item, type);
                       const typeLabels: Record<string, string> = {
                         writing: 'Escritura',
                         insurance: 'Seguro',

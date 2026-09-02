@@ -1,11 +1,11 @@
 "use client"
 import { saveProperty, editProperty, getProperty } from "@/api/propertyApi";
-import axiosInstance from "@/api/api";
+import { getClassifications } from "@/api/classificationApi";
 import { alertMissingFields, extractApiErrorMessage } from "@/lib/formFeedback";
 import { resolveImageUrl } from "@/lib/imageUpload";
 import ImageViewModal from "@/components/ui/ImageViewModal";
 import React, { useRef, useState, useEffect } from "react";
-import { useForm, SubmitHandler, useFieldArray } from "react-hook-form";
+import { useForm, SubmitHandler, useFieldArray, Path } from "react-hook-form";
 
 type ImageFieldValue = File | string | null;
 
@@ -44,7 +44,13 @@ interface ClassificationOption {
   name: string;
 }
 
-const PropertyForm = ({ id }: any) => {
+interface RawInstallation {
+  file?: string;
+  classification?: number | { id: number };
+  [field: string]: unknown;
+}
+
+const PropertyForm = ({ id }: { id?: number }) => {
 
   const { register, handleSubmit, formState: { errors }, control, reset, setValue } = useForm<FormData>();
 
@@ -71,13 +77,13 @@ const PropertyForm = ({ id }: any) => {
       const preview = reader.result as string;
       setImagePreviews((prev) => ({ ...prev, [fieldName]: preview }));
       setImageErrors((prev) => ({ ...prev, [fieldName]: false }));
-      setValue(fieldName as any, file as any, { shouldDirty: true });
+      setValue(fieldName as Path<FormData>, file, { shouldDirty: true });
     };
     reader.readAsDataURL(file);
   };
 
   const handleRemoveImage = (fieldName: string) => {
-    setValue(fieldName as any, "" as any, { shouldDirty: true });
+    setValue(fieldName as Path<FormData>, "", { shouldDirty: true });
     setImagePreviews((prev) => ({ ...prev, [fieldName]: "" }));
     setImageErrors((prev) => ({ ...prev, [fieldName]: false }));
   };
@@ -152,7 +158,7 @@ const PropertyForm = ({ id }: any) => {
         const processedData = {
           ...data,
           file: data?.file ?? data?.planImage ?? "",
-          installations: safeInstallations.map((inst: any) => ({
+          installations: safeInstallations.map((inst: RawInstallation) => ({
             ...inst,
             classification:
               typeof inst?.classification === "object"
@@ -172,7 +178,7 @@ const PropertyForm = ({ id }: any) => {
           file: mainImage,
         };
 
-        safeInstallations.forEach((inst: any, index: number) => {
+        safeInstallations.forEach((inst: RawInstallation, index: number) => {
           previews[`installations.${index}.file`] = resolveImageUrl(inst?.file) || "";
         });
 
@@ -188,10 +194,9 @@ const PropertyForm = ({ id }: any) => {
   useEffect(() => {
     async function fetchClassifications() {
       try {
-        const response = await axiosInstance.get("/classification");
-        setClassifications(response.data || []);
+        const data = await getClassifications();
+        setClassifications(data || []);
       } catch (error) {
-        console.error("Error cargando clasificaciones:", error);
         setClassifications([]);
       }
     }
@@ -266,7 +271,7 @@ const PropertyForm = ({ id }: any) => {
         setSaveMessage("Propiedad creada correctamente.");
         alert("Propiedad guardada exitosamente");
       }
-    } catch (error: any) {
+    } catch (error) {
       console.error("Error saving property:", error);
       setSaveMessage("No se pudo guardar la propiedad.");
       alert(`Error al guardar la propiedad: ${extractApiErrorMessage(error)}`);

@@ -1,6 +1,6 @@
 'use client';
 
-import { useForm, SubmitHandler, FieldErrors } from "react-hook-form";
+import { useForm, SubmitHandler, FieldErrors, Path } from "react-hook-form";
 import { savePlan, getPlan } from "@/api/planApi";
 import { deleteImageByPublicUrl, resolveImageUrl, uploadImageToSupabase } from "@/lib/imageUpload";
 import { alertMissingFields, extractApiErrorMessage } from "@/lib/formFeedback";
@@ -42,6 +42,11 @@ interface FormData {
   contacts: string;
   imageVisado?: string;
   propertyId?: number;
+}
+
+interface RemotePlanRecord extends Partial<FormData> {
+  id?: number;
+  property?: { id: number };
 }
 
 const PlanForm = ({ propertyId, isReadOnly = false }: PlanFormProps) => {
@@ -88,7 +93,7 @@ const PlanForm = ({ propertyId, isReadOnly = false }: PlanFormProps) => {
         // Upload to Supabase
         const url = await uploadImageToSupabase(file, `plans/property-${propertyId}`);
         if (url) {
-          setValue(fieldName as any, url);
+          setValue(fieldName as Path<FormData>, url);
         } else {
           alert("No se pudo subir la imagen. Verifica que el bucket 'documents' exista y tenga acceso permitido.");
         }
@@ -98,7 +103,7 @@ const PlanForm = ({ propertyId, isReadOnly = false }: PlanFormProps) => {
   };
 
   const handleRemoveImage = async (fieldName: keyof FormData) => {
-    const currentUrl = getValues(fieldName as any) as string | undefined;
+    const currentUrl = getValues(fieldName as Path<FormData>) as string | undefined;
 
     if (currentUrl) {
       const deleted = await deleteImageByPublicUrl(currentUrl);
@@ -108,7 +113,7 @@ const PlanForm = ({ propertyId, isReadOnly = false }: PlanFormProps) => {
       }
     }
 
-    setValue(fieldName as any, null as any);
+    setValue(fieldName as Path<FormData>, "");
     setImagePreviews((prev) => ({ ...prev, [fieldName]: "" }));
   };
 
@@ -150,10 +155,10 @@ const PlanForm = ({ propertyId, isReadOnly = false }: PlanFormProps) => {
 
       try {
         const response = await getPlan();
-        const allPlans = Array.isArray(response) ? response : [];
+        const allPlans: RemotePlanRecord[] = Array.isArray(response) ? response : [];
         const propertyPlans = allPlans
-          .filter((item: any) => item?.property?.id === propertyId || item?.propertyId === propertyId)
-          .sort((a: any, b: any) => (b?.id || 0) - (a?.id || 0));
+          .filter((item) => item?.property?.id === propertyId || item?.propertyId === propertyId)
+          .sort((a, b) => (b?.id || 0) - (a?.id || 0));
 
         const latestPlan = propertyPlans[0];
         if (!latestPlan) return;
@@ -226,7 +231,7 @@ const PlanForm = ({ propertyId, isReadOnly = false }: PlanFormProps) => {
       data.propertyId = propertyId;
       await savePlan(data);
       alert("Plan guardado exitosamente");
-    } catch (error: any) {
+    } catch (error) {
       console.error("Error saving plan:", error);
       alert(`Error al guardar el plan: ${extractApiErrorMessage(error)}`);
     } finally {

@@ -1,8 +1,13 @@
+"use client";
+
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import Select from "react-select";
-import { UserData } from "@/lib/types";
+import { UserData, ROLE_OPTIONS } from "@/lib/types";
+
+type RoleOption = { value: number; label: string };
+const roleOptions: RoleOption[] = [...ROLE_OPTIONS];
 import { addUser, updateUser } from "@/lib/api";
 import { extractApiErrorMessage } from "@/lib/formFeedback";
 
@@ -21,7 +26,7 @@ export default function AddEditUserForm({
     id: user?.id ?? 0,
     name: user?.name ?? "",
     email: user?.email ?? "",
-    role: user?.role ?? "Usuario",
+    role: user?.role ?? 2,
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -31,7 +36,7 @@ export default function AddEditUserForm({
 
   // Manejar el cambio del valor de react-select
   const handleSelectChange = (
-    selectedOption: { value: string; label: string } | null
+    selectedOption: RoleOption | null
   ) => {
     if (selectedOption) {
       setFormData((prev) => ({ ...prev, role: selectedOption.value }));
@@ -52,16 +57,10 @@ export default function AddEditUserForm({
         await addUser(formData);
       }
       onSave();
-    } catch (error: any) {
+    } catch (error) {
       alert(`Error al guardar el usuario: ${extractApiErrorMessage(error)}`);
     }
   };
-
-  // Opciones para el Select
-  const roleOptions = [
-    { value: "Usuario", label: "Usuario" },
-    { value: "Administrador", label: "Administrador" },
-  ];
 
   return (
     <form onSubmit={handleSubmit} className="bg-gray-800 p-4 rounded-lg mb-4">

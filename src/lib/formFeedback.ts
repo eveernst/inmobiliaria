@@ -1,5 +1,6 @@
-export const extractApiErrorMessage = (error: any): string => {
-  const backendMessage = error?.response?.data?.message;
+export const extractApiErrorMessage = (error: unknown): string => {
+  const response = (error as { response?: { data?: { message?: unknown } } } | undefined)?.response;
+  const backendMessage = response?.data?.message;
 
   if (Array.isArray(backendMessage)) {
     return backendMessage.join("\n- ");
@@ -9,7 +10,7 @@ export const extractApiErrorMessage = (error: any): string => {
     return backendMessage;
   }
 
-  if (typeof error?.message === "string" && error.message.trim().length > 0) {
+  if (error instanceof Error && error.message.trim().length > 0) {
     return error.message;
   }
 

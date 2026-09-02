@@ -21,4 +21,14 @@ const getInsurance = async () => {
   }
 };
 
-export { saveInsurance, getInsurance };
+const deleteInsurance = async (id: number) => {
+  try {
+    const response = await axiosInstance.delete(`/insurance/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error('Error al eliminar el documento:', error);
+    throw error;
+  }
+};
+
+export { saveInsurance, getInsurance, deleteInsurance };
