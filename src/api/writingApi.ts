@@ -21,4 +21,14 @@ const getWriting = async () => {
   }
 };
 
-export { saveWriting, getWriting };
+const deleteWriting = async (id: number) => {
+  try {
+    const response = await axiosInstance.delete(`/writing/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error('Error al eliminar el documento:', error);
+    throw error;
+  }
+};
+
+export { saveWriting, getWriting, deleteWriting };

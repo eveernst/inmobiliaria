@@ -2,8 +2,8 @@
 
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
-import Navbar from "@/components/Navbar";
 import "./globals.css";
+import AppShell from "@/components/AppShell";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -19,11 +19,8 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="es">
-      <body className={inter.className + " bg-gray-900"}>
-        <Navbar />
-        <main className="container mx-auto p-4">
-          {children}
-        </main>
+      <body className={inter.className}>
+        <AppShell>{children}</AppShell>
       </body>
     </html>
   );

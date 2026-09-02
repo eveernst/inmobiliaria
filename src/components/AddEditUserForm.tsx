@@ -1,9 +1,15 @@
+"use client";
+
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import Select from "react-select";
-import { UserData } from "@/lib/types";
+import { UserData, ROLE_OPTIONS } from "@/lib/types";
+
+type RoleOption = { value: number; label: string };
+const roleOptions: RoleOption[] = [...ROLE_OPTIONS];
 import { addUser, updateUser } from "@/lib/api";
+import { extractApiErrorMessage } from "@/lib/formFeedback";
 
 interface AddEditUserFormProps {
   user?: UserData | null;
@@ -20,7 +26,7 @@ export default function AddEditUserForm({
     id: user?.id ?? 0,
     name: user?.name ?? "",
     email: user?.email ?? "",
-    role: user?.role ?? "Usuario",
+    role: user?.role ?? 2,
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -30,7 +36,7 @@ export default function AddEditUserForm({
 
   // Manejar el cambio del valor de react-select
   const handleSelectChange = (
-    selectedOption: { value: string; label: string } | null
+    selectedOption: RoleOption | null
   ) => {
     if (selectedOption) {
       setFormData((prev) => ({ ...prev, role: selectedOption.value }));
@@ -39,19 +45,22 @@ export default function AddEditUserForm({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (user) {
-      await updateUser(formData);
-    } else {
-      await addUser(formData);
+    if (!formData.name?.trim() || !formData.email?.trim()) {
+      alert("Faltan completar campos obligatorios:\n- Nombre\n- Email");
+      return;
     }
-    onSave();
-  };
 
-  // Opciones para el Select
-  const roleOptions = [
-    { value: "Usuario", label: "Usuario" },
-    { value: "Administrador", label: "Administrador" },
-  ];
+    try {
+      if (user) {
+        await updateUser(formData);
+      } else {
+        await addUser(formData);
+      }
+      onSave();
+    } catch (error) {
+      alert(`Error al guardar el usuario: ${extractApiErrorMessage(error)}`);
+    }
+  };
 
   return (
     <form onSubmit={handleSubmit} className="bg-gray-800 p-4 rounded-lg mb-4">

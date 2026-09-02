@@ -21,4 +21,14 @@ const getPlan = async () => {
   }
 };
 
-export { savePlan, getPlan };
+const deletePlan = async (id: number) => {
+  try {
+    const response = await axiosInstance.delete(`/plans/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error('Error al eliminar el documento:', error);
+    throw error;
+  }
+};
+
+export { savePlan, getPlan, deletePlan };

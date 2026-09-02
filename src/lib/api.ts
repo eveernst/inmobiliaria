@@ -1,42 +1,35 @@
-import { UserData } from './types'
+import axiosInstance from '@/api/api';
+import { UserData } from './types';
 
-let users: UserData[] = [
-  { id: 0, name: "Administrador", email: "Admin@company.com", role: "Administrador" },
-  { id: 1, name: "Usuario", email: "Usuario1@company.com", role: "Usuario" },
-  { id: 2, name: "Usuario2", email: "Usuario2@company.com", role: "Usuario" },
-  { id: 3, name: "Usuario3", email: "Usuario3@company.com", role: "Usuario" },
-]
+// ── Usuarios ──────────────────────────────────────────────────────────────────
 
 export const fetchUsers = async (): Promise<UserData[]> => {
-  return new Promise((resolve) => {
-    setTimeout(() => resolve(users), 500)
-  })
-}
+  const res = await axiosInstance.get('/users');
+  // El backend puede devolver el array directo o dentro de data/items
+  const data = res.data?.data ?? res.data?.items ?? res.data;
+  return Array.isArray(data) ? data : [];
+};
 
-export const addUser = async (user: UserData): Promise<UserData> => {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      const newUser = { ...user, id: users.length }
-      users.push(newUser)
-      resolve(newUser)
-    }, 500)
-  })
-}
+export const addUser = async (user: Omit<UserData, 'id'>): Promise<UserData> => {
+  const res = await axiosInstance.post('/users', {
+    name: user.name,
+    email: user.email,
+    password: user.password,
+    role: user.role,
+  });
+  return res.data?.data ?? res.data;
+};
 
 export const updateUser = async (user: UserData): Promise<UserData> => {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      users = users.map(u => u.id === user.id ? user : u)
-      resolve(user)
-    }, 500)
-  })
-}
+  const res = await axiosInstance.put(`/users/${user.id}`, {
+    name: user.name,
+    email: user.email,
+    role: user.role,
+    ...(user.password ? { password: user.password } : {}),
+  });
+  return res.data?.data ?? res.data;
+};
 
 export const deleteUser = async (id: number): Promise<void> => {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      users = users.filter(u => u.id !== id)
-      resolve()
-    }, 500)
-  })
-}
+  await axiosInstance.delete(`/users/${id}`);
+};

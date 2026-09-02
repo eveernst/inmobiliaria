@@ -2,13 +2,31 @@
 
 import React, { useState } from 'react';
 import { User, ChevronDown, Upload } from 'lucide-react';
+import ImageViewModal from '@/components/ui/ImageViewModal';
 
 export default function NewRentedProperty() {
   const [contractImage, setContractImage] = useState<File | null>(null);
+  const [contractImagePreview, setContractImagePreview] = useState<string>('');
 
   const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0] || null;
     setContractImage(file);
+
+    if (!file) {
+      setContractImagePreview('');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setContractImagePreview((reader.result as string) || '');
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleRemoveImage = () => {
+    setContractImage(null);
+    setContractImagePreview('');
   };
 
   return (
@@ -133,6 +151,20 @@ export default function NewRentedProperty() {
               <Upload className="text-orange-500" />
             </label>
           </div>
+          {contractImagePreview && (
+            <div className="mt-3 flex items-center gap-2">
+              <img src={contractImagePreview} alt="Contrato" className="w-32 h-auto rounded" />
+              <button
+                type="button"
+                onClick={handleRemoveImage}
+                className="inline-flex items-center justify-center rounded bg-red-600 px-3 py-2 text-white hover:bg-red-700"
+                title="Eliminar imagen"
+              >
+                <span aria-hidden="true">X</span>
+              </button>
+              <ImageViewModal imageUrl={contractImagePreview} imageName="Contrato" />
+            </div>
+          )}
         </div>
 
         <div className="flex justify-center mt-8 space-x-4">

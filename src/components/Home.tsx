@@ -1,9 +1,16 @@
 'use client';
 
-import { getProperties } from '../api/propertyApi';
+import { deleteProperty, getProperties, getProperty } from '../api/propertyApi';
+import { UserData } from '@/lib/types';
 import { useEffect, useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { Plus, ChevronDown, HomeIcon, MapPin, DollarSign } from 'lucide-react';
+import { extractApiErrorMessage } from '@/lib/formFeedback';
+import { getInsurance } from '@/api/insuranceApi';
+import { getPlan } from '@/api/planApi';
+import { getRented } from '@/api/rentedApi';
+import { getWriting } from '@/api/writingApi';
+import { deleteImageByPublicUrl, resolveImageUrl } from '@/lib/imageUpload';
 
 interface Property {
   id: number;
@@ -50,7 +57,8 @@ const provinces: string[] = [
 
 const Home = () => {
   const [properties, setProperties] = useState<Property[]>([]);
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<UserData | null>(null);
+  const [deletingId, setDeletingId] = useState<number | null>(null);
   const router = useRouter();
   const [filters, setFilters] = useState<Filters>({
     province: '',
@@ -101,18 +109,6 @@ const Home = () => {
     fetchProperties();
   }, [router]);
 
-  const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    router.push('/login');
-  };
-
-  if (!user) {
-    return null;
-  }
-
-  const isAdmin = user.role === 1;
-
   const filteredProperties = useMemo(() => {
     return properties.filter(property => {
       if (filters.province && property.province !== filters.province) return false;
@@ -126,7 +122,13 @@ const Home = () => {
     });
   }, [properties, filters]);
 
-  const handleFilterChange = (key: keyof Filters, value: any) => {
+  if (!user) {
+    return null;
+  }
+
+  const isAdmin = user.role === 1;
+
+  const handleFilterChange = (key: keyof Filters, value: string | boolean) => {
     setFilters(prev => ({
       ...prev,
       [key]: value,
@@ -148,15 +150,165 @@ const Home = () => {
 
   const activeFilterCount = Object.values(filters).filter(v => v !== '' && v !== false).length;
 
+  const handleDeleteProperty = async (property: Property) => {
+    interface InstallationRef {
+      file?: string;
+    }
+
+    interface PropertyDocument {
+      property?: { id: number };
+      propertyId?: number;
+      insuranceImage?: string;
+      AnualFormImage?: string;
+      anualFormImage?: string;
+      planImage?: string;
+      structureImage?: string;
+      gasImage?: string;
+      waterImage?: string;
+      lightImage?: string;
+      projectImage?: string;
+      finalImage?: string;
+      stateImage?: string;
+      imageVisado?: string;
+      contractImage?: string;
+      imageJDAAC?: string;
+      imageJDUA?: string;
+      interiorImage?: string;
+      exteriorImage?: string;
+    }
+
+    const confirmed = window.confirm(
+      `Vas a eliminar la propiedad ${property.address} (${property.locality}, ${property.province}) y toda su documentación asociada. Esta acción no se puede deshacer. ¿Deseas continuar?`
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    try {
+      setDeletingId(property.id);
+
+      const imageUrls = new Set<string>();
+
+      try {
+        const propertyDetails = await getProperty(property.id);
+        if (propertyDetails?.file) {
+          imageUrls.add(resolveImageUrl(propertyDetails.file));
+        }
+        (propertyDetails?.installations || []).forEach((installation: InstallationRef) => {
+          if (installation?.file) {
+            imageUrls.add(resolveImageUrl(installation.file));
+          }
+        });
+      } catch (error) {
+        console.error('No se pudo obtener detalle de propiedad para borrar imagenes:', error);
+      }
+
+      const [insuranceRes, planRes, rentedRes, writingRes] = await Promise.allSettled([
+        getInsurance(),
+        getPlan(),
+        getRented(),
+        getWriting(),
+      ]);
+
+      if (insuranceRes.status === 'fulfilled') {
+        const insurances = Array.isArray(insuranceRes.value) ? insuranceRes.value : [];
+        insurances
+          .filter((item: PropertyDocument) => item?.property?.id === property.id || item?.propertyId === property.id)
+          .forEach((item: PropertyDocument) => {
+            if (item?.insuranceImage) {
+              imageUrls.add(resolveImageUrl(item.insuranceImage));
+            }
+            if (item?.AnualFormImage) {
+              imageUrls.add(resolveImageUrl(item.AnualFormImage));
+            }
+            if (item?.anualFormImage) {
+              imageUrls.add(resolveImageUrl(item.anualFormImage));
+            }
+          });
+      }
+
+      if (planRes.status === 'fulfilled') {
+        const plans = Array.isArray(planRes.value) ? planRes.value : [];
+        plans
+          .filter((item: PropertyDocument) => item?.property?.id === property.id || item?.propertyId === property.id)
+          .forEach((item: PropertyDocument) => {
+            [
+              item?.planImage,
+              item?.structureImage,
+              item?.gasImage,
+              item?.waterImage,
+              item?.lightImage,
+              item?.projectImage,
+              item?.finalImage,
+              item?.stateImage,
+              item?.imageVisado,
+            ].forEach((url) => {
+              if (url) {
+                imageUrls.add(resolveImageUrl(url));
+              }
+            });
+          });
+      }
+
+      if (rentedRes.status === 'fulfilled') {
+        const renteds = Array.isArray(rentedRes.value) ? rentedRes.value : [];
+        renteds
+          .filter((item: PropertyDocument) => item?.property?.id === property.id || item?.propertyId === property.id)
+          .forEach((item: PropertyDocument) => {
+            if (item?.contractImage) {
+              imageUrls.add(resolveImageUrl(item.contractImage));
+            }
+          });
+      }
+
+      if (writingRes.status === 'fulfilled') {
+        const writings = Array.isArray(writingRes.value) ? writingRes.value : [];
+        writings
+          .filter((item: PropertyDocument) => item?.property?.id === property.id || item?.propertyId === property.id)
+          .forEach((item: PropertyDocument) => {
+            [item?.imageJDAAC, item?.imageJDUA, item?.interiorImage, item?.exteriorImage].forEach((url) => {
+              if (url) {
+                imageUrls.add(resolveImageUrl(url));
+              }
+            });
+          });
+      }
+
+      const deletions = await Promise.allSettled(
+        Array.from(imageUrls)
+          .filter(Boolean)
+          .map((url) => deleteImageByPublicUrl(url))
+      );
+
+      const failedDeletes = deletions.filter(
+        (result) => result.status === 'rejected' || result.value === false
+      ).length;
+
+      await deleteProperty(property.id);
+      setProperties((prev) => prev.filter((item) => item.id !== property.id));
+
+      if (failedDeletes > 0) {
+        alert(`Propiedad eliminada. Algunas imágenes (${failedDeletes}) no se pudieron borrar del storage.`);
+      } else {
+        alert('Propiedad eliminada con toda su información asociada, incluyendo imágenes.');
+      }
+    } catch (error) {
+      alert(`No se pudo eliminar la propiedad: ${extractApiErrorMessage(error)}`);
+    } finally {
+      setDeletingId(null);
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
+    <div className="min-h-screen">
       {/* Header */}
-      <div className="sticky top-0 z-20 bg-white shadow-sm border-b border-slate-200 p-6">
+      <div className="sticky top-0 z-20 border-b border-slate-700/60 bg-slate-900/95 backdrop-blur-sm p-6">
         <div className="max-w-7xl mx-auto">
           <div className="flex justify-between items-center mb-6">
             <div>
-              <h1 className="text-4xl font-bold text-slate-900 mb-2">Propiedades</h1>
-              <p className="text-slate-500">
+              <h1 className="text-4xl font-bold text-slate-100 mb-2">Propiedades</h1>
+              <p className="text-slate-400">
                 Bienvenido, {user.name} ({isAdmin ? 'Admin' : 'Viewer'})
               </p>
             </div>
@@ -164,30 +316,24 @@ const Home = () => {
               {isAdmin && (
                 <a
                   href="/property"
-                  className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold py-3 px-6 rounded-lg flex items-center gap-2 transition shadow-md hover:shadow-lg"
+                  className="bg-orange-500 hover:bg-orange-400 text-white font-semibold py-3 px-6 rounded-lg flex items-center gap-2 transition shadow-md hover:shadow-lg"
                 >
                   <Plus size={20} />
                   Nueva Propiedad
                 </a>
               )}
-              <button
-                onClick={handleLogout}
-                className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded"
-              >
-                Cerrar Sesión
-              </button>
             </div>
           </div>
 
           {/* Filter Toggle Button */}
           <button
             onClick={() => setShowFilters(!showFilters)}
-            className="flex items-center gap-2 bg-slate-200 hover:bg-slate-300 text-slate-700 font-medium py-2 px-4 rounded-lg transition"
+            className="flex items-center gap-2 bg-slate-800 hover:bg-slate-700 text-slate-200 font-medium py-2 px-4 rounded-lg transition border border-slate-700"
           >
             <ChevronDown size={20} className={`transition-transform ${showFilters ? 'rotate-180' : ''}`} />
             Filtros
             {activeFilterCount > 0 && (
-              <span className="ml-2 bg-blue-600 text-white rounded-full px-2 py-1 text-xs font-semibold">{activeFilterCount}</span>
+              <span className="ml-2 bg-orange-500 text-white rounded-full px-2 py-1 text-xs font-semibold">{activeFilterCount}</span>
             )}
           </button>
         </div>
@@ -195,16 +341,16 @@ const Home = () => {
 
       {/* Filters Section */}
       {showFilters && (
-        <div className="bg-white border-b border-slate-200 p-6">
+        <div className="border-b border-slate-800 bg-slate-900/60 p-6">
           <div className="max-w-7xl mx-auto">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
               {/* Province Filter */}
               <div>
-                <label className="block text-sm font-semibold text-slate-700 mb-2">Provincia</label>
+                <label className="block text-sm font-semibold text-slate-300 mb-2">Provincia</label>
                 <select
                   value={filters.province}
                   onChange={(e) => handleFilterChange('province', e.target.value)}
-                  className="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-slate-100 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                 >
                   <option value="">Todas las provincias</option>
                   {provinces.map(province => (
@@ -215,12 +361,12 @@ const Home = () => {
 
               {/* Locality Filter */}
               <div>
-                <label className="block text-sm font-semibold text-slate-700 mb-2">Localidad</label>
+                <label className="block text-sm font-semibold text-slate-300 mb-2">Localidad</label>
                 <select
                   value={filters.locality}
                   onChange={(e) => handleFilterChange('locality', e.target.value)}
                   disabled={!filters.province}
-                  className="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50 disabled:bg-slate-100"
+                  className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-slate-100 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent disabled:opacity-50 disabled:bg-slate-900"
                 >
                   <option value="">Todas las localidades</option>
                   {localities.map(locality => (
@@ -231,23 +377,23 @@ const Home = () => {
 
               {/* Address Filter */}
               <div>
-                <label className="block text-sm font-semibold text-slate-700 mb-2">Dirección</label>
+                <label className="block text-sm font-semibold text-slate-300 mb-2">Dirección</label>
                 <input
                   type="text"
                   value={filters.address}
                   onChange={(e) => handleFilterChange('address', e.target.value)}
                   placeholder="Buscar por dirección..."
-                  className="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                 />
               </div>
 
               {/* Property Type Filter */}
               <div>
-                <label className="block text-sm font-semibold text-slate-700 mb-2">Tipo de inmueble</label>
+                <label className="block text-sm font-semibold text-slate-300 mb-2">Tipo de inmueble</label>
                 <select
                   value={filters.propertyType}
                   onChange={(e) => handleFilterChange('propertyType', e.target.value)}
-                  className="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-slate-100 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                 >
                   <option value="">Todos los tipos</option>
                   <option value="Casa">Casa</option>
@@ -262,11 +408,11 @@ const Home = () => {
 
               {/* Rental Status Filter */}
               <div>
-                <label className="block text-sm font-semibold text-slate-700 mb-2">Estado de alquiler</label>
+                <label className="block text-sm font-semibold text-slate-300 mb-2">Estado de alquiler</label>
                 <select
                   value={filters.rentalStatus}
                   onChange={(e) => handleFilterChange('rentalStatus', e.target.value)}
-                  className="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-slate-100 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                 >
                   <option value="">Cualquier estado</option>
                   <option value="available">Disponible</option>
@@ -276,14 +422,14 @@ const Home = () => {
 
               {/* For Sale Filter */}
               <div className="flex items-end">
-                <label className="flex items-center gap-3 cursor-pointer bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 w-full hover:bg-slate-100 transition">
+                <label className="flex items-center gap-3 cursor-pointer bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 w-full hover:bg-slate-700 transition">
                   <input
                     type="checkbox"
                     checked={filters.forSale}
                     onChange={(e) => handleFilterChange('forSale', e.target.checked)}
-                    className="w-4 h-4 cursor-pointer text-blue-600 rounded"
+                    className="w-4 h-4 cursor-pointer text-orange-500 rounded"
                   />
-                  <span className="text-sm font-semibold text-slate-700">Para vender</span>
+                  <span className="text-sm font-semibold text-slate-300">Para vender</span>
                 </label>
               </div>
 
@@ -291,7 +437,7 @@ const Home = () => {
               <div className="flex items-end">
                 <button
                   onClick={resetFilters}
-                  className="w-full bg-slate-200 hover:bg-slate-300 text-slate-700 font-medium py-2 px-4 rounded-lg transition"
+                  className="w-full bg-slate-800 hover:bg-slate-700 text-slate-200 font-medium py-2 px-4 rounded-lg transition border border-slate-700"
                 >
                   Limpiar filtros
                 </button>
@@ -305,8 +451,8 @@ const Home = () => {
       <div className="p-8">
         <div className="max-w-7xl mx-auto">
           <div className="mb-8 flex justify-between items-center">
-            <p className="text-slate-600 font-medium">
-              Mostrando <span className="text-blue-600 font-bold">{filteredProperties.length}</span> de <span className="text-blue-600 font-bold">{properties.length}</span> propiedades
+            <p className="text-slate-400 font-medium">
+              Mostrando <span className="text-orange-400 font-bold">{filteredProperties.length}</span> de <span className="text-orange-400 font-bold">{properties.length}</span> propiedades
             </p>
           </div>
 
@@ -315,13 +461,12 @@ const Home = () => {
               {filteredProperties.map((property) => (
                 <div
                   key={property.id}
-                  className="bg-white rounded-xl shadow-md overflow-hidden transition-all duration-300 hover:shadow-2xl hover:scale-105 border border-slate-100"
+                  className="rounded-2xl border border-slate-800 bg-slate-900 shadow-xl overflow-hidden transition duration-300 hover:-translate-y-1 hover:shadow-2xl"
                 >
                   {/* Image Placeholder */}
-                  <div className="h-48 bg-gradient-to-br from-blue-100 via-blue-50 to-slate-100 flex items-center justify-center overflow-hidden relative">
-                    <div className="absolute inset-0 bg-gradient-to-br from-blue-400/20 to-purple-400/20"></div>
+                  <div className="h-40 bg-gradient-to-br from-slate-800 to-slate-900 flex items-center justify-center overflow-hidden relative border-b border-slate-800">
                     <div className="text-center z-10">
-                      <HomeIcon size={56} className="text-blue-300 mx-auto mb-2" />
+                      <HomeIcon size={48} className="text-slate-600 mx-auto mb-2" />
                       <p className="text-slate-500 text-sm font-medium">Foto de propiedad</p>
                     </div>
                   </div>
@@ -329,11 +474,11 @@ const Home = () => {
                   {/* Content */}
                   <div className="p-6 space-y-4">
                     <div>
-                      <h2 className="text-lg font-bold text-slate-900 mb-2 line-clamp-2 leading-tight">{property.address}</h2>
-                      <div className="flex items-start gap-2 text-slate-600 text-sm mb-3">
-                        <MapPin size={16} className="flex-shrink-0 mt-0.5 text-blue-600" />
+                      <h2 className="text-lg font-bold text-slate-100 mb-2 line-clamp-2 leading-tight">{property.address}</h2>
+                      <div className="flex items-start gap-2 text-slate-400 text-sm mb-3">
+                        <MapPin size={16} className="flex-shrink-0 mt-0.5 text-orange-400" />
                         <div>
-                          <p className="font-medium">{property.locality}</p>
+                          <p className="font-medium text-slate-300">{property.locality}</p>
                           <p className="text-slate-500">{property.province}</p>
                         </div>
                       </div>
@@ -341,19 +486,19 @@ const Home = () => {
 
                     {/* Tags */}
                     <div className="flex flex-wrap gap-2">
-                      <span className="px-3 py-1 text-xs font-semibold bg-blue-100 text-blue-700 rounded-full">
+                      <span className="px-3 py-1 text-xs font-semibold bg-orange-500/10 text-orange-300 rounded-full border border-orange-500/30">
                         {destinyMap[property.destiny] || property.destiny}
                       </span>
-                      <span className={`px-3 py-1 text-xs font-semibold rounded-full ${property.active ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                      <span className={`px-3 py-1 text-xs font-semibold rounded-full ${property.active ? 'bg-emerald-500/10 text-emerald-300 border border-emerald-500/30' : 'bg-rose-500/10 text-rose-300 border border-rose-500/30'}`}>
                         {property.active ? 'Activo' : 'Inactivo'}
                       </span>
                       {property.state === 1 && (
-                        <span className="px-3 py-1 text-xs font-semibold bg-orange-100 text-orange-700 rounded-full">
+                        <span className="px-3 py-1 text-xs font-semibold bg-amber-500/10 text-amber-300 rounded-full border border-amber-500/30">
                           Alquilado
                         </span>
                       )}
                       {property.forSale && (
-                        <span className="px-3 py-1 text-xs font-semibold bg-emerald-100 text-emerald-700 rounded-full flex items-center gap-1">
+                        <span className="px-3 py-1 text-xs font-semibold bg-sky-500/10 text-sky-300 rounded-full border border-sky-500/30 flex items-center gap-1">
                           <DollarSign size={12} />
                           Para vender
                         </span>
@@ -362,13 +507,13 @@ const Home = () => {
 
                     {/* Description */}
                     {property.description && (
-                      <p className="text-slate-600 text-sm line-clamp-2">{property.description}</p>
+                      <p className="text-slate-400 text-sm line-clamp-2">{property.description}</p>
                     )}
 
                     {/* Classification */}
-                    <div className="pt-3 border-t border-slate-200">
+                    <div className="pt-3 border-t border-slate-800">
                       <p className="text-xs text-slate-500 mb-1">Clasificación</p>
-                      <p className="text-sm font-semibold text-slate-900">{property.classification.name}</p>
+                      <p className="text-sm font-semibold text-slate-200">{property.classification?.name}</p>
                     </div>
 
                     {/* Action Buttons */}
@@ -376,7 +521,7 @@ const Home = () => {
                       {isAdmin && (
                         <a
                           href={`/property?id=${property.id}`}
-                          className="flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold py-2 px-4 rounded-lg transition shadow-sm hover:shadow-md"
+                          className="flex items-center justify-center gap-2 bg-orange-500 hover:bg-orange-400 text-white font-semibold py-2 px-4 rounded-lg transition shadow-sm hover:shadow-md"
                         >
                           Editar
                         </a>
@@ -384,32 +529,42 @@ const Home = () => {
                       <div className="grid grid-cols-2 gap-2">
                         <a
                           href={`/property/details?id=${property.id}`}
-                          className="flex items-center justify-center gap-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium py-2 px-4 rounded-lg transition"
+                          className="flex items-center justify-center gap-2 bg-slate-800 hover:bg-slate-700 text-slate-200 font-medium py-2 px-4 rounded-lg transition border border-slate-700"
                         >
                           Detalles
                         </a>
                         {isAdmin && (
                           <a
                             href={`/document-manager?propertyId=${property.id}`}
-                            className="flex items-center justify-center gap-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium py-2 px-4 rounded-lg transition"
+                            className="flex items-center justify-center gap-2 bg-slate-800 hover:bg-slate-700 text-slate-200 font-medium py-2 px-4 rounded-lg transition border border-slate-700"
                           >
                             Docs
                           </a>
                         )}
                       </div>
+                      {isAdmin && (
+                        <button
+                          type="button"
+                          onClick={() => handleDeleteProperty(property)}
+                          disabled={deletingId === property.id}
+                          className="flex items-center justify-center gap-2 bg-red-700/80 hover:bg-red-600 disabled:opacity-60 text-white font-semibold py-2 px-4 rounded-lg shadow-sm transition"
+                        >
+                          {deletingId === property.id ? 'Eliminando...' : 'Eliminar propiedad'}
+                        </button>
+                      )}
                     </div>
                   </div>
                 </div>
               ))}
             </div>
           ) : (
-            <div className="text-center py-16 bg-white rounded-xl shadow-sm border border-slate-200">
-              <HomeIcon size={56} className="text-slate-300 mx-auto mb-4" />
-              <p className="text-slate-600 text-lg font-medium mb-2">No se encontraron propiedades</p>
+            <div className="text-center py-16 bg-slate-900 rounded-2xl border border-slate-800">
+              <HomeIcon size={56} className="text-slate-700 mx-auto mb-4" />
+              <p className="text-slate-300 text-lg font-medium mb-2">No se encontraron propiedades</p>
               <p className="text-slate-500 mb-6">Prueba ajustando los filtros</p>
               <button
                 onClick={resetFilters}
-                className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold py-2 px-8 rounded-lg transition shadow-md"
+                className="bg-orange-500 hover:bg-orange-400 text-white font-semibold py-2 px-8 rounded-lg transition shadow-md"
               >
                 Limpiar filtros
               </button>
