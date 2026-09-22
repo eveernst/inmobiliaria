@@ -2,7 +2,7 @@
 
 ## Stack
 
-- Next.js 14 (App Router), React 18, TypeScript, Tailwind CSS + shadcn/Radix components, Supabase.
+- Next.js 15 (App Router), React 18, TypeScript, Tailwind CSS + shadcn/Radix components, Supabase.
 
 ## TypeScript
 
