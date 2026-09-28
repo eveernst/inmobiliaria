@@ -7,6 +7,7 @@ import { deletePlan } from '@/api/planApi';
 import { deleteRented } from '@/api/rentedApi';
 import { deleteWriting } from '@/api/writingApi';
 import { resolveImageUrl } from '@/lib/imageUpload';
+import { canWriteProperties } from '@/lib/types';
 import { useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
 
@@ -134,7 +135,7 @@ const PropertyView: React.FC = () => {
       const saved = localStorage.getItem('user');
       if (saved) {
         const u = JSON.parse(saved);
-        setIsAdmin(u?.role === 1 || u?.role === 3);
+        setIsAdmin(canWriteProperties(u?.role));
       }
     } catch { /* sin sesión */ }
 

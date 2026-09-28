@@ -7,6 +7,7 @@ import PlanForm from "./documents/planForm";
 import { usePathname, useRouter } from "next/navigation";
 import RentedForm from "./documents/rentedForm";
 import { getProperties, getProperty } from "@/api/propertyApi";
+import { canWriteProperties } from "@/lib/types";
 
 type PropertyListItem = {
   id: number;
@@ -38,7 +39,7 @@ export default function Formulario() {
     if (savedUser) {
       try {
         const parsedUser = JSON.parse(savedUser);
-        setIsViewer(parsedUser?.role !== 1);
+        setIsViewer(!canWriteProperties(parsedUser?.role));
       } catch {
         setIsViewer(false);
       }

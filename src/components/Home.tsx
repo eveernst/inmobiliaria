@@ -1,7 +1,7 @@
 'use client';
 
 import { deleteProperty, getProperties, getProperty } from '../api/propertyApi';
-import { UserData } from '@/lib/types';
+import { UserData, canWriteProperties } from '@/lib/types';
 import { useEffect, useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { Plus, ChevronDown, HomeIcon, MapPin, DollarSign } from 'lucide-react';
@@ -126,7 +126,7 @@ const Home = () => {
     return null;
   }
 
-  const isAdmin = user.role === 1;
+  const isAdmin = canWriteProperties(user.role);
 
   const handleFilterChange = (key: keyof Filters, value: string | boolean) => {
     setFilters(prev => ({

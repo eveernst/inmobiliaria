@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-import { UserData, ROLE_LABELS } from "@/lib/types";
+import { UserData, ROLE_LABELS, canManageUsers } from "@/lib/types";
 
 const Navbar = () => {
   const router = useRouter();
@@ -27,8 +27,7 @@ const Navbar = () => {
     router.push("/login");
   };
 
-  const isAdmin = user?.role === 1 || user?.role === 3;
-  const isSuperuser = user?.role === 3;
+  const isSuperuser = canManageUsers(user?.role);
 
   return (
     <nav className="w-full border-b border-slate-700/60 bg-slate-900/95 backdrop-blur-sm px-4 py-3 sticky top-0 z-40">
