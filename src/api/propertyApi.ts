@@ -1,6 +1,13 @@
 // Ejemplo de uso en un servicio o componente
 import axiosInstance from './api';
 
+export interface PropertyFilters {
+  province?: string;
+  classification?: string;
+  state?: string;
+  address?: string;
+}
+
 const saveProperty = async (data: any) => {
   try {
     const response = await axiosInstance.post('/property', data);
@@ -11,9 +18,12 @@ const saveProperty = async (data: any) => {
   }
 };
 
-const getProperties = async () => {
+const getProperties = async (filters: PropertyFilters = {}) => {
   try {
-    const response = await axiosInstance.get('/property');
+    const params = Object.fromEntries(
+      Object.entries(filters).filter(([, value]) => value?.trim()),
+    );
+    const response = await axiosInstance.get('/property', { params });
     return response.data;
   } catch(error) {
     console.error('Error al obtener los datos:', error);
