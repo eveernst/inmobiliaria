@@ -1,6 +1,6 @@
 'use client';
 
-import { deleteProperty, getProperties, getProperty } from '../api/propertyApi';
+import { deleteProperty, getProperties, getProperty, PropertyFilters } from '../api/propertyApi';
 import { UserData } from '@/lib/types';
 import { useEffect, useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
@@ -38,6 +38,12 @@ interface Filters {
   forSale: boolean;
 }
 
+interface SearchFormValues extends PropertyFilters {
+  province: string;
+  classification: string;
+  address: string;
+}
+
 const destinyMap: { [key: string]: string } = {
   '0': 'Templo',
   '1': 'Terreno',
@@ -55,10 +61,31 @@ const provinces: string[] = [
   'Entre Ríos',
 ] as const;
 
+const emptySearch: SearchFormValues = {
+  province: '',
+  classification: '',
+  address: '',
+};
+
+const normalizeProperties = (data: unknown): Property[] => {
+  if (!Array.isArray(data)) {
+    return [];
+  }
+
+  return data.map((property: Property) => ({
+    ...property,
+    state: property.state ?? 0,
+    forSale: property.forSale ?? false,
+  }));
+};
+
 const Home = () => {
   const [properties, setProperties] = useState<Property[]>([]);
   const [user, setUser] = useState<UserData | null>(null);
   const [deletingId, setDeletingId] = useState<number | null>(null);
+  const [searchForm, setSearchForm] = useState<SearchFormValues>(emptySearch);
+  const [hasSearch, setHasSearch] = useState(false);
+  const [isSearching, setIsSearching] = useState(false);
   const router = useRouter();
   const [filters, setFilters] = useState<Filters>({
     province: '',
@@ -95,12 +122,7 @@ const Home = () => {
     const fetchProperties = async () => {
       try {
         const data = await getProperties();
-        const normalizedData = data.map((p: Property) => ({
-          ...p,
-          state: p.state ?? 0,
-          forSale: p.forSale ?? false,
-        }));
-        setProperties(normalizedData);
+        setProperties(normalizeProperties(data));
       } catch (error) {
         console.error('Error fetching properties:', error);
         setProperties([]);
@@ -108,6 +130,35 @@ const Home = () => {
     };
     fetchProperties();
   }, [router]);
+
+  const handleSearchChange = (
+    field: keyof SearchFormValues,
+    value: string,
+  ) => {
+    setSearchForm((previous) => ({ ...previous, [field]: value }));
+  };
+
+  const handleSearch = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setIsSearching(true);
+
+    try {
+      const filters: PropertyFilters = {
+        province: searchForm.province,
+        classification: searchForm.classification,
+        address: searchForm.address,
+      };
+      const data = await getProperties(filters);
+      setProperties(normalizeProperties(data));
+      setHasSearch(Object.values(filters).some((value) => value?.trim()));
+    } catch (error) {
+      console.error('Error buscando propiedades:', error);
+      setProperties([]);
+      setHasSearch(true);
+    } finally {
+      setIsSearching(false);
+    }
+  };
 
   const filteredProperties = useMemo(() => {
     return properties.filter(property => {
@@ -146,6 +197,23 @@ const Home = () => {
       ownership: '',
       forSale: false
     });
+  };
+
+  const clearSearch = async () => {
+    setSearchForm(emptySearch);
+    resetFilters();
+    setHasSearch(false);
+    setIsSearching(true);
+
+    try {
+      const data = await getProperties();
+      setProperties(normalizeProperties(data));
+    } catch (error) {
+      console.error('Error cargando propiedades:', error);
+      setProperties([]);
+    } finally {
+      setIsSearching(false);
+    }
   };
 
   const activeFilterCount = Object.values(filters).filter(v => v !== '' && v !== false).length;
@@ -324,6 +392,53 @@ const Home = () => {
               )}
             </div>
           </div>
+
+          <form onSubmit={handleSearch} className="mb-5 grid grid-cols-1 gap-3 md:grid-cols-4">
+            <input
+              type="search"
+              value={searchForm.address}
+              onChange={(event) => handleSearchChange('address', event.target.value)}
+              placeholder="Buscar por dirección"
+              aria-label="Buscar por dirección"
+              className="rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-slate-100 placeholder-slate-500 focus:border-orange-500 focus:outline-none"
+            />
+            <input
+              type="search"
+              value={searchForm.classification}
+              onChange={(event) => handleSearchChange('classification', event.target.value)}
+              placeholder="Buscar por clasificación"
+              aria-label="Buscar por clasificación"
+              className="rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-slate-100 placeholder-slate-500 focus:border-orange-500 focus:outline-none"
+            />
+            <select
+              value={searchForm.province}
+              onChange={(event) => handleSearchChange('province', event.target.value)}
+              aria-label="Filtrar por provincia"
+              className="rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-slate-100 focus:border-orange-500 focus:outline-none"
+            >
+              <option value="">Todas las provincias</option>
+              {provinces.map((province) => (
+                <option key={province} value={province}>{province}</option>
+              ))}
+            </select>
+            <div className="flex gap-2">
+              <button
+                type="submit"
+                disabled={isSearching}
+                className="flex-1 rounded-lg bg-orange-500 px-4 py-2 font-semibold text-white transition hover:bg-orange-400 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {isSearching ? 'Buscando...' : 'Buscar'}
+              </button>
+              <button
+                type="button"
+                onClick={clearSearch}
+                disabled={isSearching}
+                className="rounded-lg border border-slate-700 bg-slate-800 px-4 py-2 font-medium text-slate-200 transition hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                Ver todas
+              </button>
+            </div>
+          </form>
 
           {/* Filter Toggle Button */}
           <button
@@ -560,10 +675,14 @@ const Home = () => {
           ) : (
             <div className="text-center py-16 bg-slate-900 rounded-2xl border border-slate-800">
               <HomeIcon size={56} className="text-slate-700 mx-auto mb-4" />
-              <p className="text-slate-300 text-lg font-medium mb-2">No se encontraron propiedades</p>
-              <p className="text-slate-500 mb-6">Prueba ajustando los filtros</p>
+              <p className="text-slate-300 text-lg font-medium mb-2">
+                {hasSearch ? 'No se encontraron resultados' : 'No se encontraron propiedades'}
+              </p>
+              <p className="text-slate-500 mb-6">
+                {hasSearch ? 'Probá con otros criterios de búsqueda' : 'Probá ajustando los filtros'}
+              </p>
               <button
-                onClick={resetFilters}
+                onClick={clearSearch}
                 className="bg-orange-500 hover:bg-orange-400 text-white font-semibold py-2 px-8 rounded-lg transition shadow-md"
               >
                 Limpiar filtros
