@@ -17,3 +17,7 @@ export const ROLE_LABELS: Record<number, string> = {
   2: "Usuario",
   3: "Superusuario",
 };
+
+// Roles are functional, not hierarchical: each permission belongs to exactly one role.
+export const canWriteProperties = (role?: number): boolean => role === 1;
+export const canManageUsers = (role?: number): boolean => role === 3;
