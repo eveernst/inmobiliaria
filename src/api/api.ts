@@ -1,6 +1,8 @@
 // src/utils/axiosInstance.ts
 import axios from 'axios';
 
+let isRedirectingToLogin = false;
+
 const axiosInstance = axios.create({
   baseURL: 'http://localhost:3000',
   headers: {
@@ -29,11 +31,21 @@ axiosInstance.interceptors.response.use(
     return response;
   },
   (error) => {
-    // Manejo de errores generales de la API
-    if (error.response && error.response.status === 401) {
-      // Por ejemplo, redirigir al login si el usuario no está autorizado
-      console.log('No autorizado, redirigiendo al login');
+    const requestUrl = error.config?.url ?? '';
+    const isLoginRequest = requestUrl.includes('/auth/login');
+
+    if (
+      error.response?.status === 401 &&
+      !isLoginRequest &&
+      !isRedirectingToLogin &&
+      typeof window !== 'undefined'
+    ) {
+      isRedirectingToLogin = true;
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      window.location.assign('/login');
     }
+
     return Promise.reject(error);
   }
 );
