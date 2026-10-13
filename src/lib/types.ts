@@ -21,3 +21,33 @@ export const ROLE_LABELS: Record<number, string> = {
 // Roles are functional, not hierarchical: each permission belongs to exactly one role.
 export const canWriteProperties = (role?: number): boolean => role === 1;
 export const canManageUsers = (role?: number): boolean => role === 3;
+
+// Body of PUT /property/:id. Only editable fields: the property id goes in the URL.
+export interface InstallationUpdatePayload {
+  id?: number;              // only for installations that already exist
+  name: string;
+  quantity: number;
+  details: string;
+  file: File | string;
+  classification?: number;  // omitted when unknown, never sent as null
+}
+
+export interface PropertyUpdatePayload {
+  goodUseCode: number;
+  description: string;
+  classification: number;
+  province: string;
+  locality: string;
+  address: string;
+  postalCode: number;
+  betweenStreets1: string;
+  betweenStreets2: string;
+  district: string;
+  active: boolean;
+  destiny: number;
+  clfc: string;
+  state: number;
+  detailsMaintenance: string;
+  file: File | string;
+  installations: InstallationUpdatePayload[];
+}
