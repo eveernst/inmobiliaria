@@ -3,6 +3,7 @@ import { saveProperty, editProperty, getProperty } from "@/api/propertyApi";
 import { getClassifications } from "@/api/classificationApi";
 import { alertMissingFields, extractApiErrorMessage } from "@/lib/formFeedback";
 import { resolveImageUrl } from "@/lib/imageUpload";
+import { InstallationUpdatePayload, PropertyUpdatePayload } from "@/lib/types";
 import ImageViewModal from "@/components/ui/ImageViewModal";
 import React, { useRef, useState, useEffect } from "react";
 import { useForm, SubmitHandler, useFieldArray, Path } from "react-hook-form";
@@ -30,14 +31,71 @@ interface FormData {
   user: number;
   classification: number;
   installations: {
+    id?: number;
     name: string;
     quantity: number;
     file: ImageFieldValue;
     details: string;
-    classification: number;
+    classification?: number | null;
   }[];
   id?: number;
 }
+
+const normalizeFileValue = (value: ImageFieldValue): File | string => {
+  if (value instanceof File) {
+    return value.size ? value : "";
+  }
+
+  if (typeof value === "string") {
+    return value;
+  }
+
+  return "";
+};
+
+// Positive integer id or undefined. Number() first so "5" from a <select> survives;
+// null, "" and 0 become 0 and NaN fails isInteger, so none of them reach the API.
+const toValidId = (value: unknown): number | undefined => {
+  const n = Number(value);
+  return Number.isInteger(n) && n > 0 ? n : undefined;
+};
+
+const buildInstallationPayload = (inst: FormData["installations"][number]): InstallationUpdatePayload => {
+  const id = toValidId(inst.id);
+  const classification = toValidId(inst.classification);
+
+  return {
+    name: inst.name,
+    quantity: Number(inst.quantity),
+    details: inst.details,
+    file: normalizeFileValue(inst.file),
+    ...(id !== undefined ? { id } : {}),
+    ...(classification !== undefined ? { classification } : {}),
+  };
+};
+
+// Builds the PUT body from an explicit field list so keys loaded by reset()
+// (insurances, plans, timestamps...) never echo back to the API.
+// Inputs without valueAsNumber yield strings once edited, so types are coerced here.
+const buildPropertyUpdatePayload = (data: FormData): PropertyUpdatePayload => ({
+  goodUseCode: Number(data.goodUseCode),
+  description: data.description,
+  classification: Number(data.classification),
+  province: data.province,
+  locality: data.locality,
+  address: data.address,
+  postalCode: Number(data.postalCode),
+  betweenStreets1: data.betweenStreets1,
+  betweenStreets2: data.betweenStreets2,
+  district: data.district,
+  active: data.active,
+  destiny: Number(data.destiny), // 0 (Templo) is valid: no positive-id check here
+  clfc: String(data.clfc),
+  state: Number(data.state),
+  detailsMaintenance: data.detailsMaintenance,
+  file: normalizeFileValue(data.file),
+  installations: (data.installations || []).map((inst) => buildInstallationPayload(inst)),
+});
 
 interface ClassificationOption {
   id: number;
@@ -59,6 +117,7 @@ const PropertyForm = ({ id }: { id?: number }) => {
     name: "installations"
   });
 
+  const isEditing = id !== undefined && id !== 0;
   const [title, setTitle] = useState<string>("Nueva Propiedad");
   const [classifications, setClassifications] = useState<ClassificationOption[]>([]);
   const [imagePreviews, setImagePreviews] = useState<Record<string, string>>({});
@@ -228,18 +287,6 @@ const PropertyForm = ({ id }: { id?: number }) => {
       setSaveMessage("Validando datos y preparando guardado...");
       console.log("id de propiedad", id);
 
-      const normalizeFileValue = (value: ImageFieldValue) => {
-        if (value instanceof File) {
-          return value.size ? value : "";
-        }
-
-        if (typeof value === "string") {
-          return value;
-        }
-
-        return "";
-      };
-
       const processedData = {
         ...data,
         file: normalizeFileValue(data.file),
@@ -254,8 +301,7 @@ const PropertyForm = ({ id }: { id?: number }) => {
 
       if (id !== undefined && id !== 0) {
         setSaveMessage("Guardando cambios de la propiedad...");
-        processedData.id = id;
-        await editProperty(processedData);
+        await editProperty(id, buildPropertyUpdatePayload(data));
         setSaveMessage("Propiedad actualizada correctamente.");
         alert("Propiedad actualizada exitosamente");
       } else {
@@ -571,7 +617,7 @@ const PropertyForm = ({ id }: { id?: number }) => {
                 <label htmlFor="classification" className="block text-slate-300 mb-1 text-sm">Clasificacion</label>
                 <input
                   type="number"
-                  {...register(`installations.${index}.classification`, { required: "Este campo es obligatorio", valueAsNumber: true })} // Se agrega valueAsNumber para que el valor sea un número
+                  {...register(`installations.${index}.classification`, { required: !isEditing && "Este campo es obligatorio", valueAsNumber: true })} // TODO(#30): installation classification is removed in inmobiliaria_api#47; required only on create because POST still validates it
                   className="doc-input"
                 />
                 {errors.installations?.[index]?.classification && (
@@ -628,7 +674,7 @@ const PropertyForm = ({ id }: { id?: number }) => {
       {/* Botón para agregar nueva instalación */}
       <button
         type="button"
-        onClick={() => append({ name: "", classification: 0, quantity: 0, file: "", details: "" })}
+        onClick={() => append({ name: "", quantity: 0, file: "", details: "" })}
         className="w-fullrounded-lg bg-blue-600 px-4 py-3 text-white transition-colors hover:bg-blue-500"
       >
         Agregar Instalación

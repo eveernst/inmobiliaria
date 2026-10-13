@@ -1,5 +1,6 @@
 // Ejemplo de uso en un servicio o componente
 import axiosInstance from './api';
+import { PropertyUpdatePayload } from '@/lib/types';
 
 export interface PropertyFilters {
   province?: string;
@@ -41,9 +42,9 @@ const getProperty = async (id: number) => {
   }
 };
 
-const editProperty = async (data: any) => {
+const editProperty = async (id: number, payload: PropertyUpdatePayload) => {
   try {
-    const response = await axiosInstance.put(`/property/${data.id}`, data);
+    const response = await axiosInstance.put(`/property/${id}`, payload);
     return response.data;
   } catch (error) {
     console.error('Error al editar los datos:', error);
