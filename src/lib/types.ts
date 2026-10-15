@@ -18,6 +18,18 @@ export const ROLE_LABELS: Record<number, string> = {
   3: "Superusuario",
 };
 
+export const DOC_TYPES = ["insurance", "rented", "plan", "writing"] as const;
+export type DocType = (typeof DOC_TYPES)[number];
+
+export const DOC_TYPE_LABELS: Record<DocType, string> = {
+  insurance: "Seguro",
+  rented: "Alquiler",
+  plan: "Plano",
+  writing: "Escritura",
+};
+
+export const isDocType = (v: unknown): v is DocType => DOC_TYPES.includes(v as DocType);
+
 // Roles are functional, not hierarchical: each permission belongs to exactly one role.
 export const canWriteProperties = (role?: number): boolean => role === 1;
 export const canManageUsers = (role?: number): boolean => role === 3;

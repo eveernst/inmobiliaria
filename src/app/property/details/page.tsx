@@ -2,12 +2,10 @@
 
 import { getProperty } from '@/api/propertyApi';
 import { deleteInstallation } from '@/api/installationApi';
-import { deleteInsurance } from '@/api/insuranceApi';
-import { deletePlan } from '@/api/planApi';
-import { deleteRented } from '@/api/rentedApi';
-import { deleteWriting } from '@/api/writingApi';
+import { deleteDocument } from '@/api/documentsApi';
+import ConfirmModal from '@/components/ui/ConfirmModal';
 import { resolveImageUrl } from '@/lib/imageUpload';
-import { canWriteProperties } from '@/lib/types';
+import { canWriteProperties, DOC_TYPES, DOC_TYPE_LABELS, type DocType } from '@/lib/types';
 import { useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
 
@@ -79,35 +77,6 @@ const docTypeLabel = (ins: DocBase, type: string) => {
   return `Doc #${ins.id}`;
 };
 
-// ─── Modal de confirmación ────────────────────────────────────────────────────
-
-interface ConfirmModalProps {
-  message: string;
-  onConfirm: () => void;
-  onCancel: () => void;
-}
-const ConfirmModal: React.FC<ConfirmModalProps> = ({ message, onConfirm, onCancel }) => (
-  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
-    <div className="mx-4 w-full max-w-sm rounded-2xl border border-slate-700 bg-slate-900 p-6 shadow-2xl">
-      <p className="mb-6 text-center text-slate-200">{message}</p>
-      <div className="flex gap-3">
-        <button
-          onClick={onCancel}
-          className="flex-1 rounded-lg border border-slate-600 bg-slate-800 py-2 text-sm font-medium text-slate-200 transition hover:bg-slate-700"
-        >
-          Cancelar
-        </button>
-        <button
-          onClick={onConfirm}
-          className="flex-1 rounded-lg bg-red-600 py-2 text-sm font-medium text-white transition hover:bg-red-500"
-        >
-          Eliminar
-        </button>
-      </div>
-    </div>
-  </div>
-);
-
 // ─── Componente principal ─────────────────────────────────────────────────────
 
 const PropertyView: React.FC = () => {
@@ -117,6 +86,7 @@ const PropertyView: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
   const [imgError, setImgError] = useState(false);
+  const [docFilter, setDocFilter] = useState<DocType | 'all'>('all');
 
   // Estado para modal de confirmación de eliminación
   const [confirm, setConfirm] = useState<{
@@ -169,20 +139,14 @@ const PropertyView: React.FC = () => {
   };
 
   // ── Eliminación de documentación ───────────────────────────────────────────
-  const handleDeleteDoc = (docId: number, type: string, label: string) => {
-    const deleteFns: Record<string, (id: number) => Promise<unknown>> = {
-      insurance: deleteInsurance,
-      plan: deletePlan,
-      rented: deleteRented,
-      writing: deleteWriting,
-    };
+  const handleDeleteDoc = (docId: number, type: DocType, label: string) => {
     setConfirm({
       show: true,
       message: `¿Eliminar el documento "${label}"? Esta acción no se puede deshacer.`,
       onConfirm: async () => {
         setConfirm(c => ({ ...c, show: false }));
         try {
-          await deleteFns[type](docId);
+          await deleteDocument[type](docId);
           setProperty(p => {
             if (!p) return p;
             const key = `${type}s` as keyof Property;
@@ -229,12 +193,13 @@ const PropertyView: React.FC = () => {
   const mapSrc = `https://maps.google.com/maps?q=${mapQuery}&output=embed&z=16`;
 
   // Documentación combinada con tipo
-  const allDocs: { item: DocBase; type: string }[] = [
-    ...property.writings.map(d => ({ item: d, type: 'writing' })),
-    ...property.insurances.map(d => ({ item: d, type: 'insurance' })),
-    ...property.plans.map(d => ({ item: d, type: 'plan' })),
-    ...property.renteds.map(d => ({ item: d, type: 'rented' })),
+  const allDocs: { item: DocBase; type: DocType }[] = [
+    ...property.writings.map(d => ({ item: d, type: 'writing' as const })),
+    ...property.insurances.map(d => ({ item: d, type: 'insurance' as const })),
+    ...property.plans.map(d => ({ item: d, type: 'plan' as const })),
+    ...property.renteds.map(d => ({ item: d, type: 'rented' as const })),
   ];
+  const filteredDocs = docFilter === 'all' ? allDocs : allDocs.filter(d => d.type === docFilter);
 
   return (
     <>
@@ -450,60 +415,76 @@ const PropertyView: React.FC = () => {
             </div>
 
             {allDocs.length === 0 ? (
-              <p className="text-sm italic text-slate-500">No hay documentos registrados.</p>
+              <p className="text-sm italic text-slate-500">No se encontraron documentos</p>
             ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="border-b border-slate-700">
-                      <th className="pb-2 text-left text-xs font-semibold uppercase tracking-wider text-slate-400">ID</th>
-                      <th className="pb-2 text-left text-xs font-semibold uppercase tracking-wider text-slate-400">Tipo</th>
-                      <th className="pb-2 text-left text-xs font-semibold uppercase tracking-wider text-slate-400">Detalle</th>
-                      {isAdmin && <th className="pb-2 text-right text-xs font-semibold uppercase tracking-wider text-slate-400">Acciones</th>}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {allDocs.map(({ item, type }) => {
-                      const label = docTypeLabel(item, type);
-                      const typeLabels: Record<string, string> = {
-                        writing: 'Escritura',
-                        insurance: 'Seguro',
-                        plan: 'Plano',
-                        rented: 'Alquiler',
-                      };
-                      return (
-                        <tr key={`${type}-${item.id}`} className="border-b border-slate-800 transition hover:bg-slate-800/40">
-                          <td className="py-3 pr-3 text-slate-400">{item.id}</td>
-                          <td className="py-3 pr-3">
-                            <span className="rounded-full bg-slate-800 px-2 py-0.5 text-xs font-medium text-slate-300">
-                              {typeLabels[type]}
-                            </span>
-                          </td>
-                          <td className="py-3 pr-3 text-slate-300">{label}</td>
-                          {isAdmin && (
-                            <td className="py-3 text-right">
-                              <div className="flex justify-end gap-2">
-                                <button
-                                  onClick={() => router.push(`/document-manager?propertyId=${property.id}&docType=${type}&docId=${item.id}`)}
-                                  className="rounded-lg border border-slate-600 bg-slate-800 px-3 py-1 text-xs font-medium text-slate-200 transition hover:bg-slate-700"
-                                >
-                                  Modificar
-                                </button>
-                                <button
-                                  onClick={() => handleDeleteDoc(item.id, type, label)}
-                                  className="rounded-lg border border-red-900/50 bg-red-900/20 px-3 py-1 text-xs font-medium text-red-300 transition hover:bg-red-900/40"
-                                >
-                                  Eliminar
-                                </button>
-                              </div>
-                            </td>
-                          )}
+              <>
+                <div className="mb-4 flex flex-wrap gap-2">
+                  {(['all', ...DOC_TYPES] as const).map((value) => (
+                    <button
+                      key={value}
+                      onClick={() => setDocFilter(value)}
+                      className={`rounded-full px-3 py-1 text-xs font-medium transition ${
+                        docFilter === value
+                          ? 'bg-orange-500 text-white'
+                          : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
+                      }`}
+                    >
+                      {value === 'all' ? 'Todos' : DOC_TYPE_LABELS[value]}
+                    </button>
+                  ))}
+                </div>
+
+                {filteredDocs.length === 0 ? (
+                  <p className="text-sm italic text-slate-500">No se encontraron documentos</p>
+                ) : (
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-sm">
+                      <thead>
+                        <tr className="border-b border-slate-700">
+                          <th className="pb-2 text-left text-xs font-semibold uppercase tracking-wider text-slate-400">ID</th>
+                          <th className="pb-2 text-left text-xs font-semibold uppercase tracking-wider text-slate-400">Tipo</th>
+                          <th className="pb-2 text-left text-xs font-semibold uppercase tracking-wider text-slate-400">Detalle</th>
+                          <th className="pb-2 text-right text-xs font-semibold uppercase tracking-wider text-slate-400">Acciones</th>
                         </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
+                      </thead>
+                      <tbody>
+                        {filteredDocs.map(({ item, type }) => {
+                          const label = docTypeLabel(item, type);
+                          return (
+                            <tr key={`${type}-${item.id}`} className="border-b border-slate-800 transition hover:bg-slate-800/40">
+                              <td className="py-3 pr-3 text-slate-400">{item.id}</td>
+                              <td className="py-3 pr-3">
+                                <span className="rounded-full bg-slate-800 px-2 py-0.5 text-xs font-medium text-slate-300">
+                                  {DOC_TYPE_LABELS[type]}
+                                </span>
+                              </td>
+                              <td className="py-3 pr-3 text-slate-300">{label}</td>
+                              <td className="py-3 text-right">
+                                {isAdmin && (
+                                  <div className="flex justify-end gap-2">
+                                    <button
+                                      onClick={() => router.push(`/document-manager?propertyId=${property.id}&docType=${type}&docId=${item.id}`)}
+                                      className="rounded-lg border border-slate-600 bg-slate-800 px-3 py-1 text-xs font-medium text-slate-200 transition hover:bg-slate-700"
+                                    >
+                                      Modificar
+                                    </button>
+                                    <button
+                                      onClick={() => handleDeleteDoc(item.id, type, label)}
+                                      className="rounded-lg border border-red-900/50 bg-red-900/20 px-3 py-1 text-xs font-medium text-red-300 transition hover:bg-red-900/40"
+                                    >
+                                      Eliminar
+                                    </button>
+                                  </div>
+                                )}
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </>
             )}
           </section>
 

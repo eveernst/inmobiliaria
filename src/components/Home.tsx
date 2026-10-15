@@ -641,22 +641,12 @@ const Home = () => {
                           Editar
                         </a>
                       )}
-                      <div className="grid grid-cols-2 gap-2">
-                        <a
-                          href={`/property/details?id=${property.id}`}
-                          className="flex items-center justify-center gap-2 bg-slate-800 hover:bg-slate-700 text-slate-200 font-medium py-2 px-4 rounded-lg transition border border-slate-700"
-                        >
-                          Detalles
-                        </a>
-                        {isAdmin && (
-                          <a
-                            href={`/document-manager?propertyId=${property.id}`}
-                            className="flex items-center justify-center gap-2 bg-slate-800 hover:bg-slate-700 text-slate-200 font-medium py-2 px-4 rounded-lg transition border border-slate-700"
-                          >
-                            Docs
-                          </a>
-                        )}
-                      </div>
+                      <a
+                        href={`/property/details?id=${property.id}`}
+                        className="flex items-center justify-center gap-2 bg-slate-800 hover:bg-slate-700 text-slate-200 font-medium py-2 px-4 rounded-lg transition border border-slate-700"
+                      >
+                        Detalles
+                      </a>
                       {isAdmin && (
                         <button
                           type="button"

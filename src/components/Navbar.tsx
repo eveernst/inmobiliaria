@@ -57,17 +57,6 @@ const Navbar = () => {
               Propiedades
             </Link>
 
-            <Link
-              href="/document-manager"
-              className={`rounded-lg px-3 py-1.5 text-sm font-medium transition ${
-                pathname === "/document-manager"
-                  ? "bg-orange-500/20 text-orange-400"
-                  : "text-slate-300 hover:bg-slate-800 hover:text-slate-100"
-              }`}
-            >
-              Documentos
-            </Link>
-
             {isSuperuser && (
               <Link
                 href="/user"
