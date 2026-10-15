@@ -51,3 +51,99 @@ export interface PropertyUpdatePayload {
   file: File | string;
   installations: InstallationUpdatePayload[];
 }
+
+// Bodies of PUT /<doc>/:id: only fields the Update*Dto accepts. Never id,
+// propertyId, property or timestamps (forbidNonWhitelisted answers 400).
+// POST sends the same body plus propertyId. Dates are 'YYYY-MM-DD'.
+export interface PlanPayload {
+  generalPlan: boolean;
+  planNumber: number;
+  year: number;
+  planImage?: string;
+  structurePlan: boolean;
+  structureImage?: string;
+  gasPlan: boolean;
+  gasImage?: string;
+  waterPlan: boolean;
+  waterImage?: string;
+  lightPlan: boolean;
+  lightImage?: string;
+  projectPlan: boolean;
+  projectImage?: string;
+  finalPlan: boolean;
+  finalImage?: string;
+  planType: string;
+  planNumberUpdate: number;
+  yearUpdate: number;
+  stateImage?: string;
+  professional: string;
+  professionalContact: string;
+  dateVisado: string;
+  numberVisado: number;
+  imageVisado?: string;
+  formalities: string;
+  documentation: string;
+  contacts: string;
+}
+
+export interface InsurancePayload {
+  name: string;
+  phone: string;
+  email: string;
+  insuredProperty: string;
+  insuranceARM: boolean;
+  insuranceASE: boolean;
+  team: boolean;
+  content: boolean;
+  values: boolean;
+  insuranceImage?: string;
+  insuranceDate?: string;
+  AnualFormImage?: string;
+  AnualFormDate?: string;
+  observations: string;
+}
+
+export interface RentedPayload {
+  ownerDetails: string;
+  affectation: string;
+  ownerContact: string;
+  renterDetails: string;
+  address: string;
+  renterContact: string;
+  locality: string;
+  contratStartDate?: string;
+  contratEndDate?: string;
+  province: string;
+  price?: number;
+  adjustmentType: string;
+  contractImage?: string;
+}
+
+export interface WritingPayload {
+  writingNumber: number;
+  voteNumberJDAAC: number;
+  voteDateJDAAC: string;
+  imageJDAAC?: string;
+  voteNumberJDUA: number;
+  voteDateJDUA: string;
+  imageJDUA?: string;
+  domain: string;
+  folio: string;
+  tomo: string;
+  year: number;
+  department: string;
+  totalSurface: number;
+  coveredSurface: number;
+  improvementSurface: number;
+  improvementValue: number;
+  cadastralNomenclature: string;
+  ubicationMap?: string;
+  cadastralInform?: string;
+  actingNotary: string;
+  notaryContact: number;
+  interiorImage?: string;
+  exteriorImage?: string;
+  formalities: string;
+  documentation: string;
+  detailSpaces: string;
+}

@@ -2,15 +2,18 @@
 
 import React, { useState } from "react";
 import { useForm, FieldError, Path, SubmitHandler } from "react-hook-form";
-import { saveRented } from "@/api/rentedApi";
-import { getRented } from "@/api/rentedApi";
+import { saveRented, updateRented, getRentedById } from "@/api/rentedApi";
 import { deleteImageByPublicUrl, resolveImageUrl, uploadImageToSupabase } from "@/lib/imageUpload";
 import ImageViewModal from "@/components/ui/ImageViewModal";
 import { alertMissingFields, extractApiErrorMessage } from "@/lib/formFeedback";
+import { toCalendarDate } from "@/lib/calendarDate";
+import { RentedPayload } from "@/lib/types";
+import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
 interface RentedFormProps {
   propertyId: number;
+  documentId?: number; // edit this rented record; without it the form creates a new one
   isReadOnly?: boolean;
 }
 
@@ -28,35 +31,51 @@ interface FormData {
   price?: number;
   adjustmentType?: string;
   contractImage?: string;
-  propertyId?: number;
 }
 
-interface RemoteRentedRecord extends Partial<FormData> {
-  id?: number;
-  property?: { id: number };
-}
+// Fields copied from GET /rented/:id into the form (dates are formatted apart).
+const LOADED_FIELDS: (keyof FormData)[] = [
+  "ownerDetails",
+  "affectation",
+  "ownerContact",
+  "renterDetails",
+  "address",
+  "renterContact",
+  "locality",
+  "province",
+  "price",
+  "adjustmentType",
+  "contractImage",
+];
 
-const RentedForm = ({ propertyId, isReadOnly = false }: RentedFormProps) => {
+// Explicit field list, so nothing loaded into the form (id, property,
+// timestamps) is echoed back: the Update DTO rejects unknown keys with 400.
+// An empty number input yields NaN; it is omitted instead of sent as null.
+const buildRentedPayload = (data: FormData): RentedPayload => {
+  const price = Number(data.price);
+
+  return {
+    ownerDetails: data.ownerDetails ?? "",
+    affectation: data.affectation,
+    ownerContact: data.ownerContact ?? "",
+    renterDetails: data.renterDetails ?? "",
+    address: data.address ?? "",
+    renterContact: data.renterContact ?? "",
+    locality: data.locality ?? "",
+    contratStartDate: data.contratStartDate?.trim() || undefined,
+    contratEndDate: data.contratEndDate?.trim() || undefined,
+    province: data.province,
+    price: Number.isFinite(price) ? price : undefined,
+    adjustmentType: data.adjustmentType ?? "",
+    contractImage: data.contractImage,
+  };
+};
+
+const RentedForm = ({ propertyId, documentId, isReadOnly = false }: RentedFormProps) => {
+  const router = useRouter();
   const { register, handleSubmit, setValue, getValues, reset, formState: { errors } } = useForm<FormData>();
   const [loading, setLoading] = useState(false);
   const [imagePreviews, setImagePreviews] = useState<Record<string, string>>({});
-
-  const formatDateForInput = (value: string | Date | null | undefined): string => {
-    if (!value) return "";
-
-    const date = new Date(value);
-    if (Number.isNaN(date.getTime())) {
-      if (typeof value === "string" && /^\d{4}-\d{2}-\d{2}$/.test(value)) {
-        return value;
-      }
-      return "";
-    }
-
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, "0");
-    const day = String(date.getDate()).padStart(2, "0");
-    return `${year}-${month}-${day}`;
-  };
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>, fieldName: string) => {
     const file = e.target.files?.[0];
@@ -97,62 +116,56 @@ const RentedForm = ({ propertyId, isReadOnly = false }: RentedFormProps) => {
     reset({} as FormData);
     setImagePreviews({});
 
-    const loadLatestRented = async () => {
-      if (!propertyId) return;
+    // Without documentId the form stays empty: it creates a new rented record.
+    if (!documentId) return;
+    let cancelled = false;
 
+    const loadRented = async () => {
       try {
-        const response = await getRented();
-        const allItems: RemoteRentedRecord[] = Array.isArray(response) ? response : [];
-        const propertyItems = allItems
-          .filter((item) => item?.property?.id === propertyId || item?.propertyId === propertyId)
-          .sort((a, b) => (b?.id || 0) - (a?.id || 0));
+        const rented: Partial<FormData> | undefined = await getRentedById(documentId);
+        if (cancelled || !rented) return;
 
-        const latest = propertyItems[0];
-        if (!latest) return;
-
-        const fields: (keyof FormData)[] = [
-          "ownerDetails",
-          "affectation",
-          "ownerContact",
-          "renterDetails",
-          "address",
-          "renterContact",
-          "locality",
-          "contratStartDate",
-          "province",
-          "contratEndDate",
-          "price",
-          "adjustmentType",
-          "contractImage",
-        ];
-
-        fields.forEach((field) => {
-          if (latest[field] !== undefined && latest[field] !== null) {
-            setValue(field, latest[field]);
+        LOADED_FIELDS.forEach((field) => {
+          if (rented[field] !== undefined && rented[field] !== null) {
+            setValue(field, rented[field]);
           }
         });
 
-        setValue("contratStartDate", formatDateForInput(latest.contratStartDate));
-        setValue("contratEndDate", formatDateForInput(latest.contratEndDate));
+        setValue("contratStartDate", toCalendarDate(rented.contratStartDate));
+        setValue("contratEndDate", toCalendarDate(rented.contratEndDate));
 
         setImagePreviews({
-          contractImage: resolveImageUrl(latest.contractImage) || "",
+          contractImage: resolveImageUrl(rented.contractImage) || "",
         });
       } catch (error) {
-        console.error("Error loading latest rented:", error);
+        if (cancelled) return;
+        console.error("Error loading rented:", error);
+        alert(`No se pudo cargar el alquiler #${documentId}: ${extractApiErrorMessage(error)}`);
       }
     };
 
-    loadLatestRented();
-  }, [propertyId, reset, setValue]);
+    loadRented();
+    return () => {
+      cancelled = true;
+    };
+  }, [documentId, reset, setValue]);
 
   const onSubmit: SubmitHandler<FormData> = async (data) => {
     try {
+      if (!propertyId) {
+        alert("No hay propiedad seleccionada. Volve a la lista y elegi una propiedad primero.");
+        return;
+      }
+
       setLoading(true);
-      console.log("Formulario enviado:", data);
-      data.propertyId = propertyId;
-      await saveRented(data);
+      const payload = buildRentedPayload(data);
+      if (documentId) {
+        await updateRented(documentId, payload);
+      } else {
+        await saveRented({ ...payload, propertyId });
+      }
       alert("Inmueble alquilado guardado exitosamente");
+      router.push(`/property/details?id=${propertyId}`);
     } catch (error) {
       console.error("Error saving rented property:", error);
       alert(`Error al guardar el inmueble alquilado: ${extractApiErrorMessage(error)}`);

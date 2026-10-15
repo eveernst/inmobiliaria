@@ -24,6 +24,16 @@ type PropertyInfo = {
   classification?: { name?: string };
 };
 
+// docType as the property detail sends it → tab that edits it.
+const DOC_TYPE_TABS: Record<string, string> = {
+  insurance: "insurance",
+  rented: "rented-property",
+  plan: "plan",
+  writing: "writing",
+};
+
+type EditedDocument = { tab: string; id: number };
+
 export default function Formulario() {
   const router = useRouter();
   const pathname = usePathname();
@@ -33,6 +43,7 @@ export default function Formulario() {
   const [properties, setProperties] = useState<PropertyListItem[]>([]);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isViewer, setIsViewer] = useState(false);
+  const [editedDocument, setEditedDocument] = useState<EditedDocument | null>(null);
 
   useEffect(() => {
     const savedUser = localStorage.getItem("user");
@@ -47,6 +58,14 @@ export default function Formulario() {
     const query = new URLSearchParams(window.location.search);
     const id = Number(query.get("propertyId"));
     if (id) setPropertyId(id);
+
+    // "Modificar" from the property detail: /document-manager?propertyId=1&docType=plan&docId=7
+    const docTab = DOC_TYPE_TABS[query.get("docType") ?? ""];
+    const docId = Number(query.get("docId"));
+    if (docTab && Number.isInteger(docId) && docId > 0) {
+      setActiveTab(docTab);
+      setEditedDocument({ tab: docTab, id: docId });
+    }
     // route example: /document-manager?propertyId=123
   }, []);
 
@@ -97,6 +116,7 @@ export default function Formulario() {
 
   const handlePropertySelect = (id: number) => {
     setPropertyId(id);
+    setEditedDocument(null); // the edited document belongs to the previous property
     setIsMenuOpen(false);
     const nextUrl = `${pathname}?propertyId=${encodeURIComponent(String(id))}`;
     router.replace(nextUrl);
@@ -113,17 +133,21 @@ export default function Formulario() {
       );
     }
 
+    // Only the tab of the edited document gets its id; the other tabs create new documents.
+    const documentId = editedDocument?.tab === activeTab ? editedDocument.id : undefined;
+    const keySuffix = `${propertyId}-${documentId ?? "new"}`;
+
     switch (activeTab) {
       case "insurance":
-        return <InsuranceForm key={`insurance-${propertyId}`} propertyId={propertyId} isReadOnly={isViewer} />;
+        return <InsuranceForm key={`insurance-${keySuffix}`} propertyId={propertyId} documentId={documentId} isReadOnly={isViewer} />;
       case "rented-property":
-        return <RentedForm key={`rented-${propertyId}`} propertyId={propertyId} isReadOnly={isViewer} />;
+        return <RentedForm key={`rented-${keySuffix}`} propertyId={propertyId} documentId={documentId} isReadOnly={isViewer} />;
       case "plan":
-        return <PlanForm key={`plan-${propertyId}`} propertyId={propertyId} isReadOnly={isViewer} />;
+        return <PlanForm key={`plan-${keySuffix}`} propertyId={propertyId} documentId={documentId} isReadOnly={isViewer} />;
       case "writing":
-        return <WritingForm key={`writing-${propertyId}`} propertyId={propertyId} isReadOnly={isViewer} />;
+        return <WritingForm key={`writing-${keySuffix}`} propertyId={propertyId} documentId={documentId} isReadOnly={isViewer} />;
       default:
-        return <InsuranceForm key={`insurance-${propertyId}`} propertyId={propertyId} isReadOnly={isViewer} />;
+        return <InsuranceForm key={`insurance-${keySuffix}`} propertyId={propertyId} isReadOnly={isViewer} />;
     }
   };
 

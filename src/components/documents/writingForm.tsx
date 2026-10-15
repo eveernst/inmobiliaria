@@ -1,15 +1,18 @@
 'use client';
 
 import { useForm, SubmitHandler, FieldErrors, Path } from "react-hook-form";
-import { saveWriting } from "@/api/writingApi";
-import { getWriting } from "@/api/writingApi";
+import { saveWriting, updateWriting, getWritingById } from "@/api/writingApi";
 import { deleteImageByPublicUrl, resolveImageUrl, uploadImageToSupabase } from "@/lib/imageUpload";
 import { alertMissingFields, extractApiErrorMessage } from "@/lib/formFeedback";
+import { toCalendarDate } from "@/lib/calendarDate";
+import { WritingPayload } from "@/lib/types";
 import ImageViewModal from "@/components/ui/ImageViewModal";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 interface WritingFormProps {
   propertyId: number;
+  documentId?: number; // edit this writing; without it the form creates a new one
   isReadOnly?: boolean;
 }
 
@@ -40,35 +43,72 @@ interface FormData {
   formalities?: string;
   documentation?: string;
   detailSpaces?: string;
-  propertyId?: number;
 }
 
-interface RemoteWritingRecord extends Partial<FormData> {
-  id?: number;
-  property?: { id: number };
-}
+// Fields copied from GET /writing/:id into the form (dates are formatted apart).
+const LOADED_FIELDS: (keyof FormData)[] = [
+  "writingNumber",
+  "voteNumberJDAAC",
+  "imageJDAAC",
+  "voteNumberJDUA",
+  "imageJDUA",
+  "domain",
+  "folio",
+  "tomo",
+  "year",
+  "department",
+  "totalSurface",
+  "coveredSurface",
+  "improvementSurface",
+  "improvementValue",
+  "cadastralNomenclature",
+  "ubicationMap",
+  "cadastralInform",
+  "interiorImage",
+  "exteriorImage",
+  "actingNotary",
+  "notaryContact",
+  "formalities",
+  "documentation",
+  "detailSpaces",
+];
 
-const WritingForm = ({ propertyId, isReadOnly = false }: WritingFormProps) => {
+// Explicit field list, so nothing loaded into the form (id, property,
+// timestamps) is echoed back: the Update DTO rejects unknown keys with 400.
+const buildWritingPayload = (data: FormData): WritingPayload => ({
+  writingNumber: Number(data.writingNumber),
+  voteNumberJDAAC: Number(data.voteNumberJDAAC),
+  voteDateJDAAC: data.voteDateJDAAC,
+  imageJDAAC: data.imageJDAAC,
+  voteNumberJDUA: Number(data.voteNumberJDUA),
+  voteDateJDUA: data.voteDateJDUA,
+  imageJDUA: data.imageJDUA,
+  domain: data.domain ?? "",
+  folio: data.folio ?? "",
+  tomo: data.tomo ?? "",
+  year: Number(data.year),
+  department: data.department ?? "",
+  totalSurface: Number(data.totalSurface),
+  coveredSurface: Number(data.coveredSurface),
+  improvementSurface: Number(data.improvementSurface),
+  improvementValue: Number(data.improvementValue),
+  cadastralNomenclature: data.cadastralNomenclature ?? "",
+  ubicationMap: data.ubicationMap,
+  cadastralInform: data.cadastralInform,
+  actingNotary: data.actingNotary ?? "",
+  notaryContact: Number(data.notaryContact),
+  interiorImage: data.interiorImage,
+  exteriorImage: data.exteriorImage,
+  formalities: data.formalities ?? "",
+  documentation: data.documentation ?? "",
+  detailSpaces: data.detailSpaces ?? "",
+});
+
+const WritingForm = ({ propertyId, documentId, isReadOnly = false }: WritingFormProps) => {
+  const router = useRouter();
   const { register, handleSubmit, setValue, getValues, reset, formState: { errors } } = useForm<FormData>();
   const [loading, setLoading] = useState(false);
   const [imagePreviews, setImagePreviews] = useState<Record<string, string>>({});
-
-  const formatDateForInput = (value: string | Date | null | undefined): string => {
-    if (!value) return "";
-
-    const date = new Date(value);
-    if (Number.isNaN(date.getTime())) {
-      if (typeof value === "string" && /^\d{4}-\d{2}-\d{2}$/.test(value)) {
-        return value;
-      }
-      return "";
-    }
-
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, "0");
-    const day = String(date.getDate()).padStart(2, "0");
-    return `${year}-${month}-${day}`;
-  };
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>, fieldName: string) => {
     const file = e.target.files?.[0];
@@ -130,70 +170,42 @@ const WritingForm = ({ propertyId, isReadOnly = false }: WritingFormProps) => {
     reset({} as FormData);
     setImagePreviews({});
 
-    const loadLatestWriting = async () => {
-      if (!propertyId) return;
+    // Without documentId the form stays empty: it creates a new writing.
+    if (!documentId) return;
+    let cancelled = false;
 
+    const loadWriting = async () => {
       try {
-        const response = await getWriting();
-        const allItems: RemoteWritingRecord[] = Array.isArray(response) ? response : [];
-        const propertyItems = allItems
-          .filter((item) => item?.property?.id === propertyId || item?.propertyId === propertyId)
-          .sort((a, b) => (b?.id || 0) - (a?.id || 0));
+        const writing: Partial<FormData> | undefined = await getWritingById(documentId);
+        if (cancelled || !writing) return;
 
-        const latest = propertyItems[0];
-        if (!latest) return;
-
-        const fieldsToSet: (keyof FormData)[] = [
-          "writingNumber",
-          "voteNumberJDAAC",
-          "voteDateJDAAC",
-          "imageJDAAC",
-          "voteNumberJDUA",
-          "voteDateJDUA",
-          "imageJDUA",
-          "domain",
-          "folio",
-          "tomo",
-          "year",
-          "department",
-          "totalSurface",
-          "coveredSurface",
-          "improvementSurface",
-          "improvementValue",
-          "cadastralNomenclature",
-          "ubicationMap",
-          "cadastralInform",
-          "interiorImage",
-          "exteriorImage",
-          "actingNotary",
-          "notaryContact",
-          "formalities",
-          "documentation",
-          "detailSpaces",
-        ];
-
-        fieldsToSet.forEach((field) => {
-          if (latest[field] !== undefined && latest[field] !== null) {
-            setValue(field, latest[field]);
+        LOADED_FIELDS.forEach((field) => {
+          if (writing[field] !== undefined && writing[field] !== null) {
+            setValue(field, writing[field]);
           }
         });
 
-        setValue("voteDateJDAAC", formatDateForInput(latest.voteDateJDAAC));
-        setValue("voteDateJDUA", formatDateForInput(latest.voteDateJDUA));
+        setValue("voteDateJDAAC", toCalendarDate(writing.voteDateJDAAC));
+        setValue("voteDateJDUA", toCalendarDate(writing.voteDateJDUA));
 
         setImagePreviews({
-          imageJDAAC: resolveImageUrl(latest.imageJDAAC) || "",
-          imageJDUA: resolveImageUrl(latest.imageJDUA) || "",
-          interiorImage: resolveImageUrl(latest.interiorImage) || "",
-          exteriorImage: resolveImageUrl(latest.exteriorImage) || "",
+          imageJDAAC: resolveImageUrl(writing.imageJDAAC) || "",
+          imageJDUA: resolveImageUrl(writing.imageJDUA) || "",
+          interiorImage: resolveImageUrl(writing.interiorImage) || "",
+          exteriorImage: resolveImageUrl(writing.exteriorImage) || "",
         });
       } catch (error) {
-        console.error("Error loading latest writing:", error);
+        if (cancelled) return;
+        console.error("Error loading writing:", error);
+        alert(`No se pudo cargar la escritura #${documentId}: ${extractApiErrorMessage(error)}`);
       }
     };
 
-    loadLatestWriting();
-  }, [propertyId, reset, setValue]);
+    loadWriting();
+    return () => {
+      cancelled = true;
+    };
+  }, [documentId, reset, setValue]);
 
   const onSubmit: SubmitHandler<FormData> = async (data: FormData) => {
     try {
@@ -203,9 +215,14 @@ const WritingForm = ({ propertyId, isReadOnly = false }: WritingFormProps) => {
       }
 
       setLoading(true);
-      data.propertyId = propertyId;
-      await saveWriting(data);
+      const payload = buildWritingPayload(data);
+      if (documentId) {
+        await updateWriting(documentId, payload);
+      } else {
+        await saveWriting({ ...payload, propertyId });
+      }
       alert("Escritura guardada exitosamente");
+      router.push(`/property/details?id=${propertyId}`);
     } catch (error) {
       console.error("Error saving writing:", error);
       alert(`Error al guardar la escritura: ${extractApiErrorMessage(error)}`);
