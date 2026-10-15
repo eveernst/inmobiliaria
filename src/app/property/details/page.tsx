@@ -460,22 +460,30 @@ const PropertyView: React.FC = () => {
                               </td>
                               <td className="py-3 pr-3 text-slate-300">{label}</td>
                               <td className="py-3 text-right">
-                                {isAdmin && (
-                                  <div className="flex justify-end gap-2">
-                                    <button
-                                      onClick={() => router.push(`/document-manager?propertyId=${property.id}&docType=${type}&docId=${item.id}`)}
-                                      className="rounded-lg border border-slate-600 bg-slate-800 px-3 py-1 text-xs font-medium text-slate-200 transition hover:bg-slate-700"
-                                    >
-                                      Modificar
-                                    </button>
-                                    <button
-                                      onClick={() => handleDeleteDoc(item.id, type, label)}
-                                      className="rounded-lg border border-red-900/50 bg-red-900/20 px-3 py-1 text-xs font-medium text-red-300 transition hover:bg-red-900/40"
-                                    >
-                                      Eliminar
-                                    </button>
-                                  </div>
-                                )}
+                                <div className="flex justify-end gap-2">
+                                  <button
+                                    onClick={() => router.push(`/property/details/documentation?id=${property.id}&docType=${type}&docId=${item.id}`)}
+                                    className="rounded-lg border border-orange-500/40 bg-orange-500/10 px-3 py-1 text-xs font-medium text-orange-300 transition hover:bg-orange-500/20"
+                                  >
+                                    Ver
+                                  </button>
+                                  {isAdmin && (
+                                    <>
+                                      <button
+                                        onClick={() => router.push(`/document-manager?propertyId=${property.id}&docType=${type}&docId=${item.id}`)}
+                                        className="rounded-lg border border-slate-600 bg-slate-800 px-3 py-1 text-xs font-medium text-slate-200 transition hover:bg-slate-700"
+                                      >
+                                        Modificar
+                                      </button>
+                                      <button
+                                        onClick={() => handleDeleteDoc(item.id, type, label)}
+                                        className="rounded-lg border border-red-900/50 bg-red-900/20 px-3 py-1 text-xs font-medium text-red-300 transition hover:bg-red-900/40"
+                                      >
+                                        Eliminar
+                                      </button>
+                                    </>
+                                  )}
+                                </div>
                               </td>
                             </tr>
                           );
