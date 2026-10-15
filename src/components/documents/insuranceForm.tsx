@@ -1,15 +1,18 @@
 "use client";
 
-import { saveInsurance } from "@/api/insuranceApi";
-import { getInsurance } from "@/api/insuranceApi";
+import { saveInsurance, updateInsurance, getInsuranceById } from "@/api/insuranceApi";
 import { useForm, SubmitHandler, FieldErrors, Path } from "react-hook-form";
 import { deleteImageByPublicUrl, resolveImageUrl, uploadImageToSupabase } from "@/lib/imageUpload";
 import ImageViewModal from "@/components/ui/ImageViewModal";
 import { alertMissingFields, extractApiErrorMessage } from "@/lib/formFeedback";
+import { toCalendarDate } from "@/lib/calendarDate";
+import { InsurancePayload } from "@/lib/types";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 interface InsuranceFormProps {
   propertyId: number;
+  documentId?: number; // edit this insurance; without it the form creates a new one
   isReadOnly?: boolean;
 }
 
@@ -28,36 +31,48 @@ interface FormData {
   AnualFormDate?: string;
   AnualFormImage?: string;
   observations: string;
-  propertyId?: number;
 }
 
-interface RemoteInsuranceRecord extends Partial<FormData> {
-  id?: number;
-  property?: { id: number };
-  anualFormImage?: string;
-}
+// Fields copied from GET /insurance/:id into the form (dates are formatted apart).
+const LOADED_FIELDS: (keyof FormData)[] = [
+  "name",
+  "phone",
+  "email",
+  "insuredProperty",
+  "insuranceARM",
+  "insuranceASE",
+  "team",
+  "content",
+  "values",
+  "insuranceImage",
+  "AnualFormImage",
+  "observations",
+];
 
-const InsuranceForm = ({ propertyId, isReadOnly = false }: InsuranceFormProps) => {
+// Explicit field list, so nothing loaded into the form (id, property,
+// timestamps) is echoed back: the Update DTO rejects unknown keys with 400.
+const buildInsurancePayload = (data: FormData): InsurancePayload => ({
+  name: data.name,
+  phone: String(data.phone ?? ""),
+  email: data.email,
+  insuredProperty: data.insuredProperty,
+  insuranceARM: Boolean(data.insuranceARM),
+  insuranceASE: Boolean(data.insuranceASE),
+  team: Boolean(data.team),
+  content: Boolean(data.content),
+  values: Boolean(data.values),
+  insuranceImage: data.insuranceImage,
+  insuranceDate: data.insuranceDate?.trim() || undefined,
+  AnualFormImage: data.AnualFormImage,
+  AnualFormDate: data.AnualFormDate?.trim() || undefined,
+  observations: data.observations ?? "",
+});
+
+const InsuranceForm = ({ propertyId, documentId, isReadOnly = false }: InsuranceFormProps) => {
+  const router = useRouter();
   const { register, handleSubmit, setValue, getValues, reset, formState: { errors } } = useForm<FormData>();
   const [loading, setLoading] = useState(false);
   const [imagePreviews, setImagePreviews] = useState<Record<string, string>>({});
-
-  const formatDateForInput = (value: string | Date | null | undefined): string => {
-    if (!value) return "";
-
-    const date = new Date(value);
-    if (Number.isNaN(date.getTime())) {
-      if (typeof value === "string" && /^\d{4}-\d{2}-\d{2}$/.test(value)) {
-        return value;
-      }
-      return "";
-    }
-
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, "0");
-    const day = String(date.getDate()).padStart(2, "0");
-    return `${year}-${month}-${day}`;
-  };
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>, fieldName: string) => {
     const file = e.target.files?.[0];
@@ -119,58 +134,40 @@ const InsuranceForm = ({ propertyId, isReadOnly = false }: InsuranceFormProps) =
     reset({} as FormData);
     setImagePreviews({});
 
-    const loadLatestInsurance = async () => {
-      if (!propertyId) return;
+    // Without documentId the form stays empty: it creates a new insurance.
+    if (!documentId) return;
+    let cancelled = false;
 
+    const loadInsurance = async () => {
       try {
-        const response = await getInsurance();
-        const allItems: RemoteInsuranceRecord[] = Array.isArray(response) ? response : [];
-        const propertyItems = allItems
-          .filter((item) => item?.property?.id === propertyId || item?.propertyId === propertyId)
-          .sort((a, b) => (b?.id || 0) - (a?.id || 0));
+        const insurance: Partial<FormData> | undefined = await getInsuranceById(documentId);
+        if (cancelled || !insurance) return;
 
-        const latest = propertyItems[0];
-        if (!latest) return;
-
-        const fieldsToSet: (keyof FormData)[] = [
-          "name",
-          "phone",
-          "email",
-          "insuredProperty",
-          "insuranceARM",
-          "insuranceASE",
-          "team",
-          "content",
-          "values",
-          "insuranceImage",
-          "observations",
-        ];
-
-        fieldsToSet.forEach((field) => {
-          if (latest[field] !== undefined && latest[field] !== null) {
-            setValue(field, field === "phone" ? String(latest[field]) : latest[field]);
+        LOADED_FIELDS.forEach((field) => {
+          if (insurance[field] !== undefined && insurance[field] !== null) {
+            setValue(field, field === "phone" ? String(insurance[field]) : insurance[field]);
           }
         });
 
-        const annualFormImageValue = latest.anualFormImage || latest.AnualFormImage || "";
-        setValue("insuranceDate", formatDateForInput(latest.insuranceDate));
-        setValue("AnualFormDate", formatDateForInput(latest.AnualFormDate));
-
-        if (annualFormImageValue) {
-          setValue("AnualFormImage", annualFormImageValue);
-        }
+        setValue("insuranceDate", toCalendarDate(insurance.insuranceDate));
+        setValue("AnualFormDate", toCalendarDate(insurance.AnualFormDate));
 
         setImagePreviews({
-          insuranceImage: resolveImageUrl(latest.insuranceImage) || "",
-          AnualFormImage: resolveImageUrl(annualFormImageValue) || "",
+          insuranceImage: resolveImageUrl(insurance.insuranceImage) || "",
+          AnualFormImage: resolveImageUrl(insurance.AnualFormImage) || "",
         });
       } catch (error) {
-        console.error("Error loading latest insurance:", error);
+        if (cancelled) return;
+        console.error("Error loading insurance:", error);
+        alert(`No se pudo cargar el seguro #${documentId}: ${extractApiErrorMessage(error)}`);
       }
     };
 
-    loadLatestInsurance();
-  }, [propertyId, reset, setValue]);
+    loadInsurance();
+    return () => {
+      cancelled = true;
+    };
+  }, [documentId, reset, setValue]);
 
   const onSubmit: SubmitHandler<FormData> = async (data) => {
     try {
@@ -180,16 +177,14 @@ const InsuranceForm = ({ propertyId, isReadOnly = false }: InsuranceFormProps) =
       }
 
       setLoading(true);
-      console.log("Datos del formulario:", data);
-      const payload = {
-        ...data,
-        propertyId,
-        insuranceDate: data.insuranceDate?.trim() || undefined,
-        AnualFormDate: data.AnualFormDate?.trim() || undefined,
-      };
-
-      await saveInsurance(payload);
+      const payload = buildInsurancePayload(data);
+      if (documentId) {
+        await updateInsurance(documentId, payload);
+      } else {
+        await saveInsurance({ ...payload, propertyId });
+      }
       alert("Póliza de seguros guardada exitosamente");
+      router.push(`/property/details?id=${propertyId}`);
     } catch (error) {
       console.error("Error saving insurance:", error);
       alert(`Error al guardar la póliza de seguros: ${extractApiErrorMessage(error)}`);

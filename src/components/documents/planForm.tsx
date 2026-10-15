@@ -1,14 +1,18 @@
 'use client';
 
 import { useForm, SubmitHandler, FieldErrors, Path } from "react-hook-form";
-import { savePlan, getPlan } from "@/api/planApi";
+import { savePlan, updatePlan, getPlanById } from "@/api/planApi";
 import { deleteImageByPublicUrl, resolveImageUrl, uploadImageToSupabase } from "@/lib/imageUpload";
 import { alertMissingFields, extractApiErrorMessage } from "@/lib/formFeedback";
+import { toCalendarDate } from "@/lib/calendarDate";
+import { PlanPayload } from "@/lib/types";
 import ImageViewModal from "@/components/ui/ImageViewModal";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 interface PlanFormProps {
   propertyId: number;
+  documentId?: number; // edit this plan; without it the form creates a new one
   isReadOnly?: boolean;
 }
 
@@ -41,45 +45,89 @@ interface FormData {
   documentation: string;
   contacts: string;
   imageVisado?: string;
-  propertyId?: number;
 }
 
-interface RemotePlanRecord extends Partial<FormData> {
-  id?: number;
-  property?: { id: number };
-}
+const EMPTY_PLAN: Partial<FormData> = {
+  generalPlan: false,
+  structurePlan: false,
+  gasPlan: false,
+  waterPlan: false,
+  lightPlan: false,
+  projectPlan: false,
+  finalPlan: false,
+};
 
-const PlanForm = ({ propertyId, isReadOnly = false }: PlanFormProps) => {
+// Fields copied from GET /plans/:id into the form (dateVisado is formatted apart).
+const LOADED_FIELDS: (keyof FormData)[] = [
+  "generalPlan",
+  "planNumber",
+  "year",
+  "professional",
+  "professionalContact",
+  "numberVisado",
+  "structurePlan",
+  "gasPlan",
+  "waterPlan",
+  "lightPlan",
+  "projectPlan",
+  "finalPlan",
+  "planType",
+  "planNumberUpdate",
+  "yearUpdate",
+  "formalities",
+  "documentation",
+  "contacts",
+  "planImage",
+  "structureImage",
+  "gasImage",
+  "waterImage",
+  "lightImage",
+  "projectImage",
+  "finalImage",
+  "stateImage",
+  "imageVisado",
+];
+
+// Explicit field list, so nothing reset()/setValue() loaded (id, property,
+// timestamps) is echoed back: the Update DTO rejects unknown keys with 400.
+const buildPlanPayload = (data: FormData): PlanPayload => ({
+  generalPlan: data.generalPlan,
+  planNumber: Number(data.planNumber),
+  year: Number(data.year),
+  planImage: data.planImage,
+  structurePlan: data.structurePlan,
+  structureImage: data.structureImage,
+  gasPlan: data.gasPlan,
+  gasImage: data.gasImage,
+  waterPlan: data.waterPlan,
+  waterImage: data.waterImage,
+  lightPlan: data.lightPlan,
+  lightImage: data.lightImage,
+  projectPlan: data.projectPlan,
+  projectImage: data.projectImage,
+  finalPlan: data.finalPlan,
+  finalImage: data.finalImage,
+  planType: data.planType,
+  planNumberUpdate: Number(data.planNumberUpdate),
+  yearUpdate: Number(data.yearUpdate),
+  stateImage: data.stateImage,
+  professional: data.professional,
+  professionalContact: data.professionalContact,
+  dateVisado: data.dateVisado,
+  numberVisado: Number(data.numberVisado),
+  imageVisado: data.imageVisado,
+  formalities: data.formalities,
+  documentation: data.documentation,
+  contacts: data.contacts,
+});
+
+const PlanForm = ({ propertyId, documentId, isReadOnly = false }: PlanFormProps) => {
+  const router = useRouter();
   const { register, handleSubmit, setValue, getValues, reset, formState: { errors } } = useForm<FormData>({
-    defaultValues: {
-      generalPlan: false,
-      structurePlan: false,
-      gasPlan: false,
-      waterPlan: false,
-      lightPlan: false,
-      projectPlan: false,
-      finalPlan: false,
-    },
+    defaultValues: EMPTY_PLAN,
   });
   const [loading, setLoading] = useState(false);
   const [imagePreviews, setImagePreviews] = useState<Record<string, string>>({});
-
-  const formatDateForInput = (value: string | Date | null | undefined): string => {
-    if (!value) return "";
-
-    const date = new Date(value);
-    if (Number.isNaN(date.getTime())) {
-      if (typeof value === "string" && /^\d{4}-\d{2}-\d{2}$/.test(value)) {
-        return value;
-      }
-      return "";
-    }
-
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, "0");
-    const day = String(date.getDate()).padStart(2, "0");
-    return `${year}-${month}-${day}`;
-  };
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>, fieldName: string) => {
     const file = e.target.files?.[0];
@@ -139,86 +187,49 @@ const PlanForm = ({ propertyId, isReadOnly = false }: PlanFormProps) => {
   };
 
   useEffect(() => {
-    reset({
-      generalPlan: false,
-      structurePlan: false,
-      gasPlan: false,
-      waterPlan: false,
-      lightPlan: false,
-      projectPlan: false,
-      finalPlan: false,
-    });
+    reset(EMPTY_PLAN);
     setImagePreviews({});
 
-    const loadLatestPlan = async () => {
-      if (!propertyId) return;
+    // Without documentId the form stays empty: it creates a new plan.
+    if (!documentId) return;
+    let cancelled = false;
 
+    const loadPlan = async () => {
       try {
-        const response = await getPlan();
-        const allPlans: RemotePlanRecord[] = Array.isArray(response) ? response : [];
-        const propertyPlans = allPlans
-          .filter((item) => item?.property?.id === propertyId || item?.propertyId === propertyId)
-          .sort((a, b) => (b?.id || 0) - (a?.id || 0));
+        const plan: Partial<FormData> | undefined = await getPlanById(documentId);
+        if (cancelled || !plan) return;
 
-        const latestPlan = propertyPlans[0];
-        if (!latestPlan) return;
-
-        const fieldsToSet: (keyof FormData)[] = [
-          "generalPlan",
-          "planNumber",
-          "year",
-          "professional",
-          "professionalContact",
-          "numberVisado",
-          "structurePlan",
-          "gasPlan",
-          "waterPlan",
-          "lightPlan",
-          "projectPlan",
-          "finalPlan",
-          "planType",
-          "planNumberUpdate",
-          "yearUpdate",
-          "formalities",
-          "documentation",
-          "contacts",
-          "planImage",
-          "structureImage",
-          "gasImage",
-          "waterImage",
-          "lightImage",
-          "projectImage",
-          "finalImage",
-          "stateImage",
-          "imageVisado",
-        ];
-
-        fieldsToSet.forEach((field) => {
-          if (latestPlan[field] !== undefined && latestPlan[field] !== null) {
-            setValue(field, latestPlan[field]);
+        LOADED_FIELDS.forEach((field) => {
+          if (plan[field] !== undefined && plan[field] !== null) {
+            setValue(field, plan[field]);
           }
         });
 
-        setValue("dateVisado", formatDateForInput(latestPlan.dateVisado));
+        setValue("dateVisado", toCalendarDate(plan.dateVisado));
 
         setImagePreviews({
-          planImage: resolveImageUrl(latestPlan.planImage) || "",
-          structureImage: resolveImageUrl(latestPlan.structureImage) || "",
-          gasImage: resolveImageUrl(latestPlan.gasImage) || "",
-          waterImage: resolveImageUrl(latestPlan.waterImage) || "",
-          lightImage: resolveImageUrl(latestPlan.lightImage) || "",
-          projectImage: resolveImageUrl(latestPlan.projectImage) || "",
-          finalImage: resolveImageUrl(latestPlan.finalImage) || "",
-          stateImage: resolveImageUrl(latestPlan.stateImage) || "",
-          imageVisado: resolveImageUrl(latestPlan.imageVisado) || "",
+          planImage: resolveImageUrl(plan.planImage) || "",
+          structureImage: resolveImageUrl(plan.structureImage) || "",
+          gasImage: resolveImageUrl(plan.gasImage) || "",
+          waterImage: resolveImageUrl(plan.waterImage) || "",
+          lightImage: resolveImageUrl(plan.lightImage) || "",
+          projectImage: resolveImageUrl(plan.projectImage) || "",
+          finalImage: resolveImageUrl(plan.finalImage) || "",
+          stateImage: resolveImageUrl(plan.stateImage) || "",
+          imageVisado: resolveImageUrl(plan.imageVisado) || "",
         });
       } catch (error) {
-        console.error("Error loading latest plan:", error);
+        if (cancelled) return;
+        console.error("Error loading plan:", error);
+        alert(`No se pudo cargar el plano #${documentId}: ${extractApiErrorMessage(error)}`);
       }
     };
 
-    loadLatestPlan();
-  }, [propertyId, reset, setValue]);
+    loadPlan();
+    return () => {
+      cancelled = true;
+    };
+  }, [documentId, reset, setValue]);
 
   const onSubmit: SubmitHandler<FormData> = async (data) => {
     try {
@@ -228,9 +239,14 @@ const PlanForm = ({ propertyId, isReadOnly = false }: PlanFormProps) => {
       }
 
       setLoading(true);
-      data.propertyId = propertyId;
-      await savePlan(data);
+      const payload = buildPlanPayload(data);
+      if (documentId) {
+        await updatePlan(documentId, payload);
+      } else {
+        await savePlan({ ...payload, propertyId });
+      }
       alert("Plan guardado exitosamente");
+      router.push(`/property/details?id=${propertyId}`);
     } catch (error) {
       console.error("Error saving plan:", error);
       alert(`Error al guardar el plan: ${extractApiErrorMessage(error)}`);
