@@ -1,9 +1,11 @@
 'use client';
 
 import { deleteDocument, getDocumentById } from '@/api/documentsApi';
+import { getProperty } from '@/api/propertyApi';
 import ConfirmModal from '@/components/ui/ConfirmModal';
 import ImageViewModal from '@/components/ui/ImageViewModal';
 import { DOC_FIELDS, formatFieldValue, type FieldKind } from '@/lib/documentFields';
+import { downloadDocumentPdf, type PdfProperty } from '@/lib/documentPdf';
 import { canWriteProperties, DOC_TYPE_LABELS, isDocType, type DocType } from '@/lib/types';
 import { useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
@@ -28,6 +30,8 @@ const DocumentView: React.FC = () => {
   const [doc, setDoc] = useState<Record<string, unknown> | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
+  const [property, setProperty] = useState<PdfProperty | null>(null);
+  const [downloading, setDownloading] = useState(false);
 
   useEffect(() => {
     const query = new URLSearchParams(window.location.search);
@@ -43,6 +47,13 @@ const DocumentView: React.FC = () => {
 
     if (!isDocType(docType) || docId === null) { setStatus('error'); return; }
     setParams({ propertyId: id, docType, docId });
+
+    // Only for the PDF header and filename: the view works without it.
+    if (id) {
+      getProperty(id)
+        .then((p) => { if (p?.address) setProperty({ address: p.address, locality: p.locality, province: p.province }); })
+        .catch((err) => console.error('Error cargando propiedad:', err));
+    }
 
     getDocumentById[docType](docId)
       .then((data) => {
@@ -62,6 +73,19 @@ const DocumentView: React.FC = () => {
     } catch (err) {
       console.error(err);
       alert('No se pudo eliminar el documento.');
+    }
+  };
+
+  const handleDownloadPdf = async () => {
+    if (!params || !doc) return;
+    setDownloading(true);
+    try {
+      await downloadDocumentPdf(params.docType, params.docId, doc, property);
+    } catch (err) {
+      console.error(err);
+      alert('No se pudo generar el PDF.');
+    } finally {
+      setDownloading(false);
     }
   };
 
@@ -116,6 +140,13 @@ const DocumentView: React.FC = () => {
                 className="rounded-lg border border-slate-600 bg-slate-800 px-4 py-1.5 text-sm text-slate-200 transition hover:bg-slate-700"
               >
                 ← Volver
+              </button>
+              <button
+                onClick={handleDownloadPdf}
+                disabled={downloading}
+                className="rounded-lg border border-orange-500/40 bg-orange-500/10 px-4 py-1.5 text-sm font-medium text-orange-300 transition hover:bg-orange-500/20 disabled:opacity-50"
+              >
+                {downloading ? 'Generando…' : 'Descargar PDF'}
               </button>
               {isAdmin && (
                 <>
