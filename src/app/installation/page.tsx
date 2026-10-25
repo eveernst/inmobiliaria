@@ -5,7 +5,6 @@ import { ChevronUp, ChevronDown } from "lucide-react";
 
 export default function Installation() {
   const [quantity, setQuantity] = useState<string>('');
-  const [classification, setClassification] = useState<string>('');
 
   const incrementQuantity = () => {
     const currentValue = parseInt(quantity) || 0;
@@ -31,16 +30,6 @@ export default function Installation() {
               placeholder="Nombre instalación"
               className="bg-gray-700 border-gray-600 text-white placeholder-gray-400 px-4 py-2 rounded-md w-full"
             />
-            <select
-              value={classification}
-              onChange={(e) => setClassification(e.target.value)}
-              className="bg-gray-700 border-gray-600 text-white px-4 py-2 rounded-md w-full"
-            >
-              <option value="" disabled>Clasificación</option>
-              <option value="option1">Opción 1</option>
-              <option value="option2">Opción 2</option>
-              <option value="option3">Opción 3</option>
-            </select>
             <div className="flex items-center space-x-2">
               <input
                 type="text"

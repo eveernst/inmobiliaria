@@ -36,7 +36,6 @@ interface FormData {
     quantity: number;
     file: ImageFieldValue;
     details: string;
-    classification?: number | null;
   }[];
   id?: number;
 }
@@ -62,7 +61,6 @@ const toValidId = (value: unknown): number | undefined => {
 
 const buildInstallationPayload = (inst: FormData["installations"][number]): InstallationUpdatePayload => {
   const id = toValidId(inst.id);
-  const classification = toValidId(inst.classification);
 
   return {
     name: inst.name,
@@ -70,7 +68,6 @@ const buildInstallationPayload = (inst: FormData["installations"][number]): Inst
     details: inst.details,
     file: normalizeFileValue(inst.file),
     ...(id !== undefined ? { id } : {}),
-    ...(classification !== undefined ? { classification } : {}),
   };
 };
 
@@ -104,7 +101,6 @@ interface ClassificationOption {
 
 interface RawInstallation {
   file?: string;
-  classification?: number | { id: number };
   [field: string]: unknown;
 }
 
@@ -117,7 +113,6 @@ const PropertyForm = ({ id }: { id?: number }) => {
     name: "installations"
   });
 
-  const isEditing = id !== undefined && id !== 0;
   const [title, setTitle] = useState<string>("Nueva Propiedad");
   const [classifications, setClassifications] = useState<ClassificationOption[]>([]);
   const [imagePreviews, setImagePreviews] = useState<Record<string, string>>({});
@@ -217,13 +212,7 @@ const PropertyForm = ({ id }: { id?: number }) => {
         const processedData = {
           ...data,
           file: data?.file ?? data?.planImage ?? "",
-          installations: safeInstallations.map((inst: RawInstallation) => ({
-            ...inst,
-            classification:
-              typeof inst?.classification === "object"
-                ? inst.classification?.id
-                : inst?.classification,
-          })),
+          installations: safeInstallations,
         };
 
         reset(processedData);
@@ -610,18 +599,6 @@ const PropertyForm = ({ id }: { id?: number }) => {
                 />
                 {errors.installations?.[index]?.name && (
                   <span className="text-red-500 text-sm mt-1">{errors.installations[index].name.message}</span>
-                )}
-              </div>
-
-              <div className="flex flex-col mb-4">
-                <label htmlFor="classification" className="block text-slate-300 mb-1 text-sm">Clasificacion</label>
-                <input
-                  type="number"
-                  {...register(`installations.${index}.classification`, { required: !isEditing && "Este campo es obligatorio", valueAsNumber: true })} // TODO(#30): installation classification is removed in inmobiliaria_api#47; required only on create because POST still validates it
-                  className="doc-input"
-                />
-                {errors.installations?.[index]?.classification && (
-                  <span className="text-red-500 text-sm mt-1">{errors.installations[index].classification.message}</span>
                 )}
               </div>
 

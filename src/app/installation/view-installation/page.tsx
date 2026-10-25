@@ -6,7 +6,6 @@ import Header from "../../../components/header";
 export default function Installation() {
   const installationData = {
     name: "Instalación A",
-    classification: "Opción 1",
     quantity: "5",
     details: "Detalles de la instalación A"
   };
@@ -22,7 +21,6 @@ export default function Installation() {
             <div className="bg-gray-700 p-4 rounded-md">
               <h2 className="text-lg font-semibold text-orange-500 mb-2">Detalles Generales</h2>
               <p className="text-lg"><span className="font-semibold">Nombre:</span> {installationData.name}</p>
-              <p className="text-lg"><span className="font-semibold">Clasificación:</span> {installationData.classification}</p>
               <p className="text-lg"><span className="font-semibold">Cantidad:</span> {installationData.quantity}</p>
               <p className="text-lg"><span className="font-semibold">Archivo:</span> <span className="text-gray-400">No file uploaded</span></p>
             </div>
