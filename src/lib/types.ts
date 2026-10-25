@@ -41,7 +41,6 @@ export interface InstallationUpdatePayload {
   quantity: number;
   details: string;
   file: File | string;
-  classification?: number;  // omitted when unknown, never sent as null
 }
 
 export interface PropertyUpdatePayload {

@@ -22,7 +22,6 @@ interface Installation {
   quantity: number;
   file: string | null;
   details: string;
-  classification: Classification;
 }
 
 interface DocBase {
@@ -340,7 +339,6 @@ const PropertyView: React.FC = () => {
                     <tr className="border-b border-slate-700">
                       <th className="pb-2 text-left text-xs font-semibold uppercase tracking-wider text-slate-400">Imagen</th>
                       <th className="pb-2 text-left text-xs font-semibold uppercase tracking-wider text-slate-400">Nombre</th>
-                      <th className="pb-2 text-left text-xs font-semibold uppercase tracking-wider text-slate-400">Clasificación</th>
                       <th className="pb-2 text-left text-xs font-semibold uppercase tracking-wider text-slate-400">Cantidad</th>
                       <th className="pb-2 text-left text-xs font-semibold uppercase tracking-wider text-slate-400">Detalles</th>
                       {isAdmin && <th className="pb-2 text-right text-xs font-semibold uppercase tracking-wider text-slate-400">Acciones</th>}
@@ -368,7 +366,6 @@ const PropertyView: React.FC = () => {
                             )}
                           </td>
                           <td className="py-3 pr-3 font-medium text-slate-200">{inst.name}</td>
-                          <td className="py-3 pr-3 text-slate-400">{inst.classification?.name ?? '—'}</td>
                           <td className="py-3 pr-3 text-slate-300">{inst.quantity}</td>
                           <td className="py-3 pr-3 max-w-xs truncate text-slate-400" title={inst.details}>{inst.details || '—'}</td>
                           {isAdmin && (

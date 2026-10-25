@@ -6,7 +6,6 @@ import Header from "../../../components/header";
 export default function Installation() {
   const [installationData, setInstallationData] = useState({
     name: "Instalación A",
-    classification: "Opción 1",
     quantity: "5",
     details: "Detalles de la instalación A"
   });
@@ -55,23 +54,6 @@ export default function Installation() {
                 />
               ) : installationData.name}</p>
               <button onClick={() => editingField === 'name' ? handleSave() : handleEdit('name')} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-md">
-                ✏️
-              </button>
-            </div>
-
-            <div className="flex items-center justify-between">
-              <p className="text-lg">Clasificación: {editingField === 'classification' ? (
-                <select
-                  value={installationData.classification}
-                  onChange={(e) => handleChange('classification', e.target.value)}
-                  className="bg-gray-700 border-gray-600 text-white px-2 py-1 rounded-md"
-                >
-                  <option value="Opción 1">Opción 1</option>
-                  <option value="Opción 2">Opción 2</option>
-                  <option value="Opción 3">Opción 3</option>
-                </select>
-              ) : installationData.classification}</p>
-              <button onClick={() => editingField === 'classification' ? handleSave() : handleEdit('classification')} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-md">
                 ✏️
               </button>
             </div>
