@@ -6,6 +6,7 @@ import { useEffect, useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { Plus, ChevronDown, HomeIcon, MapPin, DollarSign } from 'lucide-react';
 import { extractApiErrorMessage } from '@/lib/formFeedback';
+import { PROVINCES } from '@/lib/provinces';
 import { getInsurance } from '@/api/insuranceApi';
 import { getPlan } from '@/api/planApi';
 import { getRented } from '@/api/rentedApi';
@@ -55,11 +56,6 @@ const destinyMap: { [key: string]: string } = {
   '7': 'Otro'
 };
 
-const provinces: string[] = [
-  'Córdoba',
-  'Santa Fe',
-  'Entre Ríos',
-] as const;
 
 const emptySearch: SearchFormValues = {
   province: '',
@@ -417,7 +413,7 @@ const Home = () => {
               className="rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-slate-100 focus:border-orange-500 focus:outline-none"
             >
               <option value="">Todas las provincias</option>
-              {provinces.map((province) => (
+              {PROVINCES.map((province) => (
                 <option key={province} value={province}>{province}</option>
               ))}
             </select>
@@ -468,7 +464,7 @@ const Home = () => {
                   className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-slate-100 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                 >
                   <option value="">Todas las provincias</option>
-                  {provinces.map(province => (
+                  {PROVINCES.map(province => (
                     <option key={province} value={province}>{province}</option>
                   ))}
                 </select>
