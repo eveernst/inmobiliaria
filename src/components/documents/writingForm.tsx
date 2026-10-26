@@ -324,7 +324,8 @@ const WritingForm = ({ propertyId, documentId, isReadOnly = false }: WritingForm
             </div>
             <div>
               <label htmlFor="year" className="block text-gray-300 mb-1">Año</label>
-              <input id="year" type="number" className="doc-input" {...register("year", { valueAsNumber: true })} />
+              <input id="year" type="number" className="doc-input" {...register("year", { required: "Campo obligatorio", valueAsNumber: true })} />
+              {errors.year && <p className="text-red-400 text-sm mt-1">{errors.year.message}</p>}
             </div>
             <div>
               <label htmlFor="department" className="block text-gray-300 mb-1">Departamento</label>
@@ -332,19 +333,23 @@ const WritingForm = ({ propertyId, documentId, isReadOnly = false }: WritingForm
             </div>
             <div>
               <label htmlFor="totalSurface" className="block text-gray-300 mb-1">Superficie Total</label>
-              <input id="totalSurface" type="number" className="doc-input" {...register("totalSurface", { valueAsNumber: true })} />
+              <input id="totalSurface" type="number" className="doc-input" {...register("totalSurface", { required: "Campo obligatorio", valueAsNumber: true })} />
+              {errors.totalSurface && <p className="text-red-400 text-sm mt-1">{errors.totalSurface.message}</p>}
             </div>
             <div>
               <label htmlFor="coveredSurface" className="block text-gray-300 mb-1">Superficie Cubierta</label>
-              <input id="coveredSurface" type="number" className="doc-input" {...register("coveredSurface", { valueAsNumber: true })} />
+              <input id="coveredSurface" type="number" className="doc-input" {...register("coveredSurface", { required: "Campo obligatorio", valueAsNumber: true })} />
+              {errors.coveredSurface && <p className="text-red-400 text-sm mt-1">{errors.coveredSurface.message}</p>}
             </div>
             <div>
               <label htmlFor="improvementSurface" className="block text-gray-300 mb-1">Superficie Mejoras</label>
-              <input id="improvementSurface" type="number" className="doc-input" {...register("improvementSurface", { valueAsNumber: true })} />
+              <input id="improvementSurface" type="number" className="doc-input" {...register("improvementSurface", { required: "Campo obligatorio", valueAsNumber: true })} />
+              {errors.improvementSurface && <p className="text-red-400 text-sm mt-1">{errors.improvementSurface.message}</p>}
             </div>
             <div>
               <label htmlFor="improvementValue" className="block text-gray-300 mb-1">Valor Mejoras ($)</label>
-              <input id="improvementValue" type="number" className="doc-input" {...register("improvementValue", { valueAsNumber: true })} />
+              <input id="improvementValue" type="number" className="doc-input" {...register("improvementValue", { required: "Campo obligatorio", valueAsNumber: true })} />
+              {errors.improvementValue && <p className="text-red-400 text-sm mt-1">{errors.improvementValue.message}</p>}
             </div>
             <div>
               <label htmlFor="cadastralNomenclature" className="block text-gray-300 mb-1">Nomenclatura Catastral</label>
@@ -386,7 +391,8 @@ const WritingForm = ({ propertyId, documentId, isReadOnly = false }: WritingForm
             </div>
             <div>
               <label htmlFor="notaryContact" className="block text-gray-300 mb-1">Contacto Escribano</label>
-              <input id="notaryContact" type="number" className="doc-input" {...register("notaryContact", { valueAsNumber: true })} />
+              <input id="notaryContact" type="number" className="doc-input" {...register("notaryContact", { required: "Campo obligatorio", valueAsNumber: true })} />
+              {errors.notaryContact && <p className="text-red-400 text-sm mt-1">{errors.notaryContact.message}</p>}
             </div>
           </div>
           <div className="grid grid-cols-3 gap-4 mt-4">
