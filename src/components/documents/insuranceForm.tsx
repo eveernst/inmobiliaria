@@ -199,6 +199,8 @@ const InsuranceForm = ({ propertyId, documentId, isReadOnly = false }: Insurance
       phone: "Telefono",
       email: "E-mail",
       insuredProperty: "Bien asegurado",
+      insuranceDate: "Fecha del seguro",
+      AnualFormDate: "Fecha del formulario anual",
     };
 
     alertMissingFields(formErrors as Record<string, unknown>, labels);
@@ -320,8 +322,9 @@ const InsuranceForm = ({ propertyId, documentId, isReadOnly = false }: Insurance
               type="date"
               className="doc-input"
               readOnly={isReadOnly}
-              {...register("insuranceDate")}
+              {...register("insuranceDate", { required: "Este campo es obligatorio" })}
             />
+            {errors.insuranceDate && <p className="text-red-400 text-sm mt-1">{errors.insuranceDate.message}</p>}
           </div>
           <div>
             <label htmlFor="insuranceImage" className="block text-gray-300 mb-1">Imagen de Póliza</label>
@@ -340,8 +343,9 @@ const InsuranceForm = ({ propertyId, documentId, isReadOnly = false }: Insurance
               type="date"
               className="doc-input"
               readOnly={isReadOnly}
-              {...register("AnualFormDate")}
+              {...register("AnualFormDate", { required: "Este campo es obligatorio" })}
             />
+            {errors.AnualFormDate && <p className="text-red-400 text-sm mt-1">{errors.AnualFormDate.message}</p>}
           </div>
           <div>
             <label htmlFor="AnualFormImage" className="block text-gray-300 mb-1">Imagen de Formulario Anual</label>
