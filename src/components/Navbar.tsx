@@ -43,32 +43,21 @@ const Navbar = () => {
           </span>
         </Link>
 
-        {/* Links de navegación */}
-        {user && (
+        {/* Links de navegación: el logo ya lleva a la lista de propiedades y la
+            documentación se abre desde cada propiedad (#23). "Usuarios" es solo
+            para superusuarios. */}
+        {user && isSuperuser && (
           <div className="flex items-center gap-1">
             <Link
-              href="/"
+              href="/user"
               className={`rounded-lg px-3 py-1.5 text-sm font-medium transition ${
-                pathname === "/"
+                pathname === "/user"
                   ? "bg-orange-500/20 text-orange-400"
                   : "text-slate-300 hover:bg-slate-800 hover:text-slate-100"
               }`}
             >
-              Propiedades
+              Usuarios
             </Link>
-
-            {isSuperuser && (
-              <Link
-                href="/user"
-                className={`rounded-lg px-3 py-1.5 text-sm font-medium transition ${
-                  pathname === "/user"
-                    ? "bg-orange-500/20 text-orange-400"
-                    : "text-slate-300 hover:bg-slate-800 hover:text-slate-100"
-                }`}
-              >
-                Usuarios
-              </Link>
-            )}
           </div>
         )}
 
