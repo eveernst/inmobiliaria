@@ -176,6 +176,15 @@ const RentedForm = ({ propertyId, documentId, isReadOnly = false }: RentedFormPr
 
   const onInvalid = (formErrors: Record<string, unknown>) => {
     const labels: Record<string, string> = {
+      ownerDetails: "Datos del propietario",
+      ownerContact: "Contacto del propietario",
+      renterDetails: "Datos del inquilino",
+      address: "Dirección",
+      renterContact: "Contacto del inquilino",
+      locality: "Localidad",
+      contratStartDate: "Fecha de comienzo",
+      contratEndDate: "Fecha de finalización",
+      price: "Monto ($)",
       affectation: "Afectacion",
       province: "Provincia",
     };
@@ -197,8 +206,11 @@ const RentedForm = ({ propertyId, documentId, isReadOnly = false }: RentedFormPr
                 <input
                   id="ownerDetails"
                   className="doc-input"
-                  {...register("ownerDetails")}
+                  {...register("ownerDetails", { required: "Este campo es obligatorio" })}
                 />
+                {errors.ownerDetails && (
+                  <p className="text-red-500 text-sm">{(errors.ownerDetails as FieldError).message}</p>
+                )}
               </div>
               <div>
                 <label htmlFor="affectation" className="block text-gray-300 mb-1">Afectación</label>
@@ -221,8 +233,11 @@ const RentedForm = ({ propertyId, documentId, isReadOnly = false }: RentedFormPr
                 <input
                   id="ownerContact"
                   className="doc-input"
-                  {...register("ownerContact")}
+                  {...register("ownerContact", { required: "Este campo es obligatorio" })}
                 />
+                {errors.ownerContact && (
+                  <p className="text-red-500 text-sm">{(errors.ownerContact as FieldError).message}</p>
+                )}
               </div>
             </div>
           </fieldset>
@@ -237,32 +252,44 @@ const RentedForm = ({ propertyId, documentId, isReadOnly = false }: RentedFormPr
                 <input
                   id="renterDetails"
                   className="doc-input"
-                  {...register("renterDetails")}
+                  {...register("renterDetails", { required: "Este campo es obligatorio" })}
                 />
+                {errors.renterDetails && (
+                  <p className="text-red-500 text-sm">{(errors.renterDetails as FieldError).message}</p>
+                )}
               </div>
               <div>
                 <label htmlFor="address" className="block text-gray-300 mb-1">Dirección</label>
                 <input
                   id="address"
                   className="doc-input"
-                  {...register("address")}
+                  {...register("address", { required: "Este campo es obligatorio" })}
                 />
+                {errors.address && (
+                  <p className="text-red-500 text-sm">{(errors.address as FieldError).message}</p>
+                )}
               </div>
               <div>
                 <label htmlFor="renterContact" className="block text-gray-300 mb-1">Contacto del inquilino</label>
                 <input
                   id="renterContact"
                   className="doc-input"
-                  {...register("renterContact")}
+                  {...register("renterContact", { required: "Este campo es obligatorio" })}
                 />
+                {errors.renterContact && (
+                  <p className="text-red-500 text-sm">{(errors.renterContact as FieldError).message}</p>
+                )}
               </div>
               <div>
                 <label htmlFor="locality" className="block text-gray-300 mb-1">Localidad</label>
                 <input
                   id="locality"
                   className="doc-input"
-                  {...register("locality")}
+                  {...register("locality", { required: "Este campo es obligatorio" })}
                 />
+                {errors.locality && (
+                  <p className="text-red-500 text-sm">{(errors.locality as FieldError).message}</p>
+                )}
               </div>
             </div>
           </fieldset>
@@ -278,8 +305,11 @@ const RentedForm = ({ propertyId, documentId, isReadOnly = false }: RentedFormPr
                   id="contratStartDate"
                   type="date"
                   className="doc-input"
-                  {...register("contratStartDate")}
+                  {...register("contratStartDate", { required: "Este campo es obligatorio" })}
                 />
+                {errors.contratStartDate && (
+                  <p className="text-red-500 text-sm">{(errors.contratStartDate as FieldError).message}</p>
+                )}
               </div>
               <div>
                 <label htmlFor="province" className="block text-gray-300 mb-1">Provincia</label>
@@ -303,8 +333,11 @@ const RentedForm = ({ propertyId, documentId, isReadOnly = false }: RentedFormPr
                   id="contratEndDate"
                   type="date"
                   className="doc-input"
-                  {...register("contratEndDate")}
+                  {...register("contratEndDate", { required: "Este campo es obligatorio" })}
                 />
+                {errors.contratEndDate && (
+                  <p className="text-red-500 text-sm">{(errors.contratEndDate as FieldError).message}</p>
+                )}
               </div>
             </div>
           </fieldset>
@@ -320,8 +353,11 @@ const RentedForm = ({ propertyId, documentId, isReadOnly = false }: RentedFormPr
                   id="price"
                   type="number"
                   className="doc-input"
-                  {...register("price", { valueAsNumber: true })}
+                  {...register("price", { required: "Este campo es obligatorio", valueAsNumber: true })}
                 />
+                {errors.price && (
+                  <p className="text-red-500 text-sm">{(errors.price as FieldError).message}</p>
+                )}
               </div>
               <div>
                 <label htmlFor="adjustmentType" className="block text-gray-300 mb-1">Tipo de ajuste</label>
