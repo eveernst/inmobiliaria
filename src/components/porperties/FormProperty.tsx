@@ -4,6 +4,7 @@ import { getClassifications } from "@/api/classificationApi";
 import { alertMissingFields, extractApiErrorMessage } from "@/lib/formFeedback";
 import { resolveImageUrl } from "@/lib/imageUpload";
 import { InstallationUpdatePayload, PropertyUpdatePayload } from "@/lib/types";
+import { PROVINCES } from "@/lib/provinces";
 import ImageViewModal from "@/components/ui/ImageViewModal";
 import React, { useRef, useState, useEffect } from "react";
 import { useForm, SubmitHandler, useFieldArray, Path } from "react-hook-form";
@@ -416,9 +417,9 @@ const PropertyForm = ({ id }: { id?: number }) => {
               className="doc-input"
             >
               <option value="" hidden>Provincia</option>
-              <option value="Córdoba">Córdoba</option>
-              <option value="Entre Ríos">Entre Ríos</option>
-              <option value="Santa Fe">Santa Fe</option>
+              {PROVINCES.map((province) => (
+                <option key={province} value={province}>{province}</option>
+              ))}
             </select>
             {errors.province && (
               <span className="text-red-500 text-sm mt-1">{errors.province.message}</span>

@@ -8,6 +8,7 @@ import ImageViewModal from "@/components/ui/ImageViewModal";
 import { alertMissingFields, extractApiErrorMessage } from "@/lib/formFeedback";
 import { toCalendarDate } from "@/lib/calendarDate";
 import { RentedPayload } from "@/lib/types";
+import { PROVINCES } from "@/lib/provinces";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
@@ -289,9 +290,9 @@ const RentedForm = ({ propertyId, documentId, isReadOnly = false }: RentedFormPr
                   {...register("province", { required: "Este campo es obligatorio" })}
                 >
                   <option value="">Seleccionar</option>
-                  <option value="Cordoba">Cordoba</option>
-                  <option value="Entre Rios">Entre Rios</option>
-                  <option value="Santa Fe">Santa Fe</option>
+                  {PROVINCES.map((province) => (
+                    <option key={province} value={province}>{province}</option>
+                  ))}
                 </select>
                 {errors.province && (
                   <p className="text-red-500 text-sm">{(errors.province as FieldError).message}</p>
