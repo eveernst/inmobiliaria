@@ -30,7 +30,6 @@ interface Property {
 }
 
 interface Filters {
-  province: string;
   locality: string;
   address: string;
   propertyType: string;
@@ -84,7 +83,6 @@ const Home = () => {
   const [isSearching, setIsSearching] = useState(false);
   const router = useRouter();
   const [filters, setFilters] = useState<Filters>({
-    province: '',
     locality: '',
     address: '',
     propertyType: '',
@@ -98,11 +96,11 @@ const Home = () => {
     return Array.from(
       new Set(
         properties
-          .filter(p => !filters.province || p.province === filters.province)
+          .filter(p => !searchForm.province || p.province === searchForm.province)
           .map(p => p.locality)
       )
     );
-  }, [properties, filters.province]);
+  }, [properties, searchForm.province]);
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -158,7 +156,6 @@ const Home = () => {
 
   const filteredProperties = useMemo(() => {
     return properties.filter(property => {
-      if (filters.province && property.province !== filters.province) return false;
       if (filters.locality && property.locality !== filters.locality) return false;
       if (filters.address && !property.address.toLowerCase().includes(filters.address.toLowerCase())) return false;
       if (filters.propertyType && destinyMap[property.destiny] !== filters.propertyType) return false;
@@ -179,13 +176,11 @@ const Home = () => {
     setFilters(prev => ({
       ...prev,
       [key]: value,
-      ...(key === 'province' && { locality: '' })
     }));
   };
 
   const resetFilters = () => {
     setFilters({
-      province: '',
       locality: '',
       address: '',
       propertyType: '',
@@ -455,28 +450,13 @@ const Home = () => {
         <div className="border-b border-slate-800 bg-slate-900/60 p-6">
           <div className="max-w-7xl mx-auto">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
-              {/* Province Filter */}
-              <div>
-                <label className="block text-sm font-semibold text-slate-300 mb-2">Provincia</label>
-                <select
-                  value={filters.province}
-                  onChange={(e) => handleFilterChange('province', e.target.value)}
-                  className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-slate-100 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                >
-                  <option value="">Todas las provincias</option>
-                  {PROVINCES.map(province => (
-                    <option key={province} value={province}>{province}</option>
-                  ))}
-                </select>
-              </div>
-
               {/* Locality Filter */}
               <div>
                 <label className="block text-sm font-semibold text-slate-300 mb-2">Localidad</label>
                 <select
                   value={filters.locality}
                   onChange={(e) => handleFilterChange('locality', e.target.value)}
-                  disabled={!filters.province}
+                  disabled={!searchForm.province}
                   className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-slate-100 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent disabled:opacity-50 disabled:bg-slate-900"
                 >
                   <option value="">Todas las localidades</option>
