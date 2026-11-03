@@ -9,6 +9,7 @@ import {
 } from "@/lib/imageUpload";
 import {
   canWriteProperties,
+  ClassificationOption,
   InstallationUpdatePayload,
   PropertyUpdatePayload,
   UserData,
@@ -99,11 +100,6 @@ const buildPropertyUpdatePayload = (data: FormData): PropertyUpdatePayload => ({
   file: normalizeFileValue(data.file),
   installations: (data.installations || []).map((inst) => buildInstallationPayload(inst)),
 });
-
-interface ClassificationOption {
-  id: number;
-  name: string;
-}
 
 interface RawUser {
   id?: number;
