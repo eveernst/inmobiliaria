@@ -14,9 +14,11 @@ import {
   UserData,
 } from "@/lib/types";
 import { fetchUsers } from "@/lib/api";
+import { setSuccessMessage } from "@/lib/successMessage";
 import { PROVINCES } from "@/lib/provinces";
 import ImageViewModal from "@/components/ui/ImageViewModal";
 import React, { useRef, useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { useForm, SubmitHandler, useFieldArray, Path } from "react-hook-form";
 
 type ImageFieldValue = File | string | null;
@@ -123,6 +125,7 @@ const PropertyForm = ({ id }: { id?: number }) => {
     setValue,
     getValues,
   } = useForm<FormData>();
+  const router = useRouter();
 
   const { fields, append, remove } = useFieldArray({
     control,
@@ -373,7 +376,8 @@ const PropertyForm = ({ id }: { id?: number }) => {
         setSaveMessage("Guardando cambios de la propiedad...");
         await editProperty(id, buildPropertyUpdatePayload(data));
         setSaveMessage("Propiedad actualizada correctamente.");
-        alert("Propiedad actualizada exitosamente");
+        setSuccessMessage("Propiedad actualizada correctamente");
+        router.push(`/property/details?id=${id}`);
       } else {
         if (lastCreatedFingerprintRef.current === creationFingerprint) {
           setSaveMessage("Esta propiedad ya fue creada. Cambiá algún dato antes de volver a guardar.");
@@ -382,10 +386,15 @@ const PropertyForm = ({ id }: { id?: number }) => {
         }
 
         setSaveMessage("Creando nueva propiedad...");
-        await saveProperty(processedData);
+        const response = await saveProperty(processedData);
+        const createdPropertyId = response?.data?.id ?? response?.id;
+        if (!Number.isInteger(createdPropertyId)) {
+          throw new Error("La API no devolvió el id de la propiedad creada.");
+        }
         lastCreatedFingerprintRef.current = creationFingerprint;
         setSaveMessage("Propiedad creada correctamente.");
-        alert("Propiedad guardada exitosamente");
+        setSuccessMessage("Propiedad creada correctamente");
+        router.push(`/property/details?id=${createdPropertyId}`);
       }
     } catch (error) {
       console.error("Error saving property:", error);

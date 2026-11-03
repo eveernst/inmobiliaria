@@ -5,6 +5,7 @@ import { canManageUsers, UserData, ROLE_LABELS, ROLE_OPTIONS } from "@/lib/types
 import { fetchUsers, deleteUser, addUser, updateUser } from "@/lib/api";
 import { extractApiErrorMessage } from "@/lib/formFeedback";
 import { useRouter } from "next/navigation";
+import SuccessMessage from "@/components/ui/SuccessMessage";
 
 // ── Modal de confirmación ─────────────────────────────────────────────────────
 const ConfirmModal = ({
@@ -156,6 +157,7 @@ export default function ViewUser() {
   const router = useRouter();
   const [users, setUsers] = useState<UserData[]>([]);
   const [loading, setLoading] = useState(true);
+  const [successMessage, setSuccessMessage] = useState('');
   const [showForm, setShowForm] = useState(false);
   const [editingUser, setEditingUser] = useState<UserData | null>(null);
   const [confirm, setConfirm] = useState<{ show: boolean; userId: number; name: string }>({
@@ -198,6 +200,7 @@ export default function ViewUser() {
     try {
       await deleteUser(confirm.userId);
       setConfirm({ show: false, userId: 0, name: "" });
+      setSuccessMessage('Usuario eliminado correctamente');
       loadUsers();
     } catch {
       alert("No se pudo eliminar el usuario.");
@@ -215,6 +218,9 @@ export default function ViewUser() {
       )}
 
       <div className="min-h-screen bg-slate-950 pb-16 text-slate-100">
+        <div className="mx-auto max-w-5xl px-4 pt-6 md:px-6">
+          <SuccessMessage message={successMessage} />
+        </div>
         <div className="mx-auto max-w-5xl px-4 py-8 md:px-6">
 
           {/* Header */}
