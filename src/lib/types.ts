@@ -47,6 +47,7 @@ export interface PropertyUpdatePayload {
   goodUseCode: number;
   description: string;
   classification: number;
+  user: number;
   province: string;
   locality: string;
   address: string;
