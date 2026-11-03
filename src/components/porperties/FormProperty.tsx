@@ -420,7 +420,7 @@ const PropertyForm = ({ id }: { id?: number }) => {
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit, onInvalid)} className="max-w-6xl mx-auto space-y-6 rounded-2xl border border-slate-700 bg-slate-900 p-6 md:p-8">
+    <form onSubmit={handleSubmit(onSubmit, onInvalid)} className="mx-auto w-full max-w-[90rem] space-y-6 rounded-2xl border border-slate-700 bg-slate-900 p-4 sm:p-6 md:p-8">
       <h1 className="text-3xl font-semibold text-slate-100 text-center mb-6">{title}</h1>
       {/* Campos del formulario como antes */}
       <fieldset className="rounded-xl border border-slate-700 p-5 bg-slate-950/30">

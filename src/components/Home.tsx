@@ -384,7 +384,7 @@ const Home = () => {
               {isAdmin && (
                 <a
                   href="/property"
-                  className="bg-orange-500 hover:bg-orange-400 text-white font-semibold py-3 px-6 rounded-lg flex items-center gap-2 transition shadow-md hover:shadow-lg"
+                  className="action-button-primary gap-2 shadow-md hover:shadow-lg"
                 >
                   <Plus size={20} />
                   Nueva Propiedad

@@ -103,7 +103,7 @@ const DocumentView: React.FC = () => {
         <p className="text-lg">No se pudo cargar el documento.</p>
         <button
           onClick={() => router.push(backUrl)}
-          className="rounded-lg bg-orange-500 px-5 py-2 text-sm font-semibold text-white hover:bg-orange-400"
+          className="action-button-primary"
         >
           Volver
         </button>
@@ -124,7 +124,7 @@ const DocumentView: React.FC = () => {
       )}
 
       <div className="min-h-screen bg-slate-950 pb-16 pt-8 text-slate-100">
-        <div className="mx-auto max-w-5xl px-4 md:px-6">
+        <div className="mx-auto max-w-7xl px-3 sm:px-5 md:px-6">
           <div className="mb-6 flex flex-wrap items-start justify-between gap-3">
             <div>
               <span className="inline-block rounded-full border border-orange-500/40 bg-orange-500/10 px-3 py-1 text-xs font-semibold uppercase tracking-widest text-orange-400">
@@ -137,14 +137,14 @@ const DocumentView: React.FC = () => {
             <div className="flex gap-2">
               <button
                 onClick={() => router.push(backUrl)}
-                className="rounded-lg border border-slate-600 bg-slate-800 px-4 py-1.5 text-sm text-slate-200 transition hover:bg-slate-700"
+                className="action-button-secondary text-sm"
               >
                 ← Volver
               </button>
               <button
                 onClick={handleDownloadPdf}
                 disabled={downloading}
-                className="rounded-lg border border-orange-500/40 bg-orange-500/10 px-4 py-1.5 text-sm font-medium text-orange-300 transition hover:bg-orange-500/20 disabled:opacity-50"
+                      className="action-button-secondary text-sm text-orange-300 hover:bg-orange-500/20"
               >
                 {downloading ? 'Generando…' : 'Descargar PDF'}
               </button>
@@ -153,7 +153,7 @@ const DocumentView: React.FC = () => {
                   {params.propertyId && (
                     <button
                       onClick={() => router.push(`/document-manager?propertyId=${params.propertyId}&docType=${params.docType}&docId=${params.docId}`)}
-                      className="rounded-lg bg-orange-500 px-4 py-1.5 text-sm font-semibold text-white transition hover:bg-orange-400"
+                      className="action-button-primary text-sm"
                     >
                       Modificar
                     </button>
