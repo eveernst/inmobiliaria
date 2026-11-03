@@ -2,7 +2,11 @@
 import { saveProperty, editProperty, getProperty } from "@/api/propertyApi";
 import { getClassifications } from "@/api/classificationApi";
 import { alertMissingFields, extractApiErrorMessage } from "@/lib/formFeedback";
-import { resolveImageUrl } from "@/lib/imageUpload";
+import {
+  deleteImageByPublicUrl,
+  resolveImageUrl,
+  uploadImageToSupabase,
+} from "@/lib/imageUpload";
 import {
   canWriteProperties,
   InstallationUpdatePayload,
@@ -47,16 +51,8 @@ interface FormData {
   id?: number;
 }
 
-const normalizeFileValue = (value: ImageFieldValue): File | string => {
-  if (value instanceof File) {
-    return value.size ? value : "";
-  }
-
-  if (typeof value === "string") {
-    return value;
-  }
-
-  return "";
+const normalizeFileValue = (value: ImageFieldValue): string => {
+  return typeof value === "string" ? value : "";
 };
 
 // Positive integer id or undefined. Number() first so "5" from a <select> survives;
@@ -118,7 +114,15 @@ interface RawInstallation {
 
 const PropertyForm = ({ id }: { id?: number }) => {
 
-  const { register, handleSubmit, formState: { errors }, control, reset, setValue } = useForm<FormData>();
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    control,
+    reset,
+    setValue,
+    getValues,
+  } = useForm<FormData>();
 
   const { fields, append, remove } = useFieldArray({
     control,
@@ -132,6 +136,7 @@ const PropertyForm = ({ id }: { id?: number }) => {
   const [imagePreviews, setImagePreviews] = useState<Record<string, string>>({});
   const [imageErrors, setImageErrors] = useState<Record<string, boolean>>({});
   const [isSaving, setIsSaving] = useState(false);
+  const [uploadingImageFields, setUploadingImageFields] = useState<string[]>([]);
   const [saveMessage, setSaveMessage] = useState<string>("");
   const submittingLockRef = useRef(false);
   const lastCreatedFingerprintRef = useRef<string>("");
@@ -140,17 +145,50 @@ const PropertyForm = ({ id }: { id?: number }) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
+    const previousValue = getValues(fieldName as Path<FormData>);
+    setUploadingImageFields((fields) => [...fields, fieldName]);
+
     const reader = new FileReader();
-    reader.onloadend = () => {
-      const preview = reader.result as string;
-      setImagePreviews((prev) => ({ ...prev, [fieldName]: preview }));
-      setImageErrors((prev) => ({ ...prev, [fieldName]: false }));
-      setValue(fieldName as Path<FormData>, file, { shouldDirty: true });
+    reader.onloadend = async () => {
+      try {
+        const preview = reader.result as string;
+        setImagePreviews((prev) => ({ ...prev, [fieldName]: preview }));
+        setImageErrors((prev) => ({ ...prev, [fieldName]: false }));
+
+        const folder = fieldName === "file" ? "properties" : "properties/installations";
+        const url = await uploadImageToSupabase(file, folder);
+
+        if (!url) {
+          throw new Error("No se pudo subir la imagen.");
+        }
+
+        setValue(fieldName as Path<FormData>, url, { shouldDirty: true });
+        setImagePreviews((prev) => ({ ...prev, [fieldName]: url }));
+      } catch (error) {
+        console.error("Error subiendo imagen de propiedad:", error);
+        const previousUrl = typeof previousValue === "string" ? previousValue : "";
+        setValue(fieldName as Path<FormData>, previousUrl, { shouldDirty: true });
+        setImagePreviews((prev) => ({
+          ...prev,
+          [fieldName]: resolveImageUrl(previousUrl),
+        }));
+        alert("No se pudo subir la imagen. Verifica la configuración de Supabase.");
+      } finally {
+        setUploadingImageFields((fields) => fields.filter((field) => field !== fieldName));
+      }
     };
     reader.readAsDataURL(file);
   };
 
-  const handleRemoveImage = (fieldName: string) => {
+  const handleRemoveImage = async (fieldName: string) => {
+    const currentValue = getValues(fieldName as Path<FormData>);
+    if (typeof currentValue === "string" && currentValue) {
+      const deleted = await deleteImageByPublicUrl(currentValue);
+      if (!deleted) {
+        alert("No se pudo eliminar la imagen en Supabase.");
+      }
+    }
+
     setValue(fieldName as Path<FormData>, "", { shouldDirty: true });
     setImagePreviews((prev) => ({ ...prev, [fieldName]: "" }));
     setImageErrors((prev) => ({ ...prev, [fieldName]: false }));
@@ -313,6 +351,11 @@ const PropertyForm = ({ id }: { id?: number }) => {
       setIsSaving(true);
       setSaveMessage("Validando datos y preparando guardado...");
       console.log("id de propiedad", id);
+
+      if (uploadingImageFields.length > 0) {
+        setSaveMessage("Esperá a que terminen de subir las imágenes...");
+        return;
+      }
 
       const processedData = {
         ...data,
@@ -729,10 +772,14 @@ const PropertyForm = ({ id }: { id?: number }) => {
 
       <button
         type="submit"
-        disabled={isSaving}
+        disabled={isSaving || uploadingImageFields.length > 0}
         className="w-full rounded-lg bg-blue-600 px-4 py-3 text-white transition-colors hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-60"
       >
-        {isSaving ? "Guardando..." : "Guardar Propiedad"}
+        {isSaving
+          ? "Guardando..."
+          : uploadingImageFields.length > 0
+            ? "Subiendo imágenes..."
+            : "Guardar Propiedad"}
       </button>
     </form>
   );
