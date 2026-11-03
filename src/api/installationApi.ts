@@ -11,9 +11,7 @@ export interface InstallationRecord {
     address?: string;
     locality?: string;
     province?: string;
-    classification?: { id: number; name: string };
   };
-  classification?: { id: number; name: string };
 }
 
 const unwrapList = (value: unknown): InstallationRecord[] => {
