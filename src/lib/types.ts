@@ -40,7 +40,7 @@ export interface InstallationUpdatePayload {
   name: string;
   quantity: number;
   details: string;
-  file: File | string;
+  file: string;
 }
 
 export interface PropertyUpdatePayload {
@@ -60,7 +60,7 @@ export interface PropertyUpdatePayload {
   clfc: string;
   state: number;
   detailsMaintenance: string;
-  file: File | string;
+  file: string;
   installations: InstallationUpdatePayload[];
 }
 
