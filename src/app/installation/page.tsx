@@ -11,9 +11,6 @@ const propertyLabel = (installation: InstallationRecord) => {
   return `#${property.id} - ${property.address || "Dirección sin registrar"}`;
 };
 
-const classificationLabel = (installation: InstallationRecord) =>
-  installation.classification?.name || installation.property?.classification?.name || "Sin clasificación";
-
 export default function InstallationListPage() {
   const router = useRouter();
   const [installations, setInstallations] = useState<InstallationRecord[]>([]);
@@ -38,7 +35,6 @@ export default function InstallationListPage() {
         propertyLabel(installation),
         installation.property?.locality,
         installation.property?.province,
-        classificationLabel(installation),
       ]
         .filter(Boolean)
         .some((value) => String(value).toLowerCase().includes(normalizedQuery)),
@@ -61,14 +57,14 @@ export default function InstallationListPage() {
 
         <div className="mb-6 rounded-2xl border border-slate-800 bg-slate-900 p-4">
           <label htmlFor="installation-search" className="mb-2 block text-sm font-medium text-slate-300">
-            Buscar por propiedad o clasificación
+            Buscar por nombre o propiedad
           </label>
           <input
             id="installation-search"
             type="search"
             value={query}
             onChange={(event) => setQuery(event.target.value)}
-            placeholder="Nombre, propiedad, localidad o clasificación"
+            placeholder="Nombre, propiedad, localidad o provincia"
             className="doc-input"
           />
         </div>
@@ -78,7 +74,7 @@ export default function InstallationListPage() {
         {!loading && !error && filteredInstallations.length === 0 && (
           <div className="rounded-2xl border border-slate-800 bg-slate-900 px-6 py-16 text-center">
             <p className="text-lg font-semibold text-slate-200">No se encontraron resultados</p>
-            <p className="mt-2 text-sm text-slate-400">Probá con otro nombre, propiedad o clasificación.</p>
+            <p className="mt-2 text-sm text-slate-400">Probá con otro nombre, propiedad o localidad.</p>
           </div>
         )}
 
@@ -99,7 +95,6 @@ export default function InstallationListPage() {
                   <div className="space-y-2 p-4">
                     <h2 className="truncate text-lg font-semibold text-slate-100">{installation.name}</h2>
                     <p className="truncate text-sm text-orange-300">{propertyLabel(installation)}</p>
-                    <p className="text-sm text-slate-400">Clasificación: {classificationLabel(installation)}</p>
                     <p className="text-sm text-slate-400">Cantidad: {installation.quantity}</p>
                   </div>
                 </button>

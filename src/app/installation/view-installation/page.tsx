@@ -47,7 +47,6 @@ export default function InstallationDetailPage() {
   }
 
   const imageUrl = resolveImageUrl(installation.file);
-  const classification = installation.classification?.name || installation.property?.classification?.name || "Sin clasificación";
 
   return (
     <main className="min-h-screen bg-slate-950 px-3 py-6 text-slate-100 sm:px-5 md:py-8">
@@ -74,10 +73,6 @@ export default function InstallationDetailPage() {
               <div className="flex justify-between gap-4 border-b border-slate-800 pb-3">
                 <dt className="text-slate-400">Propiedad</dt>
                 <dd className="text-right font-medium text-slate-100">{propertyLabel(installation)}</dd>
-              </div>
-              <div className="flex justify-between gap-4 border-b border-slate-800 pb-3">
-                <dt className="text-slate-400">Clasificación</dt>
-                <dd className="text-right font-medium text-slate-100">{classification}</dd>
               </div>
               <div className="flex justify-between gap-4 border-b border-slate-800 pb-3">
                 <dt className="text-slate-400">Cantidad</dt>
