@@ -382,7 +382,8 @@ const PropertyView: React.FC = () => {
                             <td className="py-3 text-right">
                               <div className="flex justify-end gap-2">
                                 <button
-                                  onClick={() => router.push(`/installation/modify-installation?id=${inst.id}&propertyId=${property.id}`)}
+                                  // Installations are edited inside the property form (CU-1.5.3, #52).
+                                  onClick={() => router.push(`/property?id=${property.id}`)}
                                   className="rounded-lg border border-slate-600 bg-slate-800 px-3 py-1 text-xs font-medium text-slate-200 transition hover:bg-slate-700"
                                 >
                                   Modificar
