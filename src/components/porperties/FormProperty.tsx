@@ -3,7 +3,13 @@ import { saveProperty, editProperty, getProperty } from "@/api/propertyApi";
 import { getClassifications } from "@/api/classificationApi";
 import { alertMissingFields, extractApiErrorMessage } from "@/lib/formFeedback";
 import { resolveImageUrl } from "@/lib/imageUpload";
-import { InstallationUpdatePayload, PropertyUpdatePayload } from "@/lib/types";
+import {
+  canWriteProperties,
+  InstallationUpdatePayload,
+  PropertyUpdatePayload,
+  UserData,
+} from "@/lib/types";
+import { fetchUsers } from "@/lib/api";
 import { PROVINCES } from "@/lib/provinces";
 import ImageViewModal from "@/components/ui/ImageViewModal";
 import React, { useRef, useState, useEffect } from "react";
@@ -79,6 +85,7 @@ const buildPropertyUpdatePayload = (data: FormData): PropertyUpdatePayload => ({
   goodUseCode: Number(data.goodUseCode),
   description: data.description,
   classification: Number(data.classification),
+  user: Number(data.user),
   province: data.province,
   locality: data.locality,
   address: data.address,
@@ -100,6 +107,10 @@ interface ClassificationOption {
   name: string;
 }
 
+interface RawUser {
+  id?: number;
+}
+
 interface RawInstallation {
   file?: string;
   [field: string]: unknown;
@@ -116,6 +127,8 @@ const PropertyForm = ({ id }: { id?: number }) => {
 
   const [title, setTitle] = useState<string>("Nueva Propiedad");
   const [classifications, setClassifications] = useState<ClassificationOption[]>([]);
+  const [users, setUsers] = useState<UserData[]>([]);
+  const [canEditResponsibleUser, setCanEditResponsibleUser] = useState(false);
   const [imagePreviews, setImagePreviews] = useState<Record<string, string>>({});
   const [imageErrors, setImageErrors] = useState<Record<string, boolean>>({});
   const [isSaving, setIsSaving] = useState(false);
@@ -213,6 +226,10 @@ const PropertyForm = ({ id }: { id?: number }) => {
         const processedData = {
           ...data,
           file: data?.file ?? data?.planImage ?? "",
+          user:
+            typeof data?.user === "object"
+              ? (data.user as RawUser)?.id
+              : data?.user,
           installations: safeInstallations,
         };
 
@@ -251,6 +268,26 @@ const PropertyForm = ({ id }: { id?: number }) => {
     }
 
     fetchClassifications();
+  }, []);
+
+  useEffect(() => {
+    const savedUser = localStorage.getItem("user");
+    let canEdit = false;
+
+    try {
+      const currentUser = savedUser ? JSON.parse(savedUser) : null;
+      canEdit = canWriteProperties(currentUser?.role);
+    } catch {
+      canEdit = false;
+    }
+
+    setCanEditResponsibleUser(canEdit);
+
+    if (!canEdit) return;
+
+    fetchUsers()
+      .then(setUsers)
+      .catch(() => setUsers([]));
   }, []);
 
   // useEffect precargará los datos de la propiedad si se está editando
@@ -333,6 +370,7 @@ const PropertyForm = ({ id }: { id?: number }) => {
       destiny: "Destino",
       clfc: "CLFC",
       state: "Estado",
+      user: "Usuario responsable",
     };
 
     alertMissingFields(formErrors, labels);
@@ -407,6 +445,30 @@ const PropertyForm = ({ id }: { id?: number }) => {
               <span className="text-red-500 text-sm mt-1">{errors.classification.message}</span>
             )}
           </div>
+
+          {canEditResponsibleUser && (
+            <div>
+              <label htmlFor="user" className="block text-slate-300 mb-1 text-sm">Usuario responsable</label>
+              <select
+                id="user"
+                {...register("user", {
+                  required: "Este campo es obligatorio",
+                  valueAsNumber: true,
+                })}
+                className="doc-input"
+              >
+                <option value="" hidden>Seleccionar usuario responsable</option>
+                {users.map((user) => (
+                  <option key={user.id} value={user.id}>
+                    {user.name} (ID: {user.id})
+                  </option>
+                ))}
+              </select>
+              {errors.user && (
+                <span className="text-red-500 text-sm mt-1">{errors.user.message}</span>
+              )}
+            </div>
+          )}
 
           {/* Provincia */}
           <div>
