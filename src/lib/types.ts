@@ -158,7 +158,7 @@ export interface WritingPayload {
   ubicationMap?: string;
   cadastralInform?: string;
   actingNotary: string;
-  notaryContact: number;
+  notaryContact: string;
   interiorImage?: string;
   exteriorImage?: string;
   formalities: string;

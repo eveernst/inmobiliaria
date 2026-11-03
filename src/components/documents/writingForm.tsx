@@ -40,7 +40,7 @@ interface FormData {
   interiorImage?: string;
   exteriorImage?: string;
   actingNotary: string;
-  notaryContact: number;
+  notaryContact: string;
   formalities?: string;
   documentation?: string;
   detailSpaces?: string;
@@ -97,7 +97,7 @@ const buildWritingPayload = (data: FormData): WritingPayload => ({
   ubicationMap: data.ubicationMap,
   cadastralInform: data.cadastralInform,
   actingNotary: data.actingNotary ?? "",
-  notaryContact: Number(data.notaryContact),
+  notaryContact: String(data.notaryContact ?? "").trim(),
   interiorImage: data.interiorImage,
   exteriorImage: data.exteriorImage,
   formalities: data.formalities ?? "",
@@ -392,7 +392,7 @@ const WritingForm = ({ propertyId, documentId, isReadOnly = false }: WritingForm
             </div>
             <div>
               <label htmlFor="notaryContact" className="block text-gray-300 mb-1">Contacto Escribano</label>
-              <input id="notaryContact" type="number" className="doc-input" {...register("notaryContact", { required: "Campo obligatorio", valueAsNumber: true })} />
+              <input id="notaryContact" type="tel" className="doc-input" {...register("notaryContact", { required: "Campo obligatorio" })} />
               {errors.notaryContact && <p className="text-red-400 text-sm mt-1">{errors.notaryContact.message}</p>}
             </div>
           </div>

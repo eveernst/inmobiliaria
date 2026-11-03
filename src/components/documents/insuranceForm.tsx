@@ -230,7 +230,6 @@ const InsuranceForm = ({ propertyId, documentId, isReadOnly = false }: Insurance
             <input
               id="telefono"
               type="tel"
-              inputMode="numeric"
               className="doc-input"
               readOnly={isReadOnly}
               {...register("phone", { required: "Este campo es obligatorio" })}
