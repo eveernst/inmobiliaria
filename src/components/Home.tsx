@@ -4,7 +4,7 @@ import { deleteProperty, getProperties, getProperty, PropertyFilters } from '../
 import { UserData, canWriteProperties } from '@/lib/types';
 import { useEffect, useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
-import { Plus, ChevronDown, HomeIcon, MapPin, DollarSign } from 'lucide-react';
+import { Plus, ChevronDown, HomeIcon, MapPin } from 'lucide-react';
 import { extractApiErrorMessage } from '@/lib/formFeedback';
 import { PROVINCES } from '@/lib/provinces';
 import { getInsurance } from '@/api/insuranceApi';
@@ -22,7 +22,6 @@ interface Property {
   active: boolean;
   description: string;
   state?: number;
-  forSale?: boolean;
   classification: {
     id: number;
     name: string;
@@ -35,7 +34,6 @@ interface Filters {
   propertyType: string;
   rentalStatus: string;
   ownership: string;
-  forSale: boolean;
 }
 
 interface SearchFormValues extends PropertyFilters {
@@ -70,7 +68,6 @@ const normalizeProperties = (data: unknown): Property[] => {
   return data.map((property: Property) => ({
     ...property,
     state: property.state ?? 0,
-    forSale: property.forSale ?? false,
   }));
 };
 
@@ -88,7 +85,6 @@ const Home = () => {
     propertyType: '',
     rentalStatus: '',
     ownership: '',
-    forSale: false,
   });
   const [showFilters, setShowFilters] = useState<boolean>(false);
 
@@ -161,7 +157,6 @@ const Home = () => {
       if (filters.propertyType && destinyMap[property.destiny] !== filters.propertyType) return false;
       if (filters.rentalStatus === 'rented' && property.state !== 1) return false;
       if (filters.rentalStatus === 'available' && property.state !== 0) return false;
-      if (filters.forSale && !property.forSale) return false;
       return true;
     });
   }, [properties, filters]);
@@ -172,7 +167,7 @@ const Home = () => {
 
   const isAdmin = canWriteProperties(user.role);
 
-  const handleFilterChange = (key: keyof Filters, value: string | boolean) => {
+  const handleFilterChange = (key: keyof Filters, value: string) => {
     setFilters(prev => ({
       ...prev,
       [key]: value,
@@ -186,7 +181,6 @@ const Home = () => {
       propertyType: '',
       rentalStatus: '',
       ownership: '',
-      forSale: false
     });
   };
 
@@ -511,19 +505,6 @@ const Home = () => {
                 </select>
               </div>
 
-              {/* For Sale Filter */}
-              <div className="flex items-end">
-                <label className="flex items-center gap-3 cursor-pointer bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 w-full hover:bg-slate-700 transition">
-                  <input
-                    type="checkbox"
-                    checked={filters.forSale}
-                    onChange={(e) => handleFilterChange('forSale', e.target.checked)}
-                    className="w-4 h-4 cursor-pointer text-orange-500 rounded"
-                  />
-                  <span className="text-sm font-semibold text-slate-300">Para vender</span>
-                </label>
-              </div>
-
               {/* Reset Filters Button */}
               <div className="flex items-end">
                 <button
@@ -586,12 +567,6 @@ const Home = () => {
                       {property.state === 1 && (
                         <span className="px-3 py-1 text-xs font-semibold bg-amber-500/10 text-amber-300 rounded-full border border-amber-500/30">
                           Alquilado
-                        </span>
-                      )}
-                      {property.forSale && (
-                        <span className="px-3 py-1 text-xs font-semibold bg-sky-500/10 text-sky-300 rounded-full border border-sky-500/30 flex items-center gap-1">
-                          <DollarSign size={12} />
-                          Para vender
                         </span>
                       )}
                     </div>
