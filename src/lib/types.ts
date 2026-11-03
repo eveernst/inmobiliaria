@@ -6,6 +6,12 @@ export interface UserData {
   password?: string;  // solo para crear/editar
 }
 
+// A property classification as returned by GET /classification.
+export interface ClassificationOption {
+  id: number;
+  name: string;
+}
+
 export const ROLE_OPTIONS = [
   { value: 1, label: "Administrador" },
   { value: 2, label: "Usuario" },

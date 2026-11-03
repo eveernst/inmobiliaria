@@ -1,7 +1,8 @@
 'use client';
 
 import { deleteProperty, getProperties, getProperty, PropertyFilters } from '../api/propertyApi';
-import { UserData, canWriteProperties } from '@/lib/types';
+import { ClassificationOption, UserData, canWriteProperties } from '@/lib/types';
+import { getClassifications } from '@/api/classificationApi';
 import { useEffect, useState, useMemo, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { Plus, ChevronDown, HomeIcon, MapPin } from 'lucide-react';
@@ -80,6 +81,7 @@ const Home = () => {
   const [hasSearch, setHasSearch] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
+  const [classifications, setClassifications] = useState<ClassificationOption[]>([]);
   const propertyRequestIdRef = useRef(0);
   const router = useRouter();
   const [filters, setFilters] = useState<Filters>({
@@ -126,6 +128,12 @@ const Home = () => {
       }
     };
     fetchProperties();
+
+    // The back filters by classification id (PropertyFiltersDto @IsInt), so the
+    // search offers the real classifications instead of free text.
+    getClassifications()
+      .then((data: ClassificationOption[]) => setClassifications(data || []))
+      .catch(() => setClassifications([]));
   }, [router]);
 
   const handleSearchChange = (
@@ -407,14 +415,19 @@ const Home = () => {
               aria-label="Buscar por dirección"
               className="rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-slate-100 placeholder-slate-500 focus:border-orange-500 focus:outline-none"
             />
-            <input
-              type="search"
+            <select
               value={searchForm.classification}
               onChange={(event) => handleSearchChange('classification', event.target.value)}
-              placeholder="Buscar por clasificación"
-              aria-label="Buscar por clasificación"
-              className="rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-slate-100 placeholder-slate-500 focus:border-orange-500 focus:outline-none"
-            />
+              aria-label="Filtrar por clasificación"
+              className="rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-slate-100 focus:border-orange-500 focus:outline-none"
+            >
+              <option value="">Todas las clasificaciones</option>
+              {classifications.map((classification) => (
+                <option key={classification.id} value={String(classification.id)}>
+                  {classification.name}
+                </option>
+              ))}
+            </select>
             <select
               value={searchForm.province}
               onChange={(event) => handleSearchChange('province', event.target.value)}
