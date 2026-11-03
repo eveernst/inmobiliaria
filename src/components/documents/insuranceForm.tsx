@@ -214,7 +214,7 @@ const InsuranceForm = ({ propertyId, documentId, isReadOnly = false }: Insurance
         <legend className="doc-legend">Responsable del Seguro ARM</legend>
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap mt-4">
           <section>
-            <label htmlFor="name" className="block text-gray-300 mb-1">Nombre completo</label>
+            <label htmlFor="nombre-completo" className="block text-gray-300 mb-1">Nombre completo</label>
             <input
               id="nombre-completo"
               type="text"

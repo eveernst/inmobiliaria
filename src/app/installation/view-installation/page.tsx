@@ -37,7 +37,7 @@ export default function Installation() {
 
       <div className="flex justify-center mt-16">
         <button
-          className="bg-orange-500 text-white hover:bg-orange-600 px-6 py-3 rounded-md text-lg"
+          className="action-button-primary"
         >
           Volver
         </button>
