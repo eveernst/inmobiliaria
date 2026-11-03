@@ -8,6 +8,7 @@ import { toCalendarDate } from "@/lib/calendarDate";
 import { PlanPayload } from "@/lib/types";
 import ImageViewModal from "@/components/ui/ImageViewModal";
 import { useRouter } from "next/navigation";
+import { setSuccessMessage } from "@/lib/successMessage";
 import { useEffect, useState } from "react";
 
 interface PlanFormProps {
@@ -245,7 +246,7 @@ const PlanForm = ({ propertyId, documentId, isReadOnly = false }: PlanFormProps)
       } else {
         await savePlan({ ...payload, propertyId });
       }
-      alert("Plan guardado exitosamente");
+      setSuccessMessage(documentId ? "Plano actualizado correctamente" : "Plano creado correctamente");
       router.push(`/property/details?id=${propertyId}`);
     } catch (error) {
       console.error("Error saving plan:", error);

@@ -10,6 +10,7 @@ import { toCalendarDate } from "@/lib/calendarDate";
 import { RentedPayload } from "@/lib/types";
 import { PROVINCES } from "@/lib/provinces";
 import { useRouter } from "next/navigation";
+import { setSuccessMessage } from "@/lib/successMessage";
 import { useEffect } from "react";
 
 interface RentedFormProps {
@@ -165,7 +166,7 @@ const RentedForm = ({ propertyId, documentId, isReadOnly = false }: RentedFormPr
       } else {
         await saveRented({ ...payload, propertyId });
       }
-      alert("Inmueble alquilado guardado exitosamente");
+      setSuccessMessage(documentId ? "Alquiler actualizado correctamente" : "Alquiler creado correctamente");
       router.push(`/property/details?id=${propertyId}`);
     } catch (error) {
       console.error("Error saving rented property:", error);

@@ -8,6 +8,8 @@ import { resolveImageUrl } from '@/lib/imageUpload';
 import { canWriteProperties, DOC_TYPES, DOC_TYPE_LABELS, type DocType } from '@/lib/types';
 import { useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
+import SuccessMessage from '@/components/ui/SuccessMessage';
+import { consumeSuccessMessage } from '@/lib/successMessage';
 
 // ─── Tipos ───────────────────────────────────────────────────────────────────
 
@@ -85,6 +87,7 @@ const PropertyView: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
   const [imgError, setImgError] = useState(false);
+  const [successMessage, setSuccessMessage] = useState('');
   const [docFilter, setDocFilter] = useState<DocType | 'all'>('all');
 
   // Estado para modal de confirmación de eliminación
@@ -96,6 +99,8 @@ const PropertyView: React.FC = () => {
 
   // ── Carga inicial ──────────────────────────────────────────────────────────
   useEffect(() => {
+    setSuccessMessage(consumeSuccessMessage());
+
     const query = new URLSearchParams(window.location.search);
     const id = Number(query.get('id'));
 
@@ -125,6 +130,7 @@ const PropertyView: React.FC = () => {
         setConfirm(c => ({ ...c, show: false }));
         try {
           await deleteInstallation(instId);
+          setSuccessMessage('Instalación eliminada correctamente');
           setProperty(p => p ? {
             ...p,
             installations: p.installations.filter(i => i.id !== instId)
@@ -146,6 +152,7 @@ const PropertyView: React.FC = () => {
         setConfirm(c => ({ ...c, show: false }));
         try {
           await deleteDocument[type](docId);
+          setSuccessMessage('Documento eliminado correctamente');
           setProperty(p => {
             if (!p) return p;
             const key = `${type}s` as keyof Property;
@@ -202,6 +209,9 @@ const PropertyView: React.FC = () => {
 
   return (
     <>
+      <div className="mx-auto max-w-7xl px-3 pt-6 sm:px-5 md:px-6">
+        <SuccessMessage message={successMessage} />
+      </div>
       {confirm.show && (
         <ConfirmModal
           message={confirm.message}

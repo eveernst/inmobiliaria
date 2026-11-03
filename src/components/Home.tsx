@@ -12,6 +12,7 @@ import { getPlan } from '@/api/planApi';
 import { getRented } from '@/api/rentedApi';
 import { getWriting } from '@/api/writingApi';
 import { deleteImageByPublicUrl, resolveImageUrl } from '@/lib/imageUpload';
+import SuccessMessage from '@/components/ui/SuccessMessage';
 
 interface Property {
   id: number;
@@ -78,6 +79,7 @@ const Home = () => {
   const [searchForm, setSearchForm] = useState<SearchFormValues>(emptySearch);
   const [hasSearch, setHasSearch] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
+  const [successMessage, setSuccessMessage] = useState('');
   const propertyRequestIdRef = useRef(0);
   const router = useRouter();
   const [filters, setFilters] = useState<Filters>({
@@ -357,9 +359,9 @@ const Home = () => {
       setProperties((prev) => prev.filter((item) => item.id !== property.id));
 
       if (failedDeletes > 0) {
-        alert(`Propiedad eliminada. Algunas imágenes (${failedDeletes}) no se pudieron borrar del storage.`);
+        setSuccessMessage(`Propiedad eliminada. Algunas imágenes (${failedDeletes}) no se pudieron borrar del storage.`);
       } else {
-        alert('Propiedad eliminada con toda su información asociada, incluyendo imágenes.');
+        setSuccessMessage('Propiedad eliminada correctamente.');
       }
     } catch (error) {
       alert(`No se pudo eliminar la propiedad: ${extractApiErrorMessage(error)}`);
@@ -370,6 +372,9 @@ const Home = () => {
 
   return (
     <div className="min-h-screen">
+      <div className="mx-auto max-w-7xl px-3 pt-5 sm:px-5">
+        <SuccessMessage message={successMessage} />
+      </div>
       {/* Header */}
       <div className="sticky top-0 z-20 border-b border-slate-700/60 bg-slate-900/95 backdrop-blur-sm p-6">
         <div className="max-w-7xl mx-auto">

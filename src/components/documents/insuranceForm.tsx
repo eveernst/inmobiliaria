@@ -8,6 +8,7 @@ import { alertMissingFields, extractApiErrorMessage } from "@/lib/formFeedback";
 import { toCalendarDate } from "@/lib/calendarDate";
 import { InsurancePayload } from "@/lib/types";
 import { useRouter } from "next/navigation";
+import { setSuccessMessage } from "@/lib/successMessage";
 import { useEffect, useState } from "react";
 
 interface InsuranceFormProps {
@@ -183,7 +184,7 @@ const InsuranceForm = ({ propertyId, documentId, isReadOnly = false }: Insurance
       } else {
         await saveInsurance({ ...payload, propertyId });
       }
-      alert("Póliza de seguros guardada exitosamente");
+      setSuccessMessage(documentId ? "Póliza de seguros actualizada correctamente" : "Póliza de seguros creada correctamente");
       router.push(`/property/details?id=${propertyId}`);
     } catch (error) {
       console.error("Error saving insurance:", error);

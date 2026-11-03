@@ -8,6 +8,7 @@ import { toCalendarDate } from "@/lib/calendarDate";
 import { WritingPayload } from "@/lib/types";
 import ImageViewModal from "@/components/ui/ImageViewModal";
 import { useRouter } from "next/navigation";
+import { setSuccessMessage } from "@/lib/successMessage";
 import { useEffect, useState } from "react";
 
 interface WritingFormProps {
@@ -221,7 +222,7 @@ const WritingForm = ({ propertyId, documentId, isReadOnly = false }: WritingForm
       } else {
         await saveWriting({ ...payload, propertyId });
       }
-      alert("Escritura guardada exitosamente");
+      setSuccessMessage(documentId ? "Escritura actualizada correctamente" : "Escritura creada correctamente");
       router.push(`/property/details?id=${propertyId}`);
     } catch (error) {
       console.error("Error saving writing:", error);
