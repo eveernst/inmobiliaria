@@ -1,88 +1,112 @@
 "use client";
 
-import React, { useState } from 'react';
-import { ChevronUp, ChevronDown } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
+import { getInstallations, InstallationRecord } from "@/api/installationApi";
+import { resolveImageUrl } from "@/lib/imageUpload";
 
-export default function Installation() {
-  const [quantity, setQuantity] = useState<string>('');
+const propertyLabel = (installation: InstallationRecord) => {
+  const property = installation.property;
+  if (!property) return "Sin propiedad asociada";
+  return `#${property.id} - ${property.address || "Dirección sin registrar"}`;
+};
 
-  const incrementQuantity = () => {
-    const currentValue = parseInt(quantity) || 0;
-    setQuantity((currentValue + 1).toString());
-  };
+const classificationLabel = (installation: InstallationRecord) =>
+  installation.classification?.name || installation.property?.classification?.name || "Sin clasificación";
 
-  const decrementQuantity = () => {
-    const currentValue = parseInt(quantity) || 0;
-    if (currentValue > 0) {
-      setQuantity((currentValue - 1).toString());
-    }
-  };
+export default function InstallationListPage() {
+  const router = useRouter();
+  const [installations, setInstallations] = useState<InstallationRecord[]>([]);
+  const [query, setQuery] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    getInstallations()
+      .then(setInstallations)
+      .catch(() => setError("No se pudieron cargar las instalaciones."))
+      .finally(() => setLoading(false));
+  }, []);
+
+  const filteredInstallations = useMemo(() => {
+    const normalizedQuery = query.trim().toLowerCase();
+    if (!normalizedQuery) return installations;
+
+    return installations.filter((installation) =>
+      [
+        installation.name,
+        propertyLabel(installation),
+        installation.property?.locality,
+        installation.property?.province,
+        classificationLabel(installation),
+      ]
+        .filter(Boolean)
+        .some((value) => String(value).toLowerCase().includes(normalizedQuery)),
+    );
+  }, [installations, query]);
 
   return (
-    <main className="bg-gray-800 text-white min-h-screen p-8">
-      <div className="mt-7"> {/* Added margin-top to move the content down */}
-        <h1 className="text-4xl font-bold text-center text-orange-500 mb-8">Alta Instalación</h1>
-
-        <div className="flex flex-col md:flex-row gap-8">
-          <div className="flex-1 space-y-4">
-            <input
-              type="text"
-              placeholder="Nombre instalación"
-              className="bg-gray-700 border-gray-600 text-white placeholder-gray-400 px-4 py-2 rounded-md w-full"
-            />
-            <div className="flex items-center space-x-2">
-              <input
-                type="text"
-                value={quantity}
-                onChange={(e) => setQuantity(e.target.value)}
-                placeholder="Cantidad"
-                className="bg-gray-700 border-gray-600 text-white placeholder-gray-400 px-4 py-2 rounded-md w-full"
-              />
-              <div className="flex flex-col">
-                <button
-                  onClick={incrementQuantity}
-                  className="p-1 h-6 bg-gray-700 hover:bg-gray-600 rounded-md flex items-center justify-center"
-                >
-                  <ChevronUp className="h-4 w-4 text-white" />
-                </button>
-                <button
-                  onClick={decrementQuantity}
-                  className="p-1 h-6 bg-gray-700 hover:bg-gray-600 rounded-md flex items-center justify-center"
-                >
-                  <ChevronDown className="h-4 w-4 text-white" />
-                </button>
-              </div>
-            </div>
-            <input
-              type="file"
-              className="bg-gray-700 border-gray-600 text-white file:bg-gray-600 file:text-white file:border-0 file:rounded-md w-full"
-            />
+    <main className="min-h-screen bg-slate-950 px-3 py-6 text-slate-100 sm:px-5 md:py-8">
+      <div className="mx-auto w-full max-w-7xl">
+        <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
+          <div>
+            <p className="text-sm font-semibold uppercase tracking-widest text-orange-400">CU-1.5.5</p>
+            <h1 className="mt-1 text-3xl font-bold md:text-4xl">Instalaciones</h1>
+            <p className="mt-2 text-slate-400">Listado general de instalaciones asociadas a propiedades.</p>
           </div>
-
-          <div className="flex-1">
-            <div className="bg-gray-700 p-4 rounded-md">
-              <h2 className="text-lg font-semibold mb-2 text-orange-500">Detalles instalación</h2>
-              <textarea
-                placeholder="Ingrese detalles de la instalación aquí"
-                className="w-full bg-gray-700 border-gray-600 text-white resize-none placeholder-gray-400 px-4 py-2 rounded-md"
-                rows={4}
-              />
-            </div>
-          </div>
+          <span className="rounded-full border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-slate-300">
+            {filteredInstallations.length} resultados
+          </span>
         </div>
-      </div>
 
-      <div className="flex justify-center gap-4 mt-16"> {/* Center and add gap between buttons */}
-        <button
-          className="bg-gray-700 text-orange-400 hover:bg-gray-600 border-gray-600 border px-6 py-3 rounded-md text-lg"
-        >
-          Cancelar
-        </button>
-        <button
-          className="bg-orange-500 text-white hover:bg-orange-600 px-6 py-3 rounded-md text-lg"
-        >
-          Aceptar
-        </button>
+        <div className="mb-6 rounded-2xl border border-slate-800 bg-slate-900 p-4">
+          <label htmlFor="installation-search" className="mb-2 block text-sm font-medium text-slate-300">
+            Buscar por propiedad o clasificación
+          </label>
+          <input
+            id="installation-search"
+            type="search"
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+            placeholder="Nombre, propiedad, localidad o clasificación"
+            className="doc-input"
+          />
+        </div>
+
+        {loading && <p className="py-16 text-center text-slate-400">Cargando instalaciones...</p>}
+        {!loading && error && <p className="py-16 text-center text-red-300">{error}</p>}
+        {!loading && !error && filteredInstallations.length === 0 && (
+          <div className="rounded-2xl border border-slate-800 bg-slate-900 px-6 py-16 text-center">
+            <p className="text-lg font-semibold text-slate-200">No se encontraron resultados</p>
+            <p className="mt-2 text-sm text-slate-400">Probá con otro nombre, propiedad o clasificación.</p>
+          </div>
+        )}
+
+        {!loading && !error && filteredInstallations.length > 0 && (
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {filteredInstallations.map((installation) => {
+              const imageUrl = resolveImageUrl(installation.file);
+              return (
+                <button
+                  key={installation.id}
+                  type="button"
+                  onClick={() => router.push(`/installation/view-installation?id=${installation.id}`)}
+                  className="overflow-hidden rounded-2xl border border-slate-800 bg-slate-900 text-left transition hover:-translate-y-0.5 hover:border-orange-500/60"
+                >
+                  <div className="flex h-36 items-center justify-center bg-slate-950">
+                    {imageUrl ? <img src={imageUrl} alt="" className="h-full w-full object-cover" /> : <span className="text-sm text-slate-600">Sin imagen</span>}
+                  </div>
+                  <div className="space-y-2 p-4">
+                    <h2 className="truncate text-lg font-semibold text-slate-100">{installation.name}</h2>
+                    <p className="truncate text-sm text-orange-300">{propertyLabel(installation)}</p>
+                    <p className="text-sm text-slate-400">Clasificación: {classificationLabel(installation)}</p>
+                    <p className="text-sm text-slate-400">Cantidad: {installation.quantity}</p>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        )}
       </div>
     </main>
   );
