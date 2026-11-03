@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { UserData, ROLE_LABELS, ROLE_OPTIONS } from "@/lib/types";
+import { canManageUsers, UserData, ROLE_LABELS, ROLE_OPTIONS } from "@/lib/types";
 import { fetchUsers, deleteUser, addUser, updateUser } from "@/lib/api";
 import { extractApiErrorMessage } from "@/lib/formFeedback";
 import { useRouter } from "next/navigation";
@@ -168,7 +168,7 @@ export default function ViewUser() {
       const saved = localStorage.getItem("user");
       if (saved) {
         const u = JSON.parse(saved);
-        if (u.role !== 3) router.push("/");
+        if (!canManageUsers(u.role)) router.push("/");
       } else {
         router.push("/login");
       }
@@ -176,7 +176,7 @@ export default function ViewUser() {
       router.push("/login");
     }
     loadUsers();
-  }, []);
+  }, [router]);
 
   const loadUsers = async () => {
     setLoading(true);

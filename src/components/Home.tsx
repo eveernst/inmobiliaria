@@ -2,7 +2,7 @@
 
 import { deleteProperty, getProperties, getProperty, PropertyFilters } from '../api/propertyApi';
 import { UserData, canWriteProperties } from '@/lib/types';
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState, useMemo, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { Plus, ChevronDown, HomeIcon, MapPin } from 'lucide-react';
 import { extractApiErrorMessage } from '@/lib/formFeedback';
@@ -78,6 +78,7 @@ const Home = () => {
   const [searchForm, setSearchForm] = useState<SearchFormValues>(emptySearch);
   const [hasSearch, setHasSearch] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
+  const propertyRequestIdRef = useRef(0);
   const router = useRouter();
   const [filters, setFilters] = useState<Filters>({
     locality: '',
@@ -110,10 +111,14 @@ const Home = () => {
     setUser(JSON.parse(userData));
 
     const fetchProperties = async () => {
+      const requestId = ++propertyRequestIdRef.current;
+
       try {
         const data = await getProperties();
+        if (requestId !== propertyRequestIdRef.current) return;
         setProperties(normalizeProperties(data));
       } catch (error) {
+        if (requestId !== propertyRequestIdRef.current) return;
         console.error('Error fetching properties:', error);
         setProperties([]);
       }
@@ -131,6 +136,7 @@ const Home = () => {
   const handleSearch = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setIsSearching(true);
+    const requestId = ++propertyRequestIdRef.current;
 
     try {
       const filters: PropertyFilters = {
@@ -139,14 +145,18 @@ const Home = () => {
         address: searchForm.address,
       };
       const data = await getProperties(filters);
+      if (requestId !== propertyRequestIdRef.current) return;
       setProperties(normalizeProperties(data));
       setHasSearch(Object.values(filters).some((value) => value?.trim()));
     } catch (error) {
+      if (requestId !== propertyRequestIdRef.current) return;
       console.error('Error buscando propiedades:', error);
       setProperties([]);
       setHasSearch(true);
     } finally {
-      setIsSearching(false);
+      if (requestId === propertyRequestIdRef.current) {
+        setIsSearching(false);
+      }
     }
   };
 
@@ -189,15 +199,20 @@ const Home = () => {
     resetFilters();
     setHasSearch(false);
     setIsSearching(true);
+    const requestId = ++propertyRequestIdRef.current;
 
     try {
       const data = await getProperties();
+      if (requestId !== propertyRequestIdRef.current) return;
       setProperties(normalizeProperties(data));
     } catch (error) {
+      if (requestId !== propertyRequestIdRef.current) return;
       console.error('Error cargando propiedades:', error);
       setProperties([]);
     } finally {
-      setIsSearching(false);
+      if (requestId === propertyRequestIdRef.current) {
+        setIsSearching(false);
+      }
     }
   };
 
@@ -624,7 +639,8 @@ const Home = () => {
               </p>
               <button
                 onClick={clearSearch}
-                className="bg-orange-500 hover:bg-orange-400 text-white font-semibold py-2 px-8 rounded-lg transition shadow-md"
+                disabled={isSearching}
+                className="bg-orange-500 hover:bg-orange-400 disabled:cursor-not-allowed disabled:opacity-60 text-white font-semibold py-2 px-8 rounded-lg transition shadow-md"
               >
                 Limpiar filtros
               </button>
