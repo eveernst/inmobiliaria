@@ -42,7 +42,7 @@ interface FormData {
   clfc: string; // seria un number para elegir pero en la api esta como string
   detailsMaintenance: string;
   description: string;
-  user: number;
+  user?: number;
   classification: number;
   installations: {
     id?: number;
@@ -80,11 +80,11 @@ const buildInstallationPayload = (inst: FormData["installations"][number]): Inst
 // Builds the PUT body from an explicit field list so keys loaded by reset()
 // (insurances, plans, timestamps...) never echo back to the API.
 // Inputs without valueAsNumber yield strings once edited, so types are coerced here.
-const buildPropertyUpdatePayload = (data: FormData): PropertyUpdatePayload => ({
+const buildPropertyUpdatePayload = (data: FormData, userId: number): PropertyUpdatePayload => ({
   goodUseCode: Number(data.goodUseCode),
   description: data.description,
   classification: Number(data.classification),
-  user: Number(data.user),
+  user: userId,
   province: data.province,
   locality: data.locality,
   address: data.address,
@@ -104,6 +104,10 @@ const buildPropertyUpdatePayload = (data: FormData): PropertyUpdatePayload => ({
 interface RawUser {
   id?: number;
 }
+
+// GET /property/:id may return user as an object ({ id, ... }), a bare id or null (legacy rows).
+const getUserId = (user: unknown): number | undefined =>
+  toValidId(typeof user === "object" && user !== null ? (user as RawUser).id : user);
 
 interface RawInstallation {
   file?: string;
@@ -263,10 +267,7 @@ const PropertyForm = ({ id }: { id?: number }) => {
         const processedData = {
           ...data,
           file: data?.file ?? data?.planImage ?? "",
-          user:
-            typeof data?.user === "object"
-              ? (data.user as RawUser)?.id
-              : data?.user,
+          user: getUserId(data?.user),
           installations: safeInstallations,
         };
 
@@ -327,6 +328,15 @@ const PropertyForm = ({ id }: { id?: number }) => {
       .catch(() => setUsers([]));
   }, []);
 
+  // Options arrive after reset() when users load later, which leaves the select blank:
+  // re-apply the stored value once the options exist.
+  useEffect(() => {
+    const currentUserId = getUserId(getValues("user"));
+    if (users.length > 0 && currentUserId !== undefined) {
+      setValue("user", currentUserId);
+    }
+  }, [users, getValues, setValue]);
+
   // useEffect precargará los datos de la propiedad si se está editando
   useEffect(() => {
     if (id !== undefined && id !== 0) {
@@ -356,8 +366,16 @@ const PropertyForm = ({ id }: { id?: number }) => {
         return;
       }
 
+      const userId = toValidId(data.user);
+      if (userId === undefined) {
+        setSaveMessage("Seleccioná el usuario responsable antes de guardar.");
+        alertMissingFields({ user: true }, { user: "Usuario responsable" });
+        return;
+      }
+
       const processedData = {
         ...data,
+        user: userId,
         file: normalizeFileValue(data.file),
         installations: (data.installations || []).map(inst => ({
           ...inst,
@@ -370,7 +388,7 @@ const PropertyForm = ({ id }: { id?: number }) => {
 
       if (id !== undefined && id !== 0) {
         setSaveMessage("Guardando cambios de la propiedad...");
-        await editProperty(id, buildPropertyUpdatePayload(data));
+        await editProperty(id, buildPropertyUpdatePayload(data, userId));
         setSaveMessage("Propiedad actualizada correctamente.");
         setSuccessMessage("Propiedad actualizada correctamente");
         router.push(`/property/details?id=${id}`);
