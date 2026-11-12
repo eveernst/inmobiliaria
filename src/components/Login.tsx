@@ -52,6 +52,15 @@ export default function LoginScreen() {
   return (
     <div className="flex flex-col items-center justify-center p-4 min-h-screen bg-gray-900">
       <div className="w-full max-w-md">
+        <div className="mb-8 text-center">
+          <h1 className="text-4xl font-extrabold tracking-tight text-white">
+            Sistema Inmuebles <span className="text-orange-500">AAC</span>
+          </h1>
+          <div className="mx-auto mt-3 h-1 w-16 rounded-full bg-orange-500" />
+          <p className="mt-3 text-sm text-gray-400">
+            Gestión de propiedades y documentación
+          </p>
+        </div>
         <Card className="w-full bg-slate-700 text-white">
           <CardHeader>
             <CardTitle className="text-2xl font-bold text-center">
@@ -99,7 +108,7 @@ export default function LoginScreen() {
               </Button>
             </form>
 
-            <div className="mt-6 pt-6 border-t border-gray-600">
+            {/* <div className="mt-6 pt-6 border-t border-gray-600">
               <p className="text-sm text-gray-400 mb-3 text-center">
                 Usuarios de prueba:
               </p>
@@ -116,7 +125,7 @@ export default function LoginScreen() {
                   </Button>
                 ))}
               </div>
-            </div>
+            </div> */}
           </CardContent>
         </Card>
       </div>
