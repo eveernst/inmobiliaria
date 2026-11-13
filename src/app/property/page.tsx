@@ -1,7 +1,5 @@
 'use client';
 import PropertyForm from '@/components/porperties/FormProperty';
-import { TableProperties } from 'lucide-react';
-import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
 export default function Property() {

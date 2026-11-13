@@ -643,8 +643,9 @@ const PropertyForm = ({ id }: { id?: number }) => {
 
           <div>
             <label htmlFor="detailsMaintenance" className="block text-slate-300 mb-1 text-sm">Detalles</label>
-            <input type="text-area"
+            <textarea
               id="detailsMaintenance"
+              rows={3}
               {...register("detailsMaintenance", { required: "Este campo es obligatorio" })}
               className="doc-input"
             />
