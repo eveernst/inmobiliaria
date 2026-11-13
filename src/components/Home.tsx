@@ -380,13 +380,13 @@ const Home = () => {
 
   return (
     <div className="min-h-screen">
-      <div className="mx-auto max-w-7xl px-3 pt-5 sm:px-5">
+      <div className="page-container pt-5">
         <SuccessMessage message={successMessage} />
       </div>
       {/* Header */}
-      <div className="sticky top-0 z-20 border-b border-slate-700/60 bg-slate-900/95 backdrop-blur-sm p-6">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex justify-between items-center mb-6">
+      <div className="sticky top-0 z-20 border-b border-slate-700/60 bg-slate-900/95 backdrop-blur-sm py-6">
+        <div className="page-container">
+          <div className="flex flex-wrap justify-between items-center gap-4 mb-6">
             <div>
               <h1 className="text-4xl font-bold text-slate-100 mb-2">Propiedades</h1>
               <p className="text-slate-400">
@@ -413,7 +413,7 @@ const Home = () => {
               onChange={(event) => handleSearchChange('address', event.target.value)}
               placeholder="Buscar por dirección"
               aria-label="Buscar por dirección"
-              className="rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-slate-100 placeholder-slate-500 focus:border-orange-500 focus:outline-none"
+              className="rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-slate-100 placeholder-slate-400 focus:border-orange-500 focus:outline-none"
             />
             <select
               value={searchForm.classification}
@@ -474,13 +474,14 @@ const Home = () => {
 
       {/* Filters Section */}
       {showFilters && (
-        <div className="border-b border-slate-800 bg-slate-900/60 p-6">
-          <div className="max-w-7xl mx-auto">
+        <div className="border-b border-slate-800 bg-slate-900/60 py-6">
+          <div className="page-container">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
               {/* Locality Filter */}
               <div>
-                <label className="block text-sm font-semibold text-slate-300 mb-2">Localidad</label>
+                <label htmlFor="filter-locality" className="block text-sm font-semibold text-slate-300 mb-2">Localidad</label>
                 <select
+                  id="filter-locality"
                   value={filters.locality}
                   onChange={(e) => handleFilterChange('locality', e.target.value)}
                   disabled={!searchForm.province}
@@ -495,20 +496,22 @@ const Home = () => {
 
               {/* Address Filter */}
               <div>
-                <label className="block text-sm font-semibold text-slate-300 mb-2">Dirección</label>
+                <label htmlFor="filter-address" className="block text-sm font-semibold text-slate-300 mb-2">Dirección</label>
                 <input
+                  id="filter-address"
                   type="text"
                   value={filters.address}
                   onChange={(e) => handleFilterChange('address', e.target.value)}
                   placeholder="Buscar por dirección..."
-                  className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                  className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                 />
               </div>
 
               {/* Property Type Filter */}
               <div>
-                <label className="block text-sm font-semibold text-slate-300 mb-2">Tipo de inmueble</label>
+                <label htmlFor="filter-type" className="block text-sm font-semibold text-slate-300 mb-2">Tipo de inmueble</label>
                 <select
+                  id="filter-type"
                   value={filters.propertyType}
                   onChange={(e) => handleFilterChange('propertyType', e.target.value)}
                   className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-slate-100 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
@@ -526,8 +529,9 @@ const Home = () => {
 
               {/* Rental Status Filter */}
               <div>
-                <label className="block text-sm font-semibold text-slate-300 mb-2">Estado de alquiler</label>
+                <label htmlFor="filter-rental" className="block text-sm font-semibold text-slate-300 mb-2">Estado de alquiler</label>
                 <select
+                  id="filter-rental"
                   value={filters.rentalStatus}
                   onChange={(e) => handleFilterChange('rentalStatus', e.target.value)}
                   className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-slate-100 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
@@ -553,8 +557,8 @@ const Home = () => {
       )}
 
       {/* Properties Grid */}
-      <div className="p-8">
-        <div className="max-w-7xl mx-auto">
+      <div className="py-8">
+        <div className="page-container">
           <div className="mb-8 flex justify-between items-center">
             <p className="text-slate-400 font-medium">
               Mostrando <span className="text-orange-400 font-bold">{filteredProperties.length}</span> de <span className="text-orange-400 font-bold">{properties.length}</span> propiedades

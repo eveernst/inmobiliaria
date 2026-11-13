@@ -152,7 +152,7 @@ export default function Formulario() {
   };
 
   return (
-    <div className="mx-0 w-full px-4 py-6 md:px-8">
+    <div className="page-container py-6">
       <div className="mb-6 rounded-2xl border border-slate-700 bg-slate-900 p-6 text-white">
         <h2 className="text-center text-2xl font-bold">Gestor de Documentos</h2>
         {/* <p className="mt-1 text-center text-sm text-slate-300">

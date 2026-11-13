@@ -103,7 +103,7 @@ const DocumentView: React.FC = () => {
         <p className="text-lg">No se pudo cargar el documento.</p>
         <button
           onClick={() => router.push(backUrl)}
-          className="action-button-primary"
+          className="action-button-secondary"
         >
           Volver
         </button>
@@ -124,7 +124,7 @@ const DocumentView: React.FC = () => {
       )}
 
       <div className="min-h-screen bg-slate-950 pb-16 pt-8 text-slate-100">
-        <div className="mx-auto max-w-7xl px-3 sm:px-5 md:px-6">
+        <div className="page-container">
           <div className="mb-6 flex flex-wrap items-start justify-between gap-3">
             <div>
               <span className="inline-block rounded-full border border-orange-500/40 bg-orange-500/10 px-3 py-1 text-xs font-semibold uppercase tracking-widest text-orange-400">
@@ -134,17 +134,17 @@ const DocumentView: React.FC = () => {
                 Documento #{params.docId}
               </h1>
             </div>
-            <div className="flex gap-2">
+            <div className="flex flex-wrap gap-2">
               <button
                 onClick={() => router.push(backUrl)}
-                className="action-button-secondary text-sm"
+                className="action-button-secondary"
               >
                 ← Volver
               </button>
               <button
                 onClick={handleDownloadPdf}
                 disabled={downloading}
-                      className="action-button-secondary text-sm text-orange-300 hover:bg-orange-500/20"
+                className="action-button-secondary text-orange-300 hover:bg-orange-500/20"
               >
                 {downloading ? 'Generando…' : 'Descargar PDF'}
               </button>
@@ -153,7 +153,7 @@ const DocumentView: React.FC = () => {
                   {params.propertyId && (
                     <button
                       onClick={() => router.push(`/document-manager?propertyId=${params.propertyId}&docType=${params.docType}&docId=${params.docId}`)}
-                      className="action-button-primary text-sm"
+                      className="action-button-primary"
                     >
                       Modificar
                     </button>

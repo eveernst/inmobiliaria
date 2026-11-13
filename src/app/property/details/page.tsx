@@ -184,7 +184,7 @@ const PropertyView: React.FC = () => {
         <p className="text-lg">No se encontró la propiedad.</p>
         <button
           onClick={() => router.push('/')}
-          className="rounded-lg bg-orange-500 px-5 py-2 text-sm font-semibold text-white hover:bg-orange-400"
+          className="action-button-secondary"
         >
           Volver al inicio
         </button>
@@ -209,7 +209,7 @@ const PropertyView: React.FC = () => {
 
   return (
     <>
-      <div className="mx-auto max-w-7xl px-3 pt-6 sm:px-5 md:px-6">
+      <div className="page-container pt-6">
         <SuccessMessage message={successMessage} />
       </div>
       {confirm.show && (
@@ -241,27 +241,30 @@ const PropertyView: React.FC = () => {
           {/* Overlay con degradado */}
           <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent" />
 
-          {/* Botón volver */}
-          <button
-            onClick={() => router.back()}
-            className="action-button-secondary absolute left-4 top-4 gap-2 bg-slate-900/80 text-sm backdrop-blur-sm"
-          >
-            ← Volver
-          </button>
+          {/* Botones de cabecera: volver / editar (admin) */}
+          <div className="absolute inset-x-0 top-4">
+            <div className="page-container flex justify-between gap-2">
+              <button
+                onClick={() => router.back()}
+                className="action-button-secondary gap-2 bg-slate-900/80 backdrop-blur-sm"
+              >
+                ← Volver
+              </button>
 
-          {/* Botón editar (admin) */}
-          {isAdmin && (
-            <button
-              onClick={() => router.push(`/property?id=${property.id}`)}
-              className="action-button-primary absolute right-4 top-4 gap-2 text-sm"
-            >
-              ✏️ Editar propiedad
-            </button>
-          )}
+              {isAdmin && (
+                <button
+                  onClick={() => router.push(`/property?id=${property.id}`)}
+                  className="action-button-primary gap-2"
+                >
+                  ✏️ Editar propiedad
+                </button>
+              )}
+            </div>
+          </div>
         </div>
 
         {/* ── Contenido principal ── */}
-        <div className="mx-auto max-w-7xl px-3 sm:px-5 md:px-6">
+        <div className="page-container">
 
           {/* Título y clasificación */}
           <div className="-mt-8 mb-6">
@@ -333,7 +336,7 @@ const PropertyView: React.FC = () => {
               {isAdmin && (
                 <button
                   onClick={() => router.push(`/property?id=${property.id}`)}
-                  className="action-button-secondary min-h-10 px-4 py-2 text-sm text-orange-300 hover:bg-orange-500/20"
+                  className="action-button-primary"
                 >
                   + Agregar
                 </button>
@@ -415,7 +418,7 @@ const PropertyView: React.FC = () => {
               {isAdmin && (
                 <button
                   onClick={() => router.push(`/document-manager?propertyId=${property.id}`)}
-                  className="rounded-lg bg-orange-500/20 px-3 py-1 text-xs font-semibold text-orange-300 transition hover:bg-orange-500/30"
+                  className="action-button-primary"
                 >
                   + Agregar
                 </button>

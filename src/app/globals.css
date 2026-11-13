@@ -103,8 +103,12 @@
     @apply text-slate-400;
   }
 
+  .page-container {
+    @apply mx-auto w-full max-w-screen-2xl px-3 sm:px-4 lg:px-6;
+  }
+
   .doc-form {
-    @apply mx-auto w-full max-w-[90rem];
+    @apply mx-auto w-full;
   }
 
   .doc-input {
@@ -112,11 +116,11 @@
   }
 
   .action-button {
-    @apply inline-flex min-h-11 items-center justify-center rounded-lg px-5 py-3 text-base font-semibold transition disabled:cursor-not-allowed disabled:opacity-60;
+    @apply inline-flex min-h-11 items-center justify-center whitespace-nowrap rounded-lg px-5 py-3 text-base font-semibold transition disabled:cursor-not-allowed disabled:opacity-60;
   }
 
   .action-button-primary {
-    @apply action-button bg-orange-500 text-white hover:bg-orange-400;
+    @apply action-button border border-transparent bg-orange-500 text-white hover:bg-orange-400;
   }
 
   .action-button-secondary {
