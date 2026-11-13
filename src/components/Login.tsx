@@ -108,7 +108,7 @@ export default function LoginScreen() {
               </Button>
             </form>
 
-            {/* <div className="mt-6 pt-6 border-t border-gray-600">
+            <div className="mt-6 pt-6 border-t border-gray-600">
               <p className="text-sm text-gray-400 mb-3 text-center">
                 Usuarios de prueba:
               </p>
@@ -125,7 +125,7 @@ export default function LoginScreen() {
                   </Button>
                 ))}
               </div>
-            </div> */}
+            </div>
           </CardContent>
         </Card>
       </div>
