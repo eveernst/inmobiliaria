@@ -84,42 +84,46 @@ const UserForm = ({
       </h2>
       <form onSubmit={handleSubmit} className="grid gap-4 sm:grid-cols-2">
         <div>
-          <label className="mb-1 block text-xs text-slate-400">Nombre</label>
+          <label htmlFor="user-name" className="mb-1 block text-xs text-slate-400">Nombre</label>
           <input
+            id="user-name"
             value={formData.name}
             onChange={e => setFormData(p => ({ ...p, name: e.target.value }))}
             placeholder="Nombre completo"
-            className="w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-200 placeholder-slate-500 focus:border-orange-500 focus:outline-none"
+            className="doc-input"
           />
         </div>
         <div>
-          <label className="mb-1 block text-xs text-slate-400">Email</label>
+          <label htmlFor="user-email" className="mb-1 block text-xs text-slate-400">Email</label>
           <input
+            id="user-email"
             type="email"
             value={formData.email}
             onChange={e => setFormData(p => ({ ...p, email: e.target.value }))}
             placeholder="correo@ejemplo.com"
-            className="w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-200 placeholder-slate-500 focus:border-orange-500 focus:outline-none"
+            className="doc-input"
           />
         </div>
         <div>
-          <label className="mb-1 block text-xs text-slate-400">
+          <label htmlFor="user-password" className="mb-1 block text-xs text-slate-400">
             Contraseña {user && <span className="text-slate-500">(dejar vacío para no cambiar)</span>}
           </label>
           <input
+            id="user-password"
             type="password"
             value={formData.password}
             onChange={e => setFormData(p => ({ ...p, password: e.target.value }))}
             placeholder="••••••••"
-            className="w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-200 placeholder-slate-500 focus:border-orange-500 focus:outline-none"
+            className="doc-input"
           />
         </div>
         <div>
-          <label className="mb-1 block text-xs text-slate-400">Rol</label>
+          <label htmlFor="user-role" className="mb-1 block text-xs text-slate-400">Rol</label>
           <select
+            id="user-role"
             value={formData.role}
             onChange={e => setFormData(p => ({ ...p, role: Number(e.target.value) }))}
-            className="w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-200 focus:border-orange-500 focus:outline-none"
+            className="doc-input"
           >
             {ROLE_OPTIONS.map(opt => (
               <option key={opt.value} value={opt.value}>{opt.label}</option>
@@ -218,10 +222,10 @@ export default function ViewUser() {
       )}
 
       <div className="min-h-screen bg-slate-950 pb-16 text-slate-100">
-        <div className="mx-auto max-w-5xl px-4 pt-6 md:px-6">
+        <div className="page-container pt-6">
           <SuccessMessage message={successMessage} />
         </div>
-        <div className="mx-auto max-w-5xl px-4 py-8 md:px-6">
+        <div className="page-container py-8">
 
           {/* Header */}
           <div className="mb-6 flex items-center justify-between">

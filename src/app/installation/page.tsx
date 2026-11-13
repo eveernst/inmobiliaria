@@ -42,8 +42,8 @@ export default function InstallationListPage() {
   }, [installations, query]);
 
   return (
-    <main className="min-h-screen bg-slate-950 px-3 py-6 text-slate-100 sm:px-5 md:py-8">
-      <div className="mx-auto w-full max-w-7xl">
+    <main className="min-h-screen bg-slate-950 py-6 text-slate-100 md:py-8">
+      <div className="page-container">
         <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
           <div>
             <p className="text-sm font-semibold uppercase tracking-widest text-orange-400">CU-1.5.5</p>

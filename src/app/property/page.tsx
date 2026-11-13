@@ -13,7 +13,7 @@ export default function Property() {
         if (id) setPropertyId(id);
       }, []);
     return (
-            <div className="relative w-full overflow-x-auto px-3 shadow-md sm:px-5 sm:rounded-lg">
+            <div className="page-container relative overflow-x-auto py-6 shadow-md sm:rounded-lg">
                 {/* boton agregar propiedad lleva a /new-property */}
                 <PropertyForm id={propertyId}/>
             </div>

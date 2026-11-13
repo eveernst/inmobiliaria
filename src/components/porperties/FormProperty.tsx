@@ -443,14 +443,14 @@ const PropertyForm = ({ id }: { id?: number }) => {
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit, onInvalid)} className="mx-auto w-full max-w-[90rem] space-y-6 rounded-2xl border border-slate-700 bg-slate-900 p-4 sm:p-6 md:p-8">
+    <form onSubmit={handleSubmit(onSubmit, onInvalid)} className="space-y-6 rounded-2xl border border-slate-700 bg-slate-900 p-4 sm:p-6 md:p-8">
       <h1 className="text-3xl font-semibold text-slate-100 text-center mb-6">{title}</h1>
       {/* Campos del formulario como antes */}
       <fieldset className="rounded-xl border border-slate-700 p-5 bg-slate-950/30">
         <legend className="text-base font-semibold text-slate-200 px-2">Detalles de la Propiedad</legend>
 
         {/* Código de Buen Uso */}
-        <div className="grid grid-cols-2 gap-4 mt-4">
+        <div className="grid grid-cols-1 gap-4 mt-4 sm:grid-cols-2">
           <div>
             <label htmlFor="goodUseCode" className="block text-slate-300 mb-1 text-sm">Código de Buen Uso</label>
             <input
@@ -635,7 +635,7 @@ const PropertyForm = ({ id }: { id?: number }) => {
 
           <div>
             <label htmlFor="active" className="block text-slate-300 mb-1 text-sm">Activo</label>
-            <input type="checkbox" {...register("active")} id="generalPlan" className="mr-2" />
+            <input type="checkbox" {...register("active")} id="active" className="mr-2" />
             {errors.active && (
               <span className="text-red-500 text-sm mt-1">{errors.active.message}</span>
             )}
@@ -659,7 +659,7 @@ const PropertyForm = ({ id }: { id?: number }) => {
             <select
               id="destiny"
               {...register("destiny", { required: "Este campo es obligatorio" })}
-              className="bg-gray-700 p-2 rounded w-full"
+              className="doc-input"
             >
               <option value="" hidden>Destino</option>
               <option value="0">Templo</option>
@@ -719,10 +719,11 @@ const PropertyForm = ({ id }: { id?: number }) => {
         {fields.map((item, index) => (
           <div key={item.id} >
             <h3 className="text-3xl font-bold text-white text-center mb-4">Instalación {index + 1}</h3>
-            <div className="grid grid-cols-2 gap-4 mt-4">
+            <div className="grid grid-cols-1 gap-4 mt-4 sm:grid-cols-2">
               <div>
-                <label htmlFor="name" className="block text-slate-300 mb-1 text-sm">Nombre de instalacion</label>
+                <label htmlFor={`installation-${index}-name`} className="block text-slate-300 mb-1 text-sm">Nombre de instalacion</label>
                 <input
+                  id={`installation-${index}-name`}
                   {...register(`installations.${index}.name`, { required: "Este campo es obligatorio" })}
                   className="doc-input"
                 />
@@ -732,8 +733,9 @@ const PropertyForm = ({ id }: { id?: number }) => {
               </div>
 
               <div className="flex flex-col mb-4">
-                <label htmlFor="quantity" className="block text-slate-300 mb-1 text-sm">Cantidad</label>
+                <label htmlFor={`installation-${index}-quantity`} className="block text-slate-300 mb-1 text-sm">Cantidad</label>
                 <input
+                  id={`installation-${index}-quantity`}
                   {...register(`installations.${index}.quantity`, { required: "Este campo es obligatorio", valueAsNumber: true })}
                   type="number"
                   className="doc-input"
@@ -744,8 +746,9 @@ const PropertyForm = ({ id }: { id?: number }) => {
               </div>
 
               <div className="flex flex-col mb-4">
-                <label htmlFor="file" className="block text-slate-300 mb-1 text-sm">Archivo</label>
+                <label htmlFor={`installation-${index}-file`} className="block text-slate-300 mb-1 text-sm">Archivo</label>
                 <input
+                  id={`installation-${index}-file`}
                   type="file"
                   accept="image/*"
                   className="doc-input"
@@ -754,8 +757,9 @@ const PropertyForm = ({ id }: { id?: number }) => {
                 {renderImagePreviewActions(`installations.${index}.file`, `Instalación ${index + 1}`)}
               </div>
               <div className="flex flex-col mb-4">
-                <label htmlFor="details" className="block text-slate-300 mb-1 text-sm">Detalles</label>
+                <label htmlFor={`installation-${index}-details`} className="block text-slate-300 mb-1 text-sm">Detalles</label>
                 <textarea
+                  id={`installation-${index}-details`}
                   {...register(`installations.${index}.details`, { required: "Este campo es obligatorio" })}
                   className="doc-input"
                 ></textarea>
@@ -781,7 +785,7 @@ const PropertyForm = ({ id }: { id?: number }) => {
       <button
         type="button"
         onClick={() => append({ name: "", quantity: 0, file: "", details: "" })}
-        className="w-fullrounded-lg bg-blue-600 px-4 py-3 text-white transition-colors hover:bg-blue-500"
+        className="action-button-primary w-full"
       >
         Agregar Instalación
       </button>
