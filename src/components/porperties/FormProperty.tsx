@@ -715,10 +715,10 @@ const PropertyForm = ({ id }: { id?: number }) => {
         </div>
       </fieldset>
 
-      <fieldset className="rounded-xl border border-slate-700 p-5 bg-slate-950/30">
-        {/* Instalaciones */}
+      <fieldset className="space-y-6 rounded-xl border border-slate-700 p-5 bg-slate-950/30">
+        {/* Instalaciones: each one is its own bordered block, separated by a gap (#69). */}
         {fields.map((item, index) => (
-          <div key={item.id} >
+          <div key={item.id} className="rounded-xl border border-slate-700 p-5">
             <h3 className="text-3xl font-bold text-white text-center mb-4">Instalación {index + 1}</h3>
             <div className="grid grid-cols-1 gap-4 mt-4 sm:grid-cols-2">
               <div>
