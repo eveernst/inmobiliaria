@@ -245,7 +245,8 @@ const PropertyView: React.FC = () => {
           <div className="absolute inset-x-0 top-4">
             <div className="page-container flex justify-between gap-2">
               <button
-                onClick={() => router.back()}
+                // Explicit parent route: history is empty on direct links and stale after saving (#67).
+                onClick={() => router.push('/')}
                 className="action-button-secondary gap-2 bg-slate-900/80 backdrop-blur-sm"
               >
                 ← Volver

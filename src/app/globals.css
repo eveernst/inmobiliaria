@@ -111,6 +111,24 @@
     @apply mx-auto w-full;
   }
 
+  /* Document forms (#68): title > subtitle > section headings, mirroring the property form. */
+  .doc-title {
+    @apply text-center text-3xl font-semibold text-slate-100;
+  }
+
+  .doc-subtitle {
+    @apply mt-1 text-center text-sm text-slate-400;
+  }
+
+  .doc-fieldset {
+    @apply mt-6 rounded-xl border border-slate-700 bg-slate-950/30 p-5;
+  }
+
+  /* Preflight makes headings inherit size and weight, so the h2 inside takes these. */
+  .doc-legend {
+    @apply px-2 text-lg font-semibold text-slate-200;
+  }
+
   .doc-input {
     @apply w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-slate-100 placeholder:text-slate-400 focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/40;
   }

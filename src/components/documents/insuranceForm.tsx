@@ -212,7 +212,7 @@ const InsuranceForm = ({ propertyId, documentId, isReadOnly = false }: Insurance
       <h1 className="doc-title">Formulario de Seguro Inmueble</h1>
       <p className="doc-subtitle">Propiedad actual: #{propertyId || "sin seleccionar"}</p>
       <fieldset className="doc-fieldset">
-        <legend className="doc-legend">Responsable del Seguro ARM</legend>
+        <legend className="doc-legend"><h2>Responsable del Seguro ARM</h2></legend>
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap mt-4">
           <section>
             <label htmlFor="nombre-completo" className="block text-gray-300 mb-1">Nombre completo</label>
@@ -240,7 +240,7 @@ const InsuranceForm = ({ propertyId, documentId, isReadOnly = false }: Insurance
       </fieldset>
 
       <fieldset className="doc-fieldset">
-        <legend className="doc-legend">Contacto</legend>
+        <legend className="doc-legend"><h2>Contacto</h2></legend>
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 mt-4">
           <section>
             <label htmlFor="email" className="block text-gray-300 mb-1">E-mail</label>
@@ -280,7 +280,7 @@ const InsuranceForm = ({ propertyId, documentId, isReadOnly = false }: Insurance
       </fieldset>
 
       <fieldset className="doc-fieldset">
-        <legend className="doc-legend">Tipo de seguro que se registra</legend>
+        <legend className="doc-legend"><h2>Tipo de seguro que se registra</h2></legend>
         <section>
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2 mt-4">
             <label className="block text-gray-300 mb-1">Responsabilidad Civil</label>
@@ -313,7 +313,7 @@ const InsuranceForm = ({ propertyId, documentId, isReadOnly = false }: Insurance
       </fieldset>
 
       <fieldset className="doc-fieldset">
-        <legend className="doc-legend">Formulario del seguro</legend>
+        <legend className="doc-legend"><h2>Formulario del seguro</h2></legend>
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 mt-4">
           <div>
             <label htmlFor="insuranceDate" className="block text-gray-300 mb-1">Fecha</label>
@@ -334,7 +334,7 @@ const InsuranceForm = ({ propertyId, documentId, isReadOnly = false }: Insurance
         </div>
       </fieldset>
       <fieldset className="doc-fieldset">
-        <legend className="doc-legend">Formulario anual</legend>
+        <legend className="doc-legend"><h2>Formulario anual</h2></legend>
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 mt-4">
           <div>
             <label htmlFor="AnualFormDate" className="block text-gray-300 mb-1">Fecha</label>
@@ -367,7 +367,7 @@ const InsuranceForm = ({ propertyId, documentId, isReadOnly = false }: Insurance
       </fieldset>
 
       {!isReadOnly && (
-        <button type="submit" disabled={loading} className="doc-submit-btn">
+        <button type="submit" disabled={loading} className="action-button-primary mt-6 w-full">
           {loading ? "Guardando..." : "Guardar"}
         </button>
       )}
