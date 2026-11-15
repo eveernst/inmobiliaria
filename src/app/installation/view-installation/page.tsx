@@ -16,9 +16,17 @@ export default function InstallationDetailPage() {
   const [installation, setInstallation] = useState<InstallationRecord | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  // Back to the list, keeping the property filter it was opened with (#69).
+  const [backHref, setBackHref] = useState("/installation");
 
   useEffect(() => {
-    const id = Number(new URLSearchParams(window.location.search).get("id"));
+    const query = new URLSearchParams(window.location.search);
+    const propertyId = Number(query.get("propertyId"));
+    if (Number.isInteger(propertyId) && propertyId > 0) {
+      setBackHref(`/installation?propertyId=${propertyId}`);
+    }
+
+    const id = Number(query.get("id"));
     if (!Number.isInteger(id) || id <= 0) {
       setError("No se indicó una instalación válida.");
       setLoading(false);
@@ -39,7 +47,7 @@ export default function InstallationDetailPage() {
     return (
       <main className="flex min-h-screen flex-col items-center justify-center gap-5 bg-slate-950 px-4 text-slate-200">
         <p>{error || "No se encontró la instalación."}</p>
-        <button type="button" onClick={() => router.push("/installation")} className="action-button-secondary">
+        <button type="button" onClick={() => router.push(backHref)} className="action-button-secondary">
           Volver a instalaciones
         </button>
       </main>
@@ -51,14 +59,14 @@ export default function InstallationDetailPage() {
   return (
     <main className="min-h-screen bg-slate-950 py-6 text-slate-100 md:py-8">
       <div className="page-container">
-        <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
-          <div>
-            <p className="text-sm font-semibold uppercase tracking-widest text-orange-400">Instalación #{installation.id}</p>
-            <h1 className="mt-1 text-3xl font-bold">{installation.name}</h1>
-          </div>
-          <button type="button" onClick={() => router.push("/installation")} className="action-button-secondary">
-            Volver a instalaciones
+        <div className="mb-4 flex">
+          <button type="button" onClick={() => router.push(backHref)} className="action-button-secondary">
+            ← Volver
           </button>
+        </div>
+        <div className="mb-6">
+          <p className="text-sm font-semibold uppercase tracking-widest text-orange-400">Instalación #{installation.id}</p>
+          <h1 className="mt-1 text-3xl font-bold">{installation.name}</h1>
         </div>
 
         <div className="grid gap-5 md:grid-cols-[minmax(0,1fr)_minmax(0,1.3fr)]">
