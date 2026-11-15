@@ -268,7 +268,7 @@ const WritingForm = ({ propertyId, documentId, isReadOnly = false }: WritingForm
         <p className="doc-subtitle">Propiedad actual: #{propertyId || "sin seleccionar"}</p>
 
         <fieldset className="doc-fieldset">
-          <legend className="doc-legend">Información de Escritura</legend>
+          <legend className="doc-legend"><h2>Información de Escritura</h2></legend>
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2 mt-4">
             <div>
               <label htmlFor="writingNumber" className="block text-gray-300 mb-1">Número de escritura</label>
@@ -309,7 +309,7 @@ const WritingForm = ({ propertyId, documentId, isReadOnly = false }: WritingForm
         </fieldset>
 
         <fieldset className="doc-fieldset">
-          <legend className="doc-legend">Detalles Técnicos</legend>
+          <legend className="doc-legend"><h2>Detalles Técnicos</h2></legend>
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2 mt-4">
             <div>
               <label htmlFor="domain" className="block text-gray-300 mb-1">Dominio</label>
@@ -368,7 +368,7 @@ const WritingForm = ({ propertyId, documentId, isReadOnly = false }: WritingForm
         </fieldset>
 
         <fieldset className="doc-fieldset">
-          <legend className="doc-legend">Imágenes de la Propiedad</legend>
+          <legend className="doc-legend"><h2>Imágenes de la Propiedad</h2></legend>
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2 mt-4">
             <div>
               <label htmlFor="interiorImage" className="block text-gray-300 mb-1">Imagen Interior</label>
@@ -384,7 +384,7 @@ const WritingForm = ({ propertyId, documentId, isReadOnly = false }: WritingForm
         </fieldset>
 
         <fieldset className="doc-fieldset">
-          <legend className="doc-legend">Datos Adicionales</legend>
+          <legend className="doc-legend"><h2>Datos Adicionales</h2></legend>
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2 mt-4">
             <div>
               <label htmlFor="actingNotary" className="block text-gray-300 mb-1">Escribano Actuante</label>
@@ -414,7 +414,7 @@ const WritingForm = ({ propertyId, documentId, isReadOnly = false }: WritingForm
       </fieldset>
 
       {!isReadOnly && (
-        <button type="submit" disabled={loading} className="doc-submit-btn">
+        <button type="submit" disabled={loading} className="action-button-primary mt-6 w-full">
           {loading ? "Guardando..." : "Guardar"}
         </button>
       )}
