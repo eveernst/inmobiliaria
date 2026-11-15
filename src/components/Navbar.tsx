@@ -31,7 +31,8 @@ const Navbar = () => {
 
   return (
     <nav className="w-full border-b border-slate-700/60 bg-slate-900/95 backdrop-blur-sm py-3 sticky top-0 z-40">
-      <div className="page-container flex items-center justify-between gap-4">
+      {/* Wraps on phones: three links plus the user menu don't fit in 375px (#70). */}
+      <div className="page-container flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
 
         {/* Logo / Título */}
         <Link href="/" className="flex items-center gap-2 group">
@@ -43,11 +44,21 @@ const Navbar = () => {
           </span>
         </Link>
 
-        {/* Links de navegación: el logo ya lleva a la lista de propiedades y la
-            documentación se abre desde cada propiedad (#23). "Usuarios" es solo
-            para superusuarios. */}
+        {/* Links de navegación: la documentación se abre desde cada propiedad (#23).
+            "Propiedades" vuelve (#70) para regresar al listado desde instalaciones.
+            "Usuarios" es solo para superusuarios. */}
         {user && (
-          <div className="flex items-center gap-1">
+          <div className="order-last flex w-full items-center justify-center gap-1 sm:order-none sm:w-auto">
+            <Link
+              href="/"
+              className={`rounded-lg px-3 py-1.5 text-sm font-medium transition ${
+                pathname === "/" || pathname.startsWith("/property")
+                  ? "bg-orange-500/20 text-orange-400"
+                  : "text-slate-300 hover:bg-slate-800 hover:text-slate-100"
+              }`}
+            >
+              Propiedades
+            </Link>
             <Link
               href="/installation"
               className={`rounded-lg px-3 py-1.5 text-sm font-medium transition ${
