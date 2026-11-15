@@ -330,18 +330,27 @@ const PropertyView: React.FC = () => {
 
           {/* ── Instalaciones ── */}
           <section className="mt-6 rounded-2xl border border-slate-800 bg-slate-900 p-5">
-            <div className="mb-4 flex items-center justify-between">
+            <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
               <h2 className="text-sm font-semibold uppercase tracking-widest text-orange-400">
                 Instalaciones ({property.installations.length})
               </h2>
-              {isAdmin && (
+              <div className="flex flex-wrap gap-2">
+                {/* Every role can list them; the list is filtered to this property (#69). */}
                 <button
-                  onClick={() => router.push(`/property?id=${property.id}`)}
-                  className="action-button-primary"
+                  onClick={() => router.push(`/installation?propertyId=${property.id}`)}
+                  className="action-button-secondary"
                 >
-                  + Agregar
+                  Ver instalaciones
                 </button>
-              )}
+                {isAdmin && (
+                  <button
+                    onClick={() => router.push(`/property?id=${property.id}`)}
+                    className="action-button-primary"
+                  >
+                    + Agregar
+                  </button>
+                )}
+              </div>
             </div>
 
             {property.installations.length === 0 ? (
