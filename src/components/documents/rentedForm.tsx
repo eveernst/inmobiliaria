@@ -201,7 +201,7 @@ const RentedForm = ({ propertyId, documentId, isReadOnly = false }: RentedFormPr
         <p className="doc-subtitle">Propiedad actual: #{propertyId || "sin seleccionar"}</p>
         <section>
           <fieldset className="doc-fieldset">
-            <legend className="doc-legend">Datos del Propietario</legend>
+            <legend className="doc-legend"><h2>Datos del Propietario</h2></legend>
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2 mt-4">
               <div>
                 <label htmlFor="ownerDetails" className="block text-gray-300 mb-1">Datos del propietario</label>
@@ -247,7 +247,7 @@ const RentedForm = ({ propertyId, documentId, isReadOnly = false }: RentedFormPr
 
         <section>
           <fieldset className="doc-fieldset">
-            <legend className="doc-legend">Datos del Inquilino</legend>
+            <legend className="doc-legend"><h2>Datos del Inquilino</h2></legend>
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2 mt-4">
               <div>
                 <label htmlFor="renterDetails" className="block text-gray-300 mb-1">Datos del inquilino</label>
@@ -299,7 +299,7 @@ const RentedForm = ({ propertyId, documentId, isReadOnly = false }: RentedFormPr
 
         <section>
           <fieldset className="doc-fieldset">
-            <legend className="doc-legend">Detalles del Contrato</legend>
+            <legend className="doc-legend"><h2>Detalles del Contrato</h2></legend>
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2 mt-4">
               <div>
                 <label htmlFor="contratStartDate" className="block text-gray-300 mb-1">Fecha de comienzo</label>
@@ -347,7 +347,7 @@ const RentedForm = ({ propertyId, documentId, isReadOnly = false }: RentedFormPr
 
         <section>
           <fieldset className="doc-fieldset">
-            <legend className="doc-legend">Detalles Financieros</legend>
+            <legend className="doc-legend"><h2>Detalles Financieros</h2></legend>
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2 mt-4">
               <div>
                 <label htmlFor="price" className="block text-gray-300 mb-1">Monto ($)</label>
@@ -375,7 +375,7 @@ const RentedForm = ({ propertyId, documentId, isReadOnly = false }: RentedFormPr
 
         <section>
           <fieldset className="doc-fieldset">
-            <legend className="doc-legend">Archivos Adjuntos</legend>
+            <legend className="doc-legend"><h2>Archivos Adjuntos</h2></legend>
             <div className="grid grid-cols-1 gap-4 mt-4">
               <div>
                 <label htmlFor="contractImage" className="block text-gray-300 mb-1">Imagen de Contrato</label>
@@ -408,7 +408,7 @@ const RentedForm = ({ propertyId, documentId, isReadOnly = false }: RentedFormPr
       </fieldset>
 
       {!isReadOnly && (
-        <button type="submit" disabled={loading} className="doc-submit-btn">
+        <button type="submit" disabled={loading} className="action-button-primary mt-6 w-full">
           {loading ? "Guardando..." : "Guardar"}
         </button>
       )}
