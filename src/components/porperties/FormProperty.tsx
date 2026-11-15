@@ -801,7 +801,7 @@ const PropertyForm = ({ id }: { id?: number }) => {
       <button
         type="submit"
         disabled={isSaving || uploadingImageFields.length > 0}
-        className="w-full rounded-lg bg-blue-600 px-4 py-3 text-white transition-colors hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-60"
+        className="action-button-primary w-full"
       >
         {isSaving
           ? "Guardando..."

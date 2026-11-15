@@ -283,7 +283,7 @@ const PlanForm = ({ propertyId, documentId, isReadOnly = false }: PlanFormProps)
         <p className="doc-subtitle">Propiedad actual: #{propertyId || "sin seleccionar"}</p>
 
         <fieldset className="doc-fieldset">
-          <legend className="doc-legend">Detalles del Plano</legend>
+          <legend className="doc-legend"><h2>Detalles del Plano</h2></legend>
           <section className="grid grid-cols-1 gap-4 md:grid-cols-2 mt-4">
             <div className="doc-checkbox-card">
               <input type="checkbox" {...register("generalPlan")} id="generalPlan" className="h-4 w-4" />
@@ -318,7 +318,7 @@ const PlanForm = ({ propertyId, documentId, isReadOnly = false }: PlanFormProps)
         </fieldset>
 
         <fieldset className="doc-fieldset">
-          <legend className="doc-legend">Planos Adicionales</legend>
+          <legend className="doc-legend"><h2>Planos Adicionales</h2></legend>
           <section className="grid grid-cols-1 gap-4 md:grid-cols-2 mt-4">
             <div className="doc-checkbox-card">
               <input type="checkbox" {...register("structurePlan")} id="structurePlan" className="h-4 w-4" />
@@ -378,7 +378,7 @@ const PlanForm = ({ propertyId, documentId, isReadOnly = false }: PlanFormProps)
         </fieldset>
 
         <fieldset className="doc-fieldset">
-          <legend className="doc-legend">Actualización</legend>
+          <legend className="doc-legend"><h2>Actualización</h2></legend>
           <section className="grid grid-cols-1 gap-4 md:grid-cols-2 mt-4">
             <div>
               <label htmlFor="planType" className="block text-gray-300 mb-1">Tipo de Plano</label>
@@ -441,7 +441,7 @@ const PlanForm = ({ propertyId, documentId, isReadOnly = false }: PlanFormProps)
       </fieldset>
 
       {!isReadOnly && (
-        <button type="submit" disabled={loading} className="doc-submit-btn">
+        <button type="submit" disabled={loading} className="action-button-primary mt-6 w-full">
           {loading ? "Guardando..." : "Guardar"}
         </button>
       )}
