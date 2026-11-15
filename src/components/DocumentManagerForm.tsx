@@ -32,7 +32,7 @@ const DOC_TYPE_TABS: Record<string, string> = {
   writing: "writing",
 };
 
-type EditedDocument = { tab: string; id: number };
+type EditedDocument = { tab: string; id: number; docType: string };
 
 export default function Formulario() {
   const router = useRouter();
@@ -60,11 +60,12 @@ export default function Formulario() {
     if (id) setPropertyId(id);
 
     // "Modificar" from the property detail: /document-manager?propertyId=1&docType=plan&docId=7
-    const docTab = DOC_TYPE_TABS[query.get("docType") ?? ""];
+    const docType = query.get("docType") ?? "";
+    const docTab = DOC_TYPE_TABS[docType];
     const docId = Number(query.get("docId"));
     if (docTab && Number.isInteger(docId) && docId > 0) {
       setActiveTab(docTab);
-      setEditedDocument({ tab: docTab, id: docId });
+      setEditedDocument({ tab: docTab, id: docId, docType });
     }
     // route example: /document-manager?propertyId=123
   }, []);
@@ -124,6 +125,13 @@ export default function Formulario() {
 
   const selectedPropertyListItem = properties.find((item) => item.id === propertyId);
 
+  // One level up (#67): editing returns to that document's view, creating returns to the property.
+  const backHref = !propertyId
+    ? "/"
+    : editedDocument
+      ? `/property/details/documentation?id=${propertyId}&docType=${editedDocument.docType}&docId=${editedDocument.id}`
+      : `/property/details?id=${propertyId}`;
+
   const renderTabContent = () => {
     if (!propertyId) {
       return (
@@ -153,6 +161,15 @@ export default function Formulario() {
 
   return (
     <div className="page-container py-6">
+      <div className="mb-4 flex">
+        <button
+          type="button"
+          onClick={() => router.push(backHref)}
+          className="action-button-secondary"
+        >
+          ← Volver
+        </button>
+      </div>
       <div className="mb-6 rounded-2xl border border-slate-700 bg-slate-900 p-6 text-white">
         <h2 className="text-center text-2xl font-bold">Gestor de Documentos</h2>
         {/* <p className="mt-1 text-center text-sm text-slate-300">
