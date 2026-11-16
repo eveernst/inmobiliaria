@@ -10,8 +10,9 @@ import ImageViewModal from "@/components/ui/ImageViewModal";
 import { useRouter } from "next/navigation";
 import { setSuccessMessage } from "@/lib/successMessage";
 import { useEffect, useState } from "react";
+import { UnsavedChangesProps, useUnsavedChanges } from "./useUnsavedChanges";
 
-interface WritingFormProps {
+interface WritingFormProps extends UnsavedChangesProps {
   propertyId: number;
   documentId?: number; // edit this writing; without it the form creates a new one
   isReadOnly?: boolean;
@@ -105,11 +106,18 @@ const buildWritingPayload = (data: FormData): WritingPayload => ({
   detailSpaces: data.detailSpaces ?? "",
 });
 
-const WritingForm = ({ propertyId, documentId, isReadOnly = false }: WritingFormProps) => {
+const WritingForm = ({ propertyId, documentId, isReadOnly = false, onDirtyChange, saveRef }: WritingFormProps) => {
   const router = useRouter();
-  const { register, handleSubmit, setValue, getValues, reset, formState: { errors } } = useForm<FormData>();
+  const { register, handleSubmit, setValue, getValues, reset, formState: { errors, isDirty } } = useForm<FormData>();
   const [loading, setLoading] = useState(false);
   const [imagePreviews, setImagePreviews] = useState<Record<string, string>>({});
+  const { markFilesChanged, clearFilesChanged } = useUnsavedChanges({
+    isDirty,
+    isReadOnly,
+    onDirtyChange,
+    saveRef,
+    save: () => submitWithoutRedirect(),
+  });
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>, fieldName: string) => {
     const file = e.target.files?.[0];
@@ -123,6 +131,7 @@ const WritingForm = ({ propertyId, documentId, isReadOnly = false }: WritingForm
         const url = await uploadImageToSupabase(file, `writings/property-${propertyId}`);
         if (url) {
           setValue(fieldName as Path<FormData>, url);
+          markFilesChanged();
         } else {
           alert("No se pudo subir la imagen. Verifica que el bucket 'documents' exista y tenga acceso permitido.");
         }
@@ -143,6 +152,7 @@ const WritingForm = ({ propertyId, documentId, isReadOnly = false }: WritingForm
     }
 
     setValue(fieldName as Path<FormData>, "");
+    markFilesChanged();
     setImagePreviews((prev) => ({ ...prev, [fieldName]: "" }));
   };
 
@@ -195,6 +205,8 @@ const WritingForm = ({ propertyId, documentId, isReadOnly = false }: WritingForm
           interiorImage: resolveImageUrl(writing.interiorImage) || "",
           exteriorImage: resolveImageUrl(writing.exteriorImage) || "",
         });
+        // The loaded writing is the baseline for "unsaved changes", not the empty form (#77).
+        reset(getValues());
       } catch (error) {
         if (cancelled) return;
         console.error("Error loading writing:", error);
@@ -206,13 +218,14 @@ const WritingForm = ({ propertyId, documentId, isReadOnly = false }: WritingForm
     return () => {
       cancelled = true;
     };
-  }, [documentId, reset, setValue]);
+  }, [documentId, getValues, reset, setValue]);
 
-  const onSubmit: SubmitHandler<FormData> = async (data: FormData) => {
+  // Returns true when the API accepted the writing; the caller decides where to go next (#77).
+  const saveDocument = async (data: FormData): Promise<boolean> => {
     try {
       if (!propertyId) {
         alert("No hay propiedad seleccionada. Volve a la lista y elegi una propiedad primero.");
-        return;
+        return false;
       }
 
       setLoading(true);
@@ -223,13 +236,20 @@ const WritingForm = ({ propertyId, documentId, isReadOnly = false }: WritingForm
         await saveWriting({ ...payload, propertyId });
       }
       setSuccessMessage(documentId ? "Escritura actualizada correctamente" : "Escritura creada correctamente");
-      router.push(`/property/details?id=${propertyId}`);
+      reset(getValues());
+      clearFilesChanged();
+      return true;
     } catch (error) {
       console.error("Error saving writing:", error);
       alert(`Error al guardar la escritura: ${extractApiErrorMessage(error)}`);
+      return false;
     } finally {
       setLoading(false);
     }
+  };
+
+  const onSubmit: SubmitHandler<FormData> = async (data: FormData) => {
+    if (await saveDocument(data)) router.push(`/property/details?id=${propertyId}`);
   };
 
   const onInvalid = (formErrors: FieldErrors<FormData>) => {
@@ -257,6 +277,18 @@ const WritingForm = ({ propertyId, documentId, isReadOnly = false }: WritingForm
 
     alertMissingFields(formErrors as Record<string, unknown>, labels);
   };
+
+  // "Guardar y volver": same validation and save as the button, without this form's redirect (#77).
+  const submitWithoutRedirect = () =>
+    new Promise<boolean>((resolve) => {
+      void handleSubmit(
+        async (data) => resolve(await saveDocument(data)),
+        (formErrors) => {
+          onInvalid(formErrors);
+          resolve(false);
+        },
+      )();
+    });
 
   return (
     <form
