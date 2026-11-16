@@ -11,6 +11,20 @@ import axiosInstance from "@/api/api";
 
 const INVALID_CREDENTIALS = "Correo electrónico o contraseña incorrectos";
 
+type FieldErrors = { email?: string; password?: string };
+
+// Basic shape check (text@text.tld); the API remains the source of truth for credentials.
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+const validateLogin = (email: string, password: string): FieldErrors => {
+  const errors: FieldErrors = {};
+  const trimmedEmail = email.trim();
+  if (!trimmedEmail) errors.email = "Ingresá tu correo electrónico";
+  else if (!EMAIL_PATTERN.test(trimmedEmail)) errors.email = "Ingresá un correo electrónico válido";
+  if (!password) errors.password = "Ingresá tu contraseña";
+  return errors;
+};
+
 const loginErrorMessage = (err: unknown): string => {
   if (!axios.isAxiosError(err)) return "No se pudo iniciar sesión.";
   if (!err.response) return "No se pudo conectar con el servidor.";
@@ -22,18 +36,25 @@ export default function LoginScreen() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+
+    // Spanish messages instead of the browser's native popups (form uses noValidate).
+    const errors = validateLogin(email, password);
+    setFieldErrors(errors);
+    if (errors.email || errors.password) return;
+
     setLoading(true);
 
     try {
       // Shared client: same base URL as every other API call (#53).
       const response = await axiosInstance.post("/auth/login", {
-        email,
+        email: email.trim(),
         password,
       });
 
@@ -69,7 +90,7 @@ export default function LoginScreen() {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <form onSubmit={handleLogin} className="space-y-4">
+            <form onSubmit={handleLogin} noValidate className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
                 <Input
@@ -79,8 +100,10 @@ export default function LoginScreen() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="bg-gray-800 text-white border-gray-600"
-                  required
+                  aria-invalid={Boolean(fieldErrors.email)}
+                  aria-describedby={fieldErrors.email ? "email-error" : undefined}
                 />
+                {fieldErrors.email && <p id="email-error" className="text-red-400 text-sm mt-1">{fieldErrors.email}</p>}
               </div>
 
               <div className="space-y-2">
@@ -92,8 +115,10 @@ export default function LoginScreen() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className="bg-gray-800 text-white border-gray-600"
-                  required
+                  aria-invalid={Boolean(fieldErrors.password)}
+                  aria-describedby={fieldErrors.password ? "password-error" : undefined}
                 />
+                {fieldErrors.password && <p id="password-error" className="text-red-400 text-sm mt-1">{fieldErrors.password}</p>}
               </div>
 
               {error && (
