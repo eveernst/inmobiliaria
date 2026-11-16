@@ -10,8 +10,9 @@ import ImageViewModal from "@/components/ui/ImageViewModal";
 import { useRouter } from "next/navigation";
 import { setSuccessMessage } from "@/lib/successMessage";
 import { useEffect, useState } from "react";
+import { UnsavedChangesProps, useUnsavedChanges } from "./useUnsavedChanges";
 
-interface PlanFormProps {
+interface PlanFormProps extends UnsavedChangesProps {
   propertyId: number;
   documentId?: number; // edit this plan; without it the form creates a new one
   isReadOnly?: boolean;
@@ -122,13 +123,20 @@ const buildPlanPayload = (data: FormData): PlanPayload => ({
   contacts: data.contacts,
 });
 
-const PlanForm = ({ propertyId, documentId, isReadOnly = false }: PlanFormProps) => {
+const PlanForm = ({ propertyId, documentId, isReadOnly = false, onDirtyChange, saveRef }: PlanFormProps) => {
   const router = useRouter();
-  const { register, handleSubmit, setValue, getValues, reset, formState: { errors } } = useForm<FormData>({
+  const { register, handleSubmit, setValue, getValues, reset, formState: { errors, isDirty } } = useForm<FormData>({
     defaultValues: EMPTY_PLAN,
   });
   const [loading, setLoading] = useState(false);
   const [imagePreviews, setImagePreviews] = useState<Record<string, string>>({});
+  const { markFilesChanged, clearFilesChanged } = useUnsavedChanges({
+    isDirty,
+    isReadOnly,
+    onDirtyChange,
+    saveRef,
+    save: () => submitWithoutRedirect(),
+  });
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>, fieldName: string) => {
     const file = e.target.files?.[0];
@@ -143,6 +151,7 @@ const PlanForm = ({ propertyId, documentId, isReadOnly = false }: PlanFormProps)
         const url = await uploadImageToSupabase(file, `plans/property-${propertyId}`);
         if (url) {
           setValue(fieldName as Path<FormData>, url);
+          markFilesChanged();
         } else {
           alert("No se pudo subir la imagen. Verifica que el bucket 'documents' exista y tenga acceso permitido.");
         }
@@ -163,6 +172,7 @@ const PlanForm = ({ propertyId, documentId, isReadOnly = false }: PlanFormProps)
     }
 
     setValue(fieldName as Path<FormData>, "");
+    markFilesChanged();
     setImagePreviews((prev) => ({ ...prev, [fieldName]: "" }));
   };
 
@@ -219,6 +229,8 @@ const PlanForm = ({ propertyId, documentId, isReadOnly = false }: PlanFormProps)
           stateImage: resolveImageUrl(plan.stateImage) || "",
           imageVisado: resolveImageUrl(plan.imageVisado) || "",
         });
+        // The loaded plan is the baseline for "unsaved changes", not the empty form (#77).
+        reset(getValues());
       } catch (error) {
         if (cancelled) return;
         console.error("Error loading plan:", error);
@@ -230,13 +242,14 @@ const PlanForm = ({ propertyId, documentId, isReadOnly = false }: PlanFormProps)
     return () => {
       cancelled = true;
     };
-  }, [documentId, reset, setValue]);
+  }, [documentId, getValues, reset, setValue]);
 
-  const onSubmit: SubmitHandler<FormData> = async (data) => {
+  // Returns true when the API accepted the plan; the caller decides where to go next (#77).
+  const saveDocument = async (data: FormData): Promise<boolean> => {
     try {
       if (!propertyId) {
         alert("No hay propiedad seleccionada. Volve a la lista y elegi una propiedad primero.");
-        return;
+        return false;
       }
 
       setLoading(true);
@@ -247,13 +260,20 @@ const PlanForm = ({ propertyId, documentId, isReadOnly = false }: PlanFormProps)
         await savePlan({ ...payload, propertyId });
       }
       setSuccessMessage(documentId ? "Plano actualizado correctamente" : "Plano creado correctamente");
-      router.push(`/property/details?id=${propertyId}`);
+      reset(getValues());
+      clearFilesChanged();
+      return true;
     } catch (error) {
       console.error("Error saving plan:", error);
       alert(`Error al guardar el plan: ${extractApiErrorMessage(error)}`);
+      return false;
     } finally {
       setLoading(false);
     }
+  };
+
+  const onSubmit: SubmitHandler<FormData> = async (data) => {
+    if (await saveDocument(data)) router.push(`/property/details?id=${propertyId}`);
   };
 
   const onInvalid = (formErrors: FieldErrors<FormData>) => {
@@ -274,6 +294,18 @@ const PlanForm = ({ propertyId, documentId, isReadOnly = false }: PlanFormProps)
 
     alertMissingFields(formErrors as Record<string, unknown>, labels);
   };
+
+  // "Guardar y volver": same validation and save as the button, without this form's redirect (#77).
+  const submitWithoutRedirect = () =>
+    new Promise<boolean>((resolve) => {
+      void handleSubmit(
+        async (data) => resolve(await saveDocument(data)),
+        (formErrors) => {
+          onInvalid(formErrors);
+          resolve(false);
+        },
+      )();
+    });
 
   return (
     <form onSubmit={handleSubmit(onSubmit, onInvalid)} className="doc-form w-full">

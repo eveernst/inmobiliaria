@@ -12,8 +12,9 @@ import { PROVINCES } from "@/lib/provinces";
 import { useRouter } from "next/navigation";
 import { setSuccessMessage } from "@/lib/successMessage";
 import { useEffect } from "react";
+import { UnsavedChangesProps, useUnsavedChanges } from "./useUnsavedChanges";
 
-interface RentedFormProps {
+interface RentedFormProps extends UnsavedChangesProps {
   propertyId: number;
   documentId?: number; // edit this rented record; without it the form creates a new one
   isReadOnly?: boolean;
@@ -73,11 +74,18 @@ const buildRentedPayload = (data: FormData): RentedPayload => {
   };
 };
 
-const RentedForm = ({ propertyId, documentId, isReadOnly = false }: RentedFormProps) => {
+const RentedForm = ({ propertyId, documentId, isReadOnly = false, onDirtyChange, saveRef }: RentedFormProps) => {
   const router = useRouter();
-  const { register, handleSubmit, setValue, getValues, reset, formState: { errors } } = useForm<FormData>();
+  const { register, handleSubmit, setValue, getValues, reset, formState: { errors, isDirty } } = useForm<FormData>();
   const [loading, setLoading] = useState(false);
   const [imagePreviews, setImagePreviews] = useState<Record<string, string>>({});
+  const { markFilesChanged, clearFilesChanged } = useUnsavedChanges({
+    isDirty,
+    isReadOnly,
+    onDirtyChange,
+    saveRef,
+    save: () => submitWithoutRedirect(),
+  });
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>, fieldName: string) => {
     const file = e.target.files?.[0];
@@ -91,6 +99,7 @@ const RentedForm = ({ propertyId, documentId, isReadOnly = false }: RentedFormPr
         const url = await uploadImageToSupabase(file, `rented/property-${propertyId}`);
         if (url) {
           setValue(fieldName as Path<FormData>, url);
+          markFilesChanged();
         } else {
           alert("No se pudo subir la imagen. Verifica que el bucket 'documents' exista y tenga acceso permitido.");
         }
@@ -111,6 +120,7 @@ const RentedForm = ({ propertyId, documentId, isReadOnly = false }: RentedFormPr
     }
 
     setValue(fieldName as Path<FormData>, "");
+    markFilesChanged();
     setImagePreviews((prev) => ({ ...prev, [fieldName]: "" }));
   };
 
@@ -139,6 +149,8 @@ const RentedForm = ({ propertyId, documentId, isReadOnly = false }: RentedFormPr
         setImagePreviews({
           contractImage: resolveImageUrl(rented.contractImage) || "",
         });
+        // The loaded rented record is the baseline for "unsaved changes", not the empty form (#77).
+        reset(getValues());
       } catch (error) {
         if (cancelled) return;
         console.error("Error loading rented:", error);
@@ -150,13 +162,14 @@ const RentedForm = ({ propertyId, documentId, isReadOnly = false }: RentedFormPr
     return () => {
       cancelled = true;
     };
-  }, [documentId, reset, setValue]);
+  }, [documentId, getValues, reset, setValue]);
 
-  const onSubmit: SubmitHandler<FormData> = async (data) => {
+  // Returns true when the API accepted the rented record; the caller decides where to go next (#77).
+  const saveDocument = async (data: FormData): Promise<boolean> => {
     try {
       if (!propertyId) {
         alert("No hay propiedad seleccionada. Volve a la lista y elegi una propiedad primero.");
-        return;
+        return false;
       }
 
       setLoading(true);
@@ -167,13 +180,20 @@ const RentedForm = ({ propertyId, documentId, isReadOnly = false }: RentedFormPr
         await saveRented({ ...payload, propertyId });
       }
       setSuccessMessage(documentId ? "Alquiler actualizado correctamente" : "Alquiler creado correctamente");
-      router.push(`/property/details?id=${propertyId}`);
+      reset(getValues());
+      clearFilesChanged();
+      return true;
     } catch (error) {
       console.error("Error saving rented property:", error);
       alert(`Error al guardar el inmueble alquilado: ${extractApiErrorMessage(error)}`);
+      return false;
     } finally {
       setLoading(false);
     }
+  };
+
+  const onSubmit: SubmitHandler<FormData> = async (data) => {
+    if (await saveDocument(data)) router.push(`/property/details?id=${propertyId}`);
   };
 
   const onInvalid = (formErrors: Record<string, unknown>) => {
@@ -193,6 +213,18 @@ const RentedForm = ({ propertyId, documentId, isReadOnly = false }: RentedFormPr
 
     alertMissingFields(formErrors, labels);
   };
+
+  // "Guardar y volver": same validation and save as the button, without this form's redirect (#77).
+  const submitWithoutRedirect = () =>
+    new Promise<boolean>((resolve) => {
+      void handleSubmit(
+        async (data) => resolve(await saveDocument(data)),
+        (formErrors) => {
+          onInvalid(formErrors);
+          resolve(false);
+        },
+      )();
+    });
 
   return (
     <form onSubmit={handleSubmit(onSubmit, onInvalid)} className="doc-form w-full">

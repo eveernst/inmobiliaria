@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import InsuranceForm from "./documents/insuranceForm";
 import WritingForm from "./documents/writingForm";
 import PlanForm from "./documents/planForm";
@@ -8,6 +8,8 @@ import { usePathname, useRouter } from "next/navigation";
 import RentedForm from "./documents/rentedForm";
 import { getProperties, getProperty } from "@/api/propertyApi";
 import { canWriteProperties } from "@/lib/types";
+import UnsavedChangesModal from "./ui/UnsavedChangesModal";
+import { SaveBeforeLeave } from "./documents/useUnsavedChanges";
 
 type PropertyListItem = {
   id: number;
@@ -44,6 +46,10 @@ export default function Formulario() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isViewer, setIsViewer] = useState(false);
   const [editedDocument, setEditedDocument] = useState<EditedDocument | null>(null);
+  // Reported by the active document form; "← Volver" asks before dropping them (#77).
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const [isLeaveDialogOpen, setIsLeaveDialogOpen] = useState(false);
+  const saveBeforeLeaveRef = useRef<SaveBeforeLeave | null>(null);
 
   useEffect(() => {
     const savedUser = localStorage.getItem("user");
@@ -132,6 +138,26 @@ export default function Formulario() {
       ? `/property/details/documentation?id=${propertyId}&docType=${editedDocument.docType}&docId=${editedDocument.id}`
       : `/property/details?id=${propertyId}`;
 
+  const handleBack = () => {
+    if (!isViewer && hasUnsavedChanges) {
+      setIsLeaveDialogOpen(true);
+      return;
+    }
+    router.push(backHref);
+  };
+
+  // Close first: on invalid data the user stays on the form and sees the errors.
+  const handleSaveAndLeave = async () => {
+    setIsLeaveDialogOpen(false);
+    const saved = (await saveBeforeLeaveRef.current?.()) ?? false;
+    if (saved) router.push(backHref);
+  };
+
+  const handleLeaveWithoutSaving = () => {
+    setIsLeaveDialogOpen(false);
+    router.push(backHref);
+  };
+
   const renderTabContent = () => {
     if (!propertyId) {
       return (
@@ -144,18 +170,19 @@ export default function Formulario() {
     // Only the tab of the edited document gets its id; the other tabs create new documents.
     const documentId = editedDocument?.tab === activeTab ? editedDocument.id : undefined;
     const keySuffix = `${propertyId}-${documentId ?? "new"}`;
+    const unsavedChangesProps = { onDirtyChange: setHasUnsavedChanges, saveRef: saveBeforeLeaveRef };
 
     switch (activeTab) {
       case "insurance":
-        return <InsuranceForm key={`insurance-${keySuffix}`} propertyId={propertyId} documentId={documentId} isReadOnly={isViewer} />;
+        return <InsuranceForm key={`insurance-${keySuffix}`} propertyId={propertyId} documentId={documentId} isReadOnly={isViewer} {...unsavedChangesProps} />;
       case "rented-property":
-        return <RentedForm key={`rented-${keySuffix}`} propertyId={propertyId} documentId={documentId} isReadOnly={isViewer} />;
+        return <RentedForm key={`rented-${keySuffix}`} propertyId={propertyId} documentId={documentId} isReadOnly={isViewer} {...unsavedChangesProps} />;
       case "plan":
-        return <PlanForm key={`plan-${keySuffix}`} propertyId={propertyId} documentId={documentId} isReadOnly={isViewer} />;
+        return <PlanForm key={`plan-${keySuffix}`} propertyId={propertyId} documentId={documentId} isReadOnly={isViewer} {...unsavedChangesProps} />;
       case "writing":
-        return <WritingForm key={`writing-${keySuffix}`} propertyId={propertyId} documentId={documentId} isReadOnly={isViewer} />;
+        return <WritingForm key={`writing-${keySuffix}`} propertyId={propertyId} documentId={documentId} isReadOnly={isViewer} {...unsavedChangesProps} />;
       default:
-        return <InsuranceForm key={`insurance-${keySuffix}`} propertyId={propertyId} isReadOnly={isViewer} />;
+        return <InsuranceForm key={`insurance-${keySuffix}`} propertyId={propertyId} isReadOnly={isViewer} {...unsavedChangesProps} />;
     }
   };
 
@@ -164,7 +191,7 @@ export default function Formulario() {
       <div className="mb-4 flex">
         <button
           type="button"
-          onClick={() => router.push(backHref)}
+          onClick={handleBack}
           className="action-button-secondary"
         >
           ← Volver
@@ -264,6 +291,14 @@ export default function Formulario() {
       <div className="rounded-2xl border border-slate-700/70 bg-slate-900/40 p-3 md:p-4">
         {renderTabContent()}
       </div>
+
+      {isLeaveDialogOpen && (
+        <UnsavedChangesModal
+          onSave={handleSaveAndLeave}
+          onDiscard={handleLeaveWithoutSaving}
+          onCancel={() => setIsLeaveDialogOpen(false)}
+        />
+      )}
     </div>
   );
 }

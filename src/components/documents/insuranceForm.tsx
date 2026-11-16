@@ -10,8 +10,9 @@ import { InsurancePayload } from "@/lib/types";
 import { useRouter } from "next/navigation";
 import { setSuccessMessage } from "@/lib/successMessage";
 import { useEffect, useState } from "react";
+import { UnsavedChangesProps, useUnsavedChanges } from "./useUnsavedChanges";
 
-interface InsuranceFormProps {
+interface InsuranceFormProps extends UnsavedChangesProps {
   propertyId: number;
   documentId?: number; // edit this insurance; without it the form creates a new one
   isReadOnly?: boolean;
@@ -69,11 +70,18 @@ const buildInsurancePayload = (data: FormData): InsurancePayload => ({
   observations: data.observations ?? "",
 });
 
-const InsuranceForm = ({ propertyId, documentId, isReadOnly = false }: InsuranceFormProps) => {
+const InsuranceForm = ({ propertyId, documentId, isReadOnly = false, onDirtyChange, saveRef }: InsuranceFormProps) => {
   const router = useRouter();
-  const { register, handleSubmit, setValue, getValues, reset, formState: { errors } } = useForm<FormData>();
+  const { register, handleSubmit, setValue, getValues, reset, formState: { errors, isDirty } } = useForm<FormData>();
   const [loading, setLoading] = useState(false);
   const [imagePreviews, setImagePreviews] = useState<Record<string, string>>({});
+  const { markFilesChanged, clearFilesChanged } = useUnsavedChanges({
+    isDirty,
+    isReadOnly,
+    onDirtyChange,
+    saveRef,
+    save: () => submitWithoutRedirect(),
+  });
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>, fieldName: string) => {
     const file = e.target.files?.[0];
@@ -87,6 +95,7 @@ const InsuranceForm = ({ propertyId, documentId, isReadOnly = false }: Insurance
         const url = await uploadImageToSupabase(file, `insurance/property-${propertyId}`);
         if (url) {
           setValue(fieldName as Path<FormData>, url);
+          markFilesChanged();
         } else {
           alert("No se pudo subir la imagen. Verifica que el bucket 'documents' exista y tenga acceso permitido.");
         }
@@ -107,6 +116,7 @@ const InsuranceForm = ({ propertyId, documentId, isReadOnly = false }: Insurance
     }
 
     setValue(fieldName as Path<FormData>, "");
+    markFilesChanged();
     setImagePreviews((prev) => ({ ...prev, [fieldName]: "" }));
   };
 
@@ -157,6 +167,8 @@ const InsuranceForm = ({ propertyId, documentId, isReadOnly = false }: Insurance
           insuranceImage: resolveImageUrl(insurance.insuranceImage) || "",
           AnualFormImage: resolveImageUrl(insurance.AnualFormImage) || "",
         });
+        // The loaded insurance is the baseline for "unsaved changes", not the empty form (#77).
+        reset(getValues());
       } catch (error) {
         if (cancelled) return;
         console.error("Error loading insurance:", error);
@@ -168,13 +180,14 @@ const InsuranceForm = ({ propertyId, documentId, isReadOnly = false }: Insurance
     return () => {
       cancelled = true;
     };
-  }, [documentId, reset, setValue]);
+  }, [documentId, getValues, reset, setValue]);
 
-  const onSubmit: SubmitHandler<FormData> = async (data) => {
+  // Returns true when the API accepted the insurance; the caller decides where to go next (#77).
+  const saveDocument = async (data: FormData): Promise<boolean> => {
     try {
       if (!propertyId) {
         alert("No hay propiedad seleccionada. Volve a la lista y elegi una propiedad primero.");
-        return;
+        return false;
       }
 
       setLoading(true);
@@ -185,13 +198,20 @@ const InsuranceForm = ({ propertyId, documentId, isReadOnly = false }: Insurance
         await saveInsurance({ ...payload, propertyId });
       }
       setSuccessMessage(documentId ? "Póliza de seguros actualizada correctamente" : "Póliza de seguros creada correctamente");
-      router.push(`/property/details?id=${propertyId}`);
+      reset(getValues());
+      clearFilesChanged();
+      return true;
     } catch (error) {
       console.error("Error saving insurance:", error);
       alert(`Error al guardar la póliza de seguros: ${extractApiErrorMessage(error)}`);
+      return false;
     } finally {
       setLoading(false);
     }
+  };
+
+  const onSubmit: SubmitHandler<FormData> = async (data) => {
+    if (await saveDocument(data)) router.push(`/property/details?id=${propertyId}`);
   };
 
   const onInvalid = (formErrors: FieldErrors<FormData>) => {
@@ -206,6 +226,18 @@ const InsuranceForm = ({ propertyId, documentId, isReadOnly = false }: Insurance
 
     alertMissingFields(formErrors as Record<string, unknown>, labels);
   };
+
+  // "Guardar y volver": same validation and save as the button, without this form's redirect (#77).
+  const submitWithoutRedirect = () =>
+    new Promise<boolean>((resolve) => {
+      void handleSubmit(
+        async (data) => resolve(await saveDocument(data)),
+        (formErrors) => {
+          onInvalid(formErrors);
+          resolve(false);
+        },
+      )();
+    });
 
   return (
     <form onSubmit={handleSubmit(onSubmit, onInvalid)} className="doc-form w-full">
