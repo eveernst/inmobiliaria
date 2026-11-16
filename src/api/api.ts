@@ -3,8 +3,11 @@ import axios from 'axios';
 
 let isRedirectingToLogin = false;
 
+// Single source for the API host; set NEXT_PUBLIC_API_URL outside local development (#53).
+export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL?.trim() || 'http://localhost:3000';
+
 const axiosInstance = axios.create({
-  baseURL: 'http://localhost:3000',
+  baseURL: API_BASE_URL,
   headers: {
     'Content-Type': 'application/json',
   },
