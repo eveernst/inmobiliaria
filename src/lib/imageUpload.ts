@@ -1,6 +1,5 @@
+import { API_BASE_URL } from "@/api/api";
 import { supabase } from "./supabase";
-
-const API_BASE_URL = "http://localhost:3000";
 
 const encodePath = (path: string) =>
   path
