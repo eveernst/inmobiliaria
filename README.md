@@ -2,6 +2,8 @@ This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next
 
 ## Getting Started
 
+Set the API host in `.env.local` with `NEXT_PUBLIC_API_URL=<api-url>`. It defaults to `http://localhost:3000` when it is not set, so it must be set for any deployed environment.
+
 First, run the development server:
 
 ```bash
