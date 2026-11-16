@@ -7,11 +7,16 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import axios from "axios";
 import { useRouter } from "next/navigation";
+import axiosInstance from "@/api/api";
 
-const TEST_USERS = [
-  { email: "admin@test.com", password: "admin123", role: "Admin" },
-  { email: "viewer@test.com", password: "admin123", role: "Viewer" },
-];
+const INVALID_CREDENTIALS = "Correo electrónico o contraseña incorrectos";
+
+const loginErrorMessage = (err: unknown): string => {
+  if (!axios.isAxiosError(err)) return "No se pudo iniciar sesión.";
+  if (!err.response) return "No se pudo conectar con el servidor.";
+  if (err.response.status === 401) return INVALID_CREDENTIALS;
+  return "No se pudo iniciar sesión.";
+};
 
 export default function LoginScreen() {
   const [email, setEmail] = useState("");
@@ -26,7 +31,8 @@ export default function LoginScreen() {
     setLoading(true);
 
     try {
-      const response = await axios.post("http://localhost:3000/auth/login", {
+      // Shared client: same base URL as every other API call (#53).
+      const response = await axiosInstance.post("/auth/login", {
         email,
         password,
       });
@@ -37,16 +43,11 @@ export default function LoginScreen() {
 
       // Redirigir a la página principal
       router.push("/");
-    } catch (err: any) {
-      setError(err.response?.data?.message || "Credenciales inválidas");
+    } catch (err) {
+      setError(loginErrorMessage(err));
     } finally {
       setLoading(false);
     }
-  };
-
-  const handleTestUser = (user: typeof TEST_USERS[0]) => {
-    setEmail(user.email);
-    setPassword(user.password);
   };
 
   return (
@@ -107,25 +108,6 @@ export default function LoginScreen() {
                 {loading ? "Ingresando..." : "Iniciar Sesión"}
               </Button>
             </form>
-
-            <div className="mt-6 pt-6 border-t border-gray-600">
-              <p className="text-sm text-gray-400 mb-3 text-center">
-                Usuarios de prueba:
-              </p>
-              <div className="space-y-2">
-                {TEST_USERS.map((user, index) => (
-                  <Button
-                    key={index}
-                    type="button"
-                    onClick={() => handleTestUser(user)}
-                    className="w-full bg-slate-600 hover:bg-slate-500 text-white text-sm"
-                    variant="outline"
-                  >
-                    {user.role}: {user.email}
-                  </Button>
-                ))}
-              </div>
-            </div>
           </CardContent>
         </Card>
       </div>
