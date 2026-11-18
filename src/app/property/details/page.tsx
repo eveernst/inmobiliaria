@@ -5,6 +5,7 @@ import { deleteInstallation } from '@/api/installationApi';
 import { deleteDocument } from '@/api/documentsApi';
 import ConfirmModal from '@/components/ui/ConfirmModal';
 import { resolveImageUrl } from '@/lib/imageUpload';
+import ImageViewModal from '@/components/ui/ImageViewModal';
 import { canWriteProperties, DOC_TYPES, DOC_TYPE_LABELS, type DocType } from '@/lib/types';
 import { useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
@@ -225,12 +226,14 @@ const PropertyView: React.FC = () => {
         {/* ── Header con imagen de portada ── */}
         <div className="relative h-56 w-full overflow-hidden bg-slate-800 md:h-72">
           {imageUrl && !imgError ? (
-            <img
-              src={imageUrl}
-              alt="Imagen de la propiedad"
-              className="h-full w-full object-cover"
-              onError={() => setImgError(true)}
-            />
+            <ImageViewModal imageUrl={imageUrl} imageName="Imagen de la propiedad">
+              <img
+                src={imageUrl}
+                alt="Imagen de la propiedad"
+                className="h-full w-full object-cover"
+                onError={() => setImgError(true)}
+              />
+            </ImageViewModal>
           ) : (
             <div className="flex h-full w-full items-center justify-center">
               <svg className="h-20 w-20 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -240,7 +243,7 @@ const PropertyView: React.FC = () => {
             </div>
           )}
           {/* Overlay con degradado */}
-          <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent" />
+          <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent" />
 
           {/* Botones de cabecera: volver / editar (admin) */}
           <div className="absolute inset-x-0 top-4">
@@ -376,12 +379,18 @@ const PropertyView: React.FC = () => {
                         <tr key={inst.id} className="border-b border-slate-800 transition hover:bg-slate-800/40">
                           <td className="py-3 pr-3">
                             {instImg ? (
-                              <img
-                                src={instImg}
-                                alt={inst.name}
-                                className="h-10 w-10 rounded-lg object-cover"
-                                onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
-                              />
+                              <ImageViewModal
+                                imageUrl={instImg}
+                                imageName={inst.name}
+                                triggerClassName="block h-10 w-10 cursor-zoom-in"
+                              >
+                                <img
+                                  src={instImg}
+                                  alt={inst.name}
+                                  className="h-10 w-10 rounded-lg object-cover"
+                                  onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+                                />
+                              </ImageViewModal>
                             ) : (
                               <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-slate-800 text-slate-500">
                                 <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

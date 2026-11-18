@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { getInstallation, InstallationRecord } from "@/api/installationApi";
 import { resolveImageUrl } from "@/lib/imageUpload";
+import ImageViewModal from "@/components/ui/ImageViewModal";
 
 const propertyLabel = (installation: InstallationRecord) => {
   const property = installation.property;
@@ -72,7 +73,11 @@ export default function InstallationDetailPage() {
         <div className="grid gap-5 md:grid-cols-[minmax(0,1fr)_minmax(0,1.3fr)]">
           <section className="overflow-hidden rounded-2xl border border-slate-800 bg-slate-900">
             <div className="flex min-h-64 items-center justify-center bg-slate-950">
-              {imageUrl ? <img src={imageUrl} alt="" className="h-full max-h-96 w-full object-contain" /> : <span className="text-slate-600">Sin imagen</span>}
+              {imageUrl ? (
+                <ImageViewModal imageUrl={imageUrl} imageName={installation.name}>
+                  <img src={imageUrl} alt={installation.name} className="h-full max-h-96 w-full object-contain" />
+                </ImageViewModal>
+              ) : <span className="text-slate-600">Sin imagen</span>}
             </div>
           </section>
           <section className="rounded-2xl border border-slate-800 bg-slate-900 p-6">
