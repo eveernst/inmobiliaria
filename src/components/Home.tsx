@@ -1,7 +1,7 @@
 'use client';
 
 import { deleteProperty, getProperties, getProperty, PropertyFilters } from '../api/propertyApi';
-import { ClassificationOption, UserData, canWriteProperties } from '@/lib/types';
+import { ClassificationOption, ROLE_LABELS, UserData, canWriteProperties } from '@/lib/types';
 import { getClassifications } from '@/api/classificationApi';
 import { useEffect, useState, useMemo, useRef } from 'react';
 import { useRouter } from 'next/navigation';
@@ -392,7 +392,7 @@ const Home = () => {
             <div>
               <h1 className="text-4xl font-bold text-slate-100 mb-2">Propiedades</h1>
               <p className="text-slate-400">
-                Bienvenido, {user.name} ({isAdmin ? 'Admin' : 'Viewer'})
+                Bienvenido, {user.name} ({ROLE_LABELS[user.role] ?? '—'})
               </p>
             </div>
             <div className="flex items-center gap-4">
