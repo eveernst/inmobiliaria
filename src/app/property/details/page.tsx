@@ -36,6 +36,7 @@ interface Writing extends DocBase { writingNumber?: string; domain?: string; }
 
 interface Property {
   id: number;
+  user?: { id: number; name: string } | null;
   goodUseCode: number;
   file: string | null;
   province: string;
@@ -291,6 +292,7 @@ const PropertyView: React.FC = () => {
               <dl className="space-y-2.5 text-sm">
                 {[
                   ['ID', property.id],
+                  ['Responsable', property.user?.name || 'Sin responsable asignado'],
                   ['Código de buen uso', property.goodUseCode],
                   ['Destino', DESTINY_LABELS[String(property.destiny)] ?? property.destiny],
                   ['Estado', STATE_LABELS[property.state] ?? property.state],
