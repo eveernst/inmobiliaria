@@ -14,6 +14,7 @@ import { getRented } from '@/api/rentedApi';
 import { getWriting } from '@/api/writingApi';
 import { deleteImageByPublicUrl, resolveImageUrl } from '@/lib/imageUpload';
 import SuccessMessage from '@/components/ui/SuccessMessage';
+import { DESTINY_LABELS } from '@/lib/destiny';
 
 interface Property {
   id: number;
@@ -45,16 +46,7 @@ interface SearchFormValues extends PropertyFilters {
   address: string;
 }
 
-const destinyMap: { [key: string]: string } = {
-  '0': 'Templo',
-  '1': 'Terreno',
-  '2': 'Antena',
-  '3': 'Casa',
-  '4': 'Departamento',
-  '5': 'Instituciones Educativas',
-  '6': 'Predio',
-  '7': 'Otro'
-};
+
 
 
 const emptySearch: SearchFormValues = {
@@ -81,6 +73,8 @@ const Home = () => {
   const [searchForm, setSearchForm] = useState<SearchFormValues>(emptySearch);
   const [hasSearch, setHasSearch] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
+  // True until the first list request settles, so the empty state is not shown while loading (#60).
+  const [isLoadingList, setIsLoadingList] = useState(true);
   const [successMessage, setSuccessMessage] = useState('');
   const [classifications, setClassifications] = useState<ClassificationOption[]>([]);
   const [failedPropertyImages, setFailedPropertyImages] = useState<Set<string>>(() => new Set());
@@ -127,6 +121,9 @@ const Home = () => {
         if (requestId !== propertyRequestIdRef.current) return;
         console.error('Error fetching properties:', error);
         setProperties([]);
+      } finally {
+        // Also when a newer search superseded this request: loading is over either way.
+        setIsLoadingList(false);
       }
     };
     fetchProperties();
@@ -176,7 +173,7 @@ const Home = () => {
     return properties.filter(property => {
       if (filters.locality && property.locality !== filters.locality) return false;
       if (filters.address && !property.address.toLowerCase().includes(filters.address.toLowerCase())) return false;
-      if (filters.propertyType && destinyMap[property.destiny] !== filters.propertyType) return false;
+      if (filters.propertyType && DESTINY_LABELS[property.destiny] !== filters.propertyType) return false;
       if (filters.rentalStatus === 'rented' && property.state !== 1) return false;
       if (filters.rentalStatus === 'available' && property.state !== 0) return false;
       return true;
@@ -519,13 +516,9 @@ const Home = () => {
                   className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-slate-100 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                 >
                   <option value="">Todos los tipos</option>
-                  <option value="Casa">Casa</option>
-                  <option value="Terreno">Terreno</option>
-                  <option value="Templo">Iglesia/Templo</option>
-                  <option value="Departamento">Departamento</option>
-                  <option value="Predio">Predio</option>
-                  <option value="Instituciones Educativas">Instituciones Educativas</option>
-                  <option value="Antena">Antena</option>
+                  {Object.values(DESTINY_LABELS).map((label) => (
+                    <option key={label} value={label}>{label}</option>
+                  ))}
                 </select>
               </div>
 
@@ -611,7 +604,7 @@ const Home = () => {
                     {/* Tags */}
                     <div className="flex flex-wrap gap-2">
                       <span className="px-3 py-1 text-xs font-semibold bg-orange-500/10 text-orange-300 rounded-full border border-orange-500/30">
-                        {destinyMap[property.destiny] || property.destiny}
+                        {DESTINY_LABELS[property.destiny] || property.destiny}
                       </span>
                       <span className={`px-3 py-1 text-xs font-semibold rounded-full ${property.active ? 'bg-emerald-500/10 text-emerald-300 border border-emerald-500/30' : 'bg-rose-500/10 text-rose-300 border border-rose-500/30'}`}>
                         {property.active ? 'Activo' : 'Inactivo'}
@@ -665,14 +658,18 @@ const Home = () => {
                 </div>
               ))}
             </div>
+          ) : isLoadingList ? (
+            <div className="text-center py-16 bg-slate-900 rounded-2xl border border-slate-800">
+              <p className="text-slate-300 text-lg font-medium">Cargando propiedades...</p>
+            </div>
           ) : (
             <div className="text-center py-16 bg-slate-900 rounded-2xl border border-slate-800">
               <HomeIcon size={56} className="text-slate-700 mx-auto mb-4" />
               <p className="text-slate-300 text-lg font-medium mb-2">
-                {hasSearch ? 'No se encontraron resultados' : 'No se encontraron propiedades'}
+                {hasSearch || activeFilterCount > 0 ? 'No se encontraron resultados' : 'No se encontraron propiedades'}
               </p>
               <p className="text-slate-500 mb-6">
-                {hasSearch ? 'Probá con otros criterios de búsqueda' : 'Probá ajustando los filtros'}
+                {hasSearch || activeFilterCount > 0 ? 'Probá con otros criterios de búsqueda' : 'Probá ajustando los filtros'}
               </p>
               <button
                 onClick={clearSearch}

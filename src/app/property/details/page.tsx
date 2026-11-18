@@ -6,6 +6,7 @@ import { deleteDocument } from '@/api/documentsApi';
 import ConfirmModal from '@/components/ui/ConfirmModal';
 import { resolveImageUrl } from '@/lib/imageUpload';
 import { canWriteProperties, DOC_TYPES, DOC_TYPE_LABELS, type DocType } from '@/lib/types';
+import { DESTINY_LABELS } from '@/lib/destiny';
 import { useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
 import SuccessMessage from '@/components/ui/SuccessMessage';
@@ -62,10 +63,7 @@ interface Property {
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
-const DESTINY_LABELS: Record<string, string> = {
-  '0': 'Templo', '1': 'Terreno', '2': 'Antena', '3': 'Casa',
-  '4': 'Departamento', '5': 'Institución Educativa', '6': 'Predio', '7': 'Otro',
-};
+
 const STATE_LABELS: Record<number, string> = { 0: 'Disponible', 1: 'Alquilado' };
 const CLFC_LABELS: Record<string, string> = {
   '0': 'Sí', '1': 'Solicitar', '2': 'Solicitado', '3': 'No',
@@ -293,7 +291,7 @@ const PropertyView: React.FC = () => {
                 {[
                   ['ID', property.id],
                   ['Responsable', property.user?.name || 'Sin responsable asignado'],
-                  ['Código de buen uso', property.goodUseCode],
+                  ['Código de bien de uso', property.goodUseCode],
                   ['Destino', DESTINY_LABELS[String(property.destiny)] ?? property.destiny],
                   ['Estado', STATE_LABELS[property.state] ?? property.state],
                   ['CLFC', CLFC_LABELS[String(property.clfc)] ?? property.clfc],
