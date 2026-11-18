@@ -34,6 +34,13 @@ const DOC_TYPE_TABS: Record<string, string> = {
   writing: "writing",
 };
 
+const DOCUMENT_TYPE_OPTIONS = [
+  { value: "insurance", label: "Seguro Inmueble" },
+  { value: "rented-property", label: "Inmueble Alquilado" },
+  { value: "plan", label: "Plano Casa" },
+  { value: "writing", label: "Escritura" },
+] as const;
+
 type EditedDocument = { tab: string; id: number; docType: string };
 
 export default function Formulario() {
@@ -261,31 +268,22 @@ export default function Formulario() {
         </div>
       </div>
 
-      <div className="mb-6 flex flex-wrap items-center justify-center gap-3">
-        <button
-          className={`rounded-lg border px-5 py-2.5 text-sm font-semibold transition ${activeTab === "insurance" ? "border-sky-400 bg-sky-500 text-white " : "border-slate-600 bg-slate-700 text-slate-200 hover:bg-slate-600"}`}
-          onClick={() => setActiveTab("insurance")}
+      <div className="mb-6 mx-auto w-full max-w-md">
+        <label htmlFor="document-type" className="mb-1 block text-sm font-medium text-slate-300">
+          Tipo de documentación
+        </label>
+        <select
+          id="document-type"
+          value={activeTab}
+          onChange={(event) => setActiveTab(event.target.value)}
+          // The type of an existing document cannot change while it is edited.
+          disabled={editedDocument !== null}
+          className="doc-input"
         >
-          Seguro Inmueble
-        </button>
-        <button
-          className={`rounded-lg border px-5 py-2.5 text-sm font-semibold transition ${activeTab === "rented-property" ? "border-sky-400 bg-sky-500 text-white " : "border-slate-600 bg-slate-700 text-slate-200 hover:bg-slate-600"}`}
-          onClick={() => setActiveTab("rented-property")}
-        >
-          Inmueble Alquilado
-        </button>
-        <button
-          className={`rounded-lg border px-5 py-2.5 text-sm font-semibold transition ${activeTab === "plan" ? "border-sky-400 bg-sky-500 text-white " : "border-slate-600 bg-slate-700 text-slate-200 hover:bg-slate-600"}`}
-          onClick={() => setActiveTab("plan")}
-        >
-          Plano Casa
-        </button>
-        <button
-          className={`rounded-lg border px-5 py-2.5 text-sm font-semibold transition ${activeTab === "writing" ? "border-sky-400 bg-sky-500 text-white " : "border-slate-600 bg-slate-700 text-slate-200 hover:bg-slate-600"}`}
-          onClick={() => setActiveTab("writing")}
-        >
-          Escritura
-        </button>
+          {DOCUMENT_TYPE_OPTIONS.map((option) => (
+            <option key={option.value} value={option.value}>{option.label}</option>
+          ))}
+        </select>
       </div>
 
       <div className="rounded-2xl border border-slate-700/70 bg-slate-900/40 p-3 md:p-4">
