@@ -14,6 +14,7 @@ import { getRented } from '@/api/rentedApi';
 import { getWriting } from '@/api/writingApi';
 import { deleteImageByPublicUrl, resolveImageUrl } from '@/lib/imageUpload';
 import SuccessMessage from '@/components/ui/SuccessMessage';
+import ConfirmModal from '@/components/ui/ConfirmModal';
 
 interface Property {
   id: number;
@@ -78,6 +79,9 @@ const Home = () => {
   const [properties, setProperties] = useState<Property[]>([]);
   const [user, setUser] = useState<UserData | null>(null);
   const [deletingId, setDeletingId] = useState<number | null>(null);
+  // The property waiting for the user's confirmation, and the last delete error (CU-1.2.2).
+  const [propertyToDelete, setPropertyToDelete] = useState<Property | null>(null);
+  const [deleteError, setDeleteError] = useState('');
   const [searchForm, setSearchForm] = useState<SearchFormValues>(emptySearch);
   const [hasSearch, setHasSearch] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
@@ -230,7 +234,8 @@ const Home = () => {
 
   const activeFilterCount = Object.values(filters).filter(v => v !== '' && v !== false).length;
 
-  const handleDeleteProperty = async (property: Property) => {
+  const executeDeleteProperty = async (property: Property) => {
+    setDeleteError('');
     interface InstallationRef {
       file?: string;
     }
@@ -255,14 +260,6 @@ const Home = () => {
       imageJDUA?: string;
       interiorImage?: string;
       exteriorImage?: string;
-    }
-
-    const confirmed = window.confirm(
-      `Vas a eliminar la propiedad ${property.address} (${property.locality}, ${property.province}) y toda su documentación asociada. Esta acción no se puede deshacer. ¿Deseas continuar?`
-    );
-
-    if (!confirmed) {
-      return;
     }
 
     try {
@@ -374,16 +371,35 @@ const Home = () => {
         setSuccessMessage('Propiedad eliminada correctamente.');
       }
     } catch (error) {
-      alert(`No se pudo eliminar la propiedad: ${extractApiErrorMessage(error)}`);
+      setDeleteError(`No se pudo eliminar la propiedad: ${extractApiErrorMessage(error)}`);
     } finally {
       setDeletingId(null);
     }
   };
 
+  const handleDeleteProperty = (property: Property) => {
+    setDeleteError('');
+    setPropertyToDelete(property);
+  };
+
+  const confirmDeleteProperty = () => {
+    const property = propertyToDelete;
+    setPropertyToDelete(null);
+    if (property) void executeDeleteProperty(property);
+  };
+
   return (
     <div className="min-h-screen">
+      {propertyToDelete && (
+        <ConfirmModal
+          message={`¿Eliminar la propiedad "${propertyToDelete.address}" (${propertyToDelete.locality}, ${propertyToDelete.province})? Se eliminan también sus instalaciones y toda su documentación. Esta acción no se puede deshacer.`}
+          onConfirm={confirmDeleteProperty}
+          onCancel={() => setPropertyToDelete(null)}
+        />
+      )}
       <div className="page-container pt-5">
         <SuccessMessage message={successMessage} />
+        {deleteError && <p className="form-error" role="alert">{deleteError}</p>}
       </div>
       {/* Header */}
       <div className="sticky top-0 z-20 border-b border-slate-700/60 bg-slate-900/95 backdrop-blur-sm py-6">
