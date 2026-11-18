@@ -21,6 +21,7 @@ import ImageViewModal from "@/components/ui/ImageViewModal";
 import React, { useRef, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useForm, SubmitHandler, useFieldArray, Path } from "react-hook-form";
+import { NON_NEGATIVE, nonNegativeInputProps } from "@/lib/numberInput";
 
 type ImageFieldValue = File | string | null;
 
@@ -457,9 +458,11 @@ const PropertyForm = ({ id }: { id?: number }) => {
               id="goodUseCode"
               {...register("goodUseCode", {
                 required: "Este campo es obligatorio",
+                min: NON_NEGATIVE,
                 validate: (value) => Number.isInteger(Number(value)) || "Ingresá un número entero.",
               })}
               type="number"
+              {...nonNegativeInputProps}
               className="doc-input"
             />
             {errors.goodUseCode && (
@@ -591,9 +594,11 @@ const PropertyForm = ({ id }: { id?: number }) => {
               {...register("postalCode", {
                 required: "Este campo es obligatorio",
                 valueAsNumber: true,
+                min: NON_NEGATIVE,
                 validate: (value) => Number.isInteger(value) || "Ingresá un número entero.",
               })}
               type="number"
+              {...nonNegativeInputProps}
               className="doc-input"
             />
             {errors.postalCode && (
@@ -747,9 +752,11 @@ const PropertyForm = ({ id }: { id?: number }) => {
                   {...register(`installations.${index}.quantity`, {
                     required: "Este campo es obligatorio",
                     valueAsNumber: true,
+                    min: NON_NEGATIVE,
                     validate: (value) => Number.isInteger(value) || "Ingresá un número entero.",
                   })}
                   type="number"
+                  {...nonNegativeInputProps}
                   className="doc-input"
                 />
                 {errors.installations?.[index]?.quantity && (

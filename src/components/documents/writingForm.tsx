@@ -12,6 +12,7 @@ import { useRouter } from "next/navigation";
 import { setSuccessMessage } from "@/lib/successMessage";
 import { useEffect, useState } from "react";
 import { UnsavedChangesProps, useUnsavedChanges } from "./useUnsavedChanges";
+import { NON_NEGATIVE, nonNegativeInputProps } from "@/lib/numberInput";
 
 interface WritingFormProps extends UnsavedChangesProps {
   propertyId: number;
@@ -305,12 +306,12 @@ const WritingForm = ({ propertyId, documentId, isReadOnly = false, onDirtyChange
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2 mt-4">
             <div>
               <label htmlFor="writingNumber" className="block text-gray-300 mb-1">Número de escritura</label>
-              <input id="writingNumber" type="number" className="doc-input" {...register("writingNumber", { required: "Campo obligatorio", valueAsNumber: true })} />
+              <input id="writingNumber" type="number" className="doc-input" {...nonNegativeInputProps} {...register("writingNumber", { required: "Campo obligatorio", valueAsNumber: true, min: NON_NEGATIVE })} />
               {errors.writingNumber && <p className="text-red-400 text-sm mt-1">{errors.writingNumber.message}</p>}
             </div>
             <div>
               <label htmlFor="voteNumberJDAAC" className="block text-gray-300 mb-1">Voto JD AAC</label>
-              <input id="voteNumberJDAAC" type="number" className="doc-input" {...register("voteNumberJDAAC", { required: "Campo obligatorio", valueAsNumber: true })} />
+              <input id="voteNumberJDAAC" type="number" className="doc-input" {...nonNegativeInputProps} {...register("voteNumberJDAAC", { required: "Campo obligatorio", valueAsNumber: true, min: NON_NEGATIVE })} />
               {errors.voteNumberJDAAC && <p className="text-red-400 text-sm mt-1">{errors.voteNumberJDAAC.message}</p>}
             </div>
             <div>
@@ -325,7 +326,7 @@ const WritingForm = ({ propertyId, documentId, isReadOnly = false, onDirtyChange
             </div>
             <div>
               <label htmlFor="voteNumberJDUA" className="block text-gray-300 mb-1">Voto JD UA</label>
-              <input id="voteNumberJDUA" type="number" className="doc-input" {...register("voteNumberJDUA", { required: "Campo obligatorio", valueAsNumber: true })} />
+              <input id="voteNumberJDUA" type="number" className="doc-input" {...nonNegativeInputProps} {...register("voteNumberJDUA", { required: "Campo obligatorio", valueAsNumber: true, min: NON_NEGATIVE })} />
               {errors.voteNumberJDUA && <p className="text-red-400 text-sm mt-1">{errors.voteNumberJDUA.message}</p>}
             </div>
             <div>
@@ -358,7 +359,7 @@ const WritingForm = ({ propertyId, documentId, isReadOnly = false, onDirtyChange
             </div>
             <div>
               <label htmlFor="year" className="block text-gray-300 mb-1">Año</label>
-              <input id="year" type="number" className="doc-input" {...register("year", { required: "Campo obligatorio", valueAsNumber: true })} />
+              <input id="year" type="number" className="doc-input" {...nonNegativeInputProps} {...register("year", { required: "Campo obligatorio", valueAsNumber: true, min: NON_NEGATIVE })} />
               {errors.year && <p className="text-red-400 text-sm mt-1">{errors.year.message}</p>}
             </div>
             <div>
@@ -367,22 +368,22 @@ const WritingForm = ({ propertyId, documentId, isReadOnly = false, onDirtyChange
             </div>
             <div>
               <label htmlFor="totalSurface" className="block text-gray-300 mb-1">Superficie Total</label>
-              <input id="totalSurface" type="number" className="doc-input" {...register("totalSurface", { required: "Campo obligatorio", valueAsNumber: true })} />
+              <input id="totalSurface" type="number" className="doc-input" {...nonNegativeInputProps} {...register("totalSurface", { required: "Campo obligatorio", valueAsNumber: true, min: NON_NEGATIVE })} />
               {errors.totalSurface && <p className="text-red-400 text-sm mt-1">{errors.totalSurface.message}</p>}
             </div>
             <div>
               <label htmlFor="coveredSurface" className="block text-gray-300 mb-1">Superficie Cubierta</label>
-              <input id="coveredSurface" type="number" className="doc-input" {...register("coveredSurface", { required: "Campo obligatorio", valueAsNumber: true })} />
+              <input id="coveredSurface" type="number" className="doc-input" {...nonNegativeInputProps} {...register("coveredSurface", { required: "Campo obligatorio", valueAsNumber: true, min: NON_NEGATIVE })} />
               {errors.coveredSurface && <p className="text-red-400 text-sm mt-1">{errors.coveredSurface.message}</p>}
             </div>
             <div>
               <label htmlFor="improvementSurface" className="block text-gray-300 mb-1">Superficie Mejoras</label>
-              <input id="improvementSurface" type="number" className="doc-input" {...register("improvementSurface", { required: "Campo obligatorio", valueAsNumber: true })} />
+              <input id="improvementSurface" type="number" className="doc-input" {...nonNegativeInputProps} {...register("improvementSurface", { required: "Campo obligatorio", valueAsNumber: true, min: NON_NEGATIVE })} />
               {errors.improvementSurface && <p className="text-red-400 text-sm mt-1">{errors.improvementSurface.message}</p>}
             </div>
             <div>
               <label htmlFor="improvementValue" className="block text-gray-300 mb-1">Valor Mejoras ($)</label>
-              <input id="improvementValue" type="number" className="doc-input" {...register("improvementValue", { required: "Campo obligatorio", valueAsNumber: true })} />
+              <input id="improvementValue" type="number" className="doc-input" {...nonNegativeInputProps} {...register("improvementValue", { required: "Campo obligatorio", valueAsNumber: true, min: NON_NEGATIVE })} />
               {errors.improvementValue && <p className="text-red-400 text-sm mt-1">{errors.improvementValue.message}</p>}
             </div>
             <div>
