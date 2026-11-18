@@ -6,6 +6,7 @@ import { deleteImageByPublicUrl, resolveImageUrl, uploadImageToSupabase } from "
 import ImageViewModal from "@/components/ui/ImageViewModal";
 import { alertMissingFields, extractApiErrorMessage } from "@/lib/formFeedback";
 import { toCalendarDate } from "@/lib/calendarDate";
+import { isValidPhoneNumber, normalizePhoneNumber, PHONE_VALIDATION_MESSAGE } from "@/lib/phone";
 import { InsurancePayload } from "@/lib/types";
 import { useRouter } from "next/navigation";
 import { setSuccessMessage } from "@/lib/successMessage";
@@ -55,7 +56,7 @@ const LOADED_FIELDS: (keyof FormData)[] = [
 // timestamps) is echoed back: the Update DTO rejects unknown keys with 400.
 const buildInsurancePayload = (data: FormData): InsurancePayload => ({
   name: data.name,
-  phone: String(data.phone ?? ""),
+  phone: normalizePhoneNumber(String(data.phone ?? "")),
   email: data.email,
   insuredProperty: data.insuredProperty,
   insuranceARM: Boolean(data.insuranceARM),
@@ -264,7 +265,9 @@ const InsuranceForm = ({ propertyId, documentId, isReadOnly = false, onDirtyChan
               type="tel"
               className="doc-input"
               readOnly={isReadOnly}
-              {...register("phone", { required: "Este campo es obligatorio" })}
+              {...register("phone", {
+                validate: (value) => isValidPhoneNumber(value) || PHONE_VALIDATION_MESSAGE,
+              })}
             />
             {errors.phone && <p className="text-red-400 text-sm mt-1">{errors.phone.message}</p>}
           </section>

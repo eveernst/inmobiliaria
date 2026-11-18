@@ -5,6 +5,7 @@ import { saveWriting, updateWriting, getWritingById } from "@/api/writingApi";
 import { deleteImageByPublicUrl, resolveImageUrl, uploadImageToSupabase } from "@/lib/imageUpload";
 import { alertMissingFields, extractApiErrorMessage } from "@/lib/formFeedback";
 import { toCalendarDate } from "@/lib/calendarDate";
+import { isValidPhoneNumber, normalizePhoneNumber, PHONE_VALIDATION_MESSAGE } from "@/lib/phone";
 import { WritingPayload } from "@/lib/types";
 import ImageViewModal from "@/components/ui/ImageViewModal";
 import { useRouter } from "next/navigation";
@@ -98,7 +99,7 @@ const buildWritingPayload = (data: FormData): WritingPayload => ({
   ubicationMap: data.ubicationMap,
   cadastralInform: data.cadastralInform,
   actingNotary: data.actingNotary ?? "",
-  notaryContact: String(data.notaryContact ?? "").trim(),
+  notaryContact: normalizePhoneNumber(String(data.notaryContact ?? "").trim()),
   interiorImage: data.interiorImage,
   exteriorImage: data.exteriorImage,
   formalities: data.formalities ?? "",
@@ -424,7 +425,14 @@ const WritingForm = ({ propertyId, documentId, isReadOnly = false, onDirtyChange
             </div>
             <div>
               <label htmlFor="notaryContact" className="block text-gray-300 mb-1">Contacto Escribano</label>
-              <input id="notaryContact" type="tel" className="doc-input" {...register("notaryContact", { required: "Campo obligatorio" })} />
+              <input
+                id="notaryContact"
+                type="tel"
+                className="doc-input"
+                {...register("notaryContact", {
+                  validate: (value) => isValidPhoneNumber(value) || PHONE_VALIDATION_MESSAGE,
+                })}
+              />
               {errors.notaryContact && <p className="text-red-400 text-sm mt-1">{errors.notaryContact.message}</p>}
             </div>
           </div>
