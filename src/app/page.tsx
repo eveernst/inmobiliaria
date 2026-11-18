@@ -1,24 +1,26 @@
 'use client';
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import Home from "@/components/Home";
-import LoginScreen from "@/components/Login";
 
 const HomePage = () => {
     const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
+    const router = useRouter();
 
     useEffect(() => {
         const token = localStorage.getItem("token");
         const user = localStorage.getItem("user");
-        setIsAuthenticated(Boolean(token && user));
-    }, []);
+        const hasSession = Boolean(token && user);
+        setIsAuthenticated(hasSession);
 
-    if (isAuthenticated === null) {
+        if (!hasSession) {
+            router.replace("/login");
+        }
+    }, [router]);
+
+    if (isAuthenticated !== true) {
         return <div>Loading...</div>;
-    }
-
-    if (!isAuthenticated) {
-        return <LoginScreen />;
     }
 
     return <Home />;

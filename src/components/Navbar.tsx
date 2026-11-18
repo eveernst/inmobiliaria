@@ -9,6 +9,7 @@ const Navbar = () => {
   const router = useRouter();
   const pathname = usePathname();
   const [user, setUser] = useState<UserData | null>(null);
+  const [authResolved, setAuthResolved] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
@@ -16,8 +17,17 @@ const Navbar = () => {
       const token = localStorage.getItem("token");
       const saved = localStorage.getItem("user");
       if (token && saved) setUser(JSON.parse(saved));
-    } catch { /* sin sesión */ }
+      else setUser(null);
+    } catch {
+      setUser(null);
+    } finally {
+      setAuthResolved(true);
+    }
   }, [pathname]); // se actualiza al cambiar de página
+
+  // The root page redirects unauthenticated visitors to /login. Keep its
+  // navbar hidden while that check runs and after it finds no session.
+  if (pathname === "/" && (!authResolved || !user)) return null;
 
   const handleLogout = () => {
     localStorage.removeItem("token");
