@@ -6,9 +6,19 @@ import { resolveImageUrl } from "@/lib/imageUpload";
 interface ImageViewModalProps {
   imageUrl?: string;
   imageName?: string;
+  // When given (usually a thumbnail <img>), it becomes the clickable trigger
+  // instead of the "Ver imagen" button. Without a usable image URL it is
+  // rendered as is, not clickable.
+  children?: React.ReactNode;
+  triggerClassName?: string;
 }
 
-const ImageViewModal: React.FC<ImageViewModalProps> = ({ imageUrl, imageName }) => {
+const ImageViewModal: React.FC<ImageViewModalProps> = ({
+  imageUrl,
+  imageName,
+  children,
+  triggerClassName,
+}) => {
   const [isOpen, setIsOpen] = useState(false);
   const [zoom, setZoom] = useState(1);
   const [hasImageError, setHasImageError] = useState(false);
@@ -39,18 +49,29 @@ const ImageViewModal: React.FC<ImageViewModalProps> = ({ imageUrl, imageName }) 
   };
 
   if (!resolvedImageUrl) {
-    return null;
+    return children ? <>{children}</> : null;
   }
 
   return (
     <>
-      <button
-        type="button"
-        onClick={openModal}
-        className="bg-blue-600 text-white py-1 px-3 rounded hover:bg-blue-700 transition-colors text-sm"
-      >
-        Ver imagen
-      </button>
+      {children ? (
+        <button
+          type="button"
+          onClick={openModal}
+          aria-label={imageName ? `Ampliar ${imageName}` : "Ampliar imagen"}
+          className={triggerClassName ?? "block h-full w-full cursor-zoom-in"}
+        >
+          {children}
+        </button>
+      ) : (
+        <button
+          type="button"
+          onClick={openModal}
+          className="bg-blue-600 text-white py-1 px-3 rounded hover:bg-blue-700 transition-colors text-sm"
+        >
+          Ver imagen
+        </button>
+      )}
 
       {isOpen && (
         <div className="fixed inset-0 z-50 bg-black/85 p-3 md:p-6">
