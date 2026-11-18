@@ -23,6 +23,7 @@ interface Property {
   destiny: string;
   active: boolean;
   description: string;
+  file?: string | null;
   state?: number;
   classification: {
     id: number;
@@ -82,6 +83,7 @@ const Home = () => {
   const [isSearching, setIsSearching] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
   const [classifications, setClassifications] = useState<ClassificationOption[]>([]);
+  const [failedPropertyImages, setFailedPropertyImages] = useState<Set<string>>(() => new Set());
   const propertyRequestIdRef = useRef(0);
   const router = useRouter();
   const [filters, setFilters] = useState<Filters>({
@@ -572,12 +574,25 @@ const Home = () => {
                   key={property.id}
                   className="rounded-2xl border border-slate-800 bg-slate-900 shadow-xl overflow-hidden transition duration-300 hover:-translate-y-1 hover:shadow-2xl"
                 >
-                  {/* Image Placeholder */}
+                  {/* Property photo, with a placeholder when none is available. */}
                   <div className="h-40 bg-gradient-to-br from-slate-800 to-slate-900 flex items-center justify-center overflow-hidden relative border-b border-slate-800">
-                    <div className="text-center z-10">
-                      <HomeIcon size={48} className="text-slate-600 mx-auto mb-2" />
-                      <p className="text-slate-500 text-sm font-medium">Foto de propiedad</p>
-                    </div>
+                    {property.file && !failedPropertyImages.has(resolveImageUrl(property.file)) ? (
+                      <img
+                        src={resolveImageUrl(property.file)}
+                        alt={`Foto de ${property.address}`}
+                        className="absolute inset-0 h-full w-full object-cover"
+                        loading="lazy"
+                        onError={() => {
+                          const imageUrl = resolveImageUrl(property.file);
+                          setFailedPropertyImages((previous) => new Set(previous).add(imageUrl));
+                        }}
+                      />
+                    ) : (
+                      <div className="text-center z-10">
+                        <HomeIcon size={48} className="text-slate-600 mx-auto mb-2" />
+                        <p className="text-slate-500 text-sm font-medium">Foto de propiedad</p>
+                      </div>
+                    )}
                   </div>
 
                   {/* Content */}
