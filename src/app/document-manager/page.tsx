@@ -1,6 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
+import { useRequireWriter } from "@/lib/useRequireWriter";
 
 const PropertyDocumentManager = dynamic(
   () => import("../../components/DocumentManagerForm"),
@@ -8,6 +9,9 @@ const PropertyDocumentManager = dynamic(
 );
 
 export default function DocumentManagerPage() {
+  const allowed = useRequireWriter();
+  if (!allowed) return null;
+
   return (
     <div>
       <PropertyDocumentManager />
