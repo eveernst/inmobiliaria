@@ -323,7 +323,7 @@ const InsuranceForm = ({ propertyId, documentId, isReadOnly = false, onDirtyChan
               </label>
               <label className="block text-gray-300 mb-1">
                 <input type="checkbox" disabled={isReadOnly} {...register("insuranceASE")} className="mr-2" />
-                Aseguradora ART
+                Aseguradora ASE
               </label>
             </div>
           </div>

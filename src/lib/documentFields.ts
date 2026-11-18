@@ -22,7 +22,7 @@ export const DOC_FIELDS: {
     { key: 'email', label: 'E-mail', kind: 'text' },
     { key: 'insuredProperty', label: 'Bien asegurado', kind: 'text' },
     { key: 'insuranceARM', label: 'Aseguradora ARM', kind: 'bool' },
-    { key: 'insuranceASE', label: 'Aseguradora ART', kind: 'bool' },
+    { key: 'insuranceASE', label: 'Aseguradora ASE', kind: 'bool' },
     { key: 'team', label: 'Equipo', kind: 'bool' },
     { key: 'content', label: 'Contenido', kind: 'bool' },
     { key: 'values', label: 'Valores', kind: 'bool' },
