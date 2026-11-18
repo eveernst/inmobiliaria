@@ -133,6 +133,10 @@
     @apply w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-slate-100 placeholder:text-slate-400 focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/40;
   }
 
+  .form-error {
+    @apply mt-1 text-sm text-red-400;
+  }
+
   .action-button {
     @apply inline-flex min-h-11 items-center justify-center whitespace-nowrap rounded-lg px-5 py-3 text-base font-semibold transition disabled:cursor-not-allowed disabled:opacity-60;
   }

@@ -227,7 +227,7 @@ const RentedForm = ({ propertyId, documentId, isReadOnly = false, onDirtyChange,
     });
 
   return (
-    <form onSubmit={handleSubmit(onSubmit, onInvalid)} className="doc-form w-full">
+    <form noValidate onSubmit={handleSubmit(onSubmit, onInvalid)} className="doc-form w-full">
       <fieldset disabled={isReadOnly} className="contents">
         <h1 className="doc-title">Formulario de Inmueble Alquilado</h1>
         <p className="doc-subtitle">Propiedad actual: #{propertyId || "sin seleccionar"}</p>
@@ -243,7 +243,7 @@ const RentedForm = ({ propertyId, documentId, isReadOnly = false, onDirtyChange,
                   {...register("ownerDetails", { required: "Este campo es obligatorio" })}
                 />
                 {errors.ownerDetails && (
-                  <p className="text-red-500 text-sm">{(errors.ownerDetails as FieldError).message}</p>
+                  <p className="form-error">{(errors.ownerDetails as FieldError).message}</p>
                 )}
               </div>
               <div>
@@ -259,7 +259,7 @@ const RentedForm = ({ propertyId, documentId, isReadOnly = false, onDirtyChange,
                   <option value="Comercial">Comercial</option>
                 </select>
                 {errors.affectation && (
-                  <p className="text-red-500 text-sm">{(errors.affectation as FieldError).message}</p>
+                  <p className="form-error">{(errors.affectation as FieldError).message}</p>
                 )}
               </div>
               <div>
@@ -270,7 +270,7 @@ const RentedForm = ({ propertyId, documentId, isReadOnly = false, onDirtyChange,
                   {...register("ownerContact", { required: "Este campo es obligatorio" })}
                 />
                 {errors.ownerContact && (
-                  <p className="text-red-500 text-sm">{(errors.ownerContact as FieldError).message}</p>
+                  <p className="form-error">{(errors.ownerContact as FieldError).message}</p>
                 )}
               </div>
             </div>
@@ -289,7 +289,7 @@ const RentedForm = ({ propertyId, documentId, isReadOnly = false, onDirtyChange,
                   {...register("renterDetails", { required: "Este campo es obligatorio" })}
                 />
                 {errors.renterDetails && (
-                  <p className="text-red-500 text-sm">{(errors.renterDetails as FieldError).message}</p>
+                  <p className="form-error">{(errors.renterDetails as FieldError).message}</p>
                 )}
               </div>
               <div>
@@ -300,7 +300,7 @@ const RentedForm = ({ propertyId, documentId, isReadOnly = false, onDirtyChange,
                   {...register("address", { required: "Este campo es obligatorio" })}
                 />
                 {errors.address && (
-                  <p className="text-red-500 text-sm">{(errors.address as FieldError).message}</p>
+                  <p className="form-error">{(errors.address as FieldError).message}</p>
                 )}
               </div>
               <div>
@@ -311,7 +311,7 @@ const RentedForm = ({ propertyId, documentId, isReadOnly = false, onDirtyChange,
                   {...register("renterContact", { required: "Este campo es obligatorio" })}
                 />
                 {errors.renterContact && (
-                  <p className="text-red-500 text-sm">{(errors.renterContact as FieldError).message}</p>
+                  <p className="form-error">{(errors.renterContact as FieldError).message}</p>
                 )}
               </div>
               <div>
@@ -322,7 +322,7 @@ const RentedForm = ({ propertyId, documentId, isReadOnly = false, onDirtyChange,
                   {...register("locality", { required: "Este campo es obligatorio" })}
                 />
                 {errors.locality && (
-                  <p className="text-red-500 text-sm">{(errors.locality as FieldError).message}</p>
+                  <p className="form-error">{(errors.locality as FieldError).message}</p>
                 )}
               </div>
             </div>
@@ -342,7 +342,7 @@ const RentedForm = ({ propertyId, documentId, isReadOnly = false, onDirtyChange,
                   {...register("contratStartDate", { required: "Este campo es obligatorio" })}
                 />
                 {errors.contratStartDate && (
-                  <p className="text-red-500 text-sm">{(errors.contratStartDate as FieldError).message}</p>
+                  <p className="form-error">{(errors.contratStartDate as FieldError).message}</p>
                 )}
               </div>
               <div>
@@ -358,7 +358,7 @@ const RentedForm = ({ propertyId, documentId, isReadOnly = false, onDirtyChange,
                   ))}
                 </select>
                 {errors.province && (
-                  <p className="text-red-500 text-sm">{(errors.province as FieldError).message}</p>
+                  <p className="form-error">{(errors.province as FieldError).message}</p>
                 )}
               </div>
               <div>
@@ -370,7 +370,7 @@ const RentedForm = ({ propertyId, documentId, isReadOnly = false, onDirtyChange,
                   {...register("contratEndDate", { required: "Este campo es obligatorio" })}
                 />
                 {errors.contratEndDate && (
-                  <p className="text-red-500 text-sm">{(errors.contratEndDate as FieldError).message}</p>
+                  <p className="form-error">{(errors.contratEndDate as FieldError).message}</p>
                 )}
               </div>
             </div>
@@ -387,10 +387,14 @@ const RentedForm = ({ propertyId, documentId, isReadOnly = false, onDirtyChange,
                   id="price"
                   type="number"
                   className="doc-input"
-                  {...register("price", { required: "Este campo es obligatorio", valueAsNumber: true })}
+                  {...register("price", {
+                    required: "Este campo es obligatorio",
+                    valueAsNumber: true,
+                    validate: (value) => Number.isInteger(value) || "Ingresá un número entero.",
+                  })}
                 />
                 {errors.price && (
-                  <p className="text-red-500 text-sm">{(errors.price as FieldError).message}</p>
+                  <p className="form-error" role="alert">{(errors.price as FieldError).message}</p>
                 )}
               </div>
               <div>

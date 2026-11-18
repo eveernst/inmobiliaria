@@ -50,11 +50,22 @@ const UserForm = ({
   });
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+  const [emailError, setEmailError] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.name.trim() || !formData.email.trim()) {
-      setError("Nombre y email son obligatorios.");
+    const email = formData.email.trim();
+    if (!email) {
+      setEmailError("El email es obligatorio.");
+      return;
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      setEmailError("Ingresá un email válido.");
+      return;
+    }
+    setEmailError("");
+    if (!formData.name.trim()) {
+      setError("El nombre es obligatorio.");
       return;
     }
     if (!user && !formData.password.trim()) {
@@ -82,7 +93,7 @@ const UserForm = ({
       <h2 className="mb-4 text-sm font-semibold uppercase tracking-widest text-orange-400">
         {user ? "Editar usuario" : "Nuevo usuario"}
       </h2>
-      <form onSubmit={handleSubmit} className="grid gap-4 sm:grid-cols-2">
+      <form noValidate onSubmit={handleSubmit} className="grid gap-4 sm:grid-cols-2">
         <div>
           <label htmlFor="user-name" className="mb-1 block text-xs text-slate-400">Nombre</label>
           <input
@@ -99,10 +110,15 @@ const UserForm = ({
             id="user-email"
             type="email"
             value={formData.email}
-            onChange={e => setFormData(p => ({ ...p, email: e.target.value }))}
+            aria-invalid={Boolean(emailError)}
+            onChange={e => {
+              setFormData(p => ({ ...p, email: e.target.value }));
+              setEmailError("");
+            }}
             placeholder="correo@ejemplo.com"
             className="doc-input"
           />
+          {emailError && <p className="form-error" role="alert">{emailError}</p>}
         </div>
         <div>
           <label htmlFor="user-password" className="mb-1 block text-xs text-slate-400">
@@ -132,7 +148,7 @@ const UserForm = ({
         </div>
 
         {error && (
-          <p className="sm:col-span-2 text-sm text-red-400">{error}</p>
+          <p className="form-error sm:col-span-2" role="alert">{error}</p>
         )}
 
         <div className="sm:col-span-2 flex justify-end gap-3">

@@ -443,7 +443,7 @@ const PropertyForm = ({ id }: { id?: number }) => {
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit, onInvalid)} className="space-y-6 rounded-2xl border border-slate-700 bg-slate-900 p-4 sm:p-6 md:p-8">
+    <form noValidate onSubmit={handleSubmit(onSubmit, onInvalid)} className="space-y-6 rounded-2xl border border-slate-700 bg-slate-900 p-4 sm:p-6 md:p-8">
       <h1 className="text-3xl font-semibold text-slate-100 text-center mb-6">{title}</h1>
       {/* Campos del formulario como antes */}
       <fieldset className="rounded-xl border border-slate-700 p-5 bg-slate-950/30">
@@ -455,12 +455,15 @@ const PropertyForm = ({ id }: { id?: number }) => {
             <label htmlFor="goodUseCode" className="block text-slate-300 mb-1 text-sm">Código de Buen Uso</label>
             <input
               id="goodUseCode"
-              {...register("goodUseCode", { required: "Este campo es obligatorio" })}
+              {...register("goodUseCode", {
+                required: "Este campo es obligatorio",
+                validate: (value) => Number.isInteger(Number(value)) || "Ingresá un número entero.",
+              })}
               type="number"
               className="doc-input"
             />
             {errors.goodUseCode && (
-              <span className="text-red-500 text-sm mt-1">{errors.goodUseCode.message}</span>
+              <span className="form-error" role="alert">{errors.goodUseCode.message}</span>
             )}
           </div>
           <div>
@@ -472,7 +475,7 @@ const PropertyForm = ({ id }: { id?: number }) => {
               className="doc-input"
             />
             {errors.description && (
-              <span className="text-red-500 text-sm mt-1">{errors.description.message}</span>
+              <span className="form-error">{errors.description.message}</span>
             )}
           </div>
 
@@ -508,7 +511,7 @@ const PropertyForm = ({ id }: { id?: number }) => {
               ))}
             </select>
             {errors.classification && (
-              <span className="text-red-500 text-sm mt-1">{errors.classification.message}</span>
+              <span className="form-error">{errors.classification.message}</span>
             )}
           </div>
 
@@ -531,7 +534,7 @@ const PropertyForm = ({ id }: { id?: number }) => {
                 ))}
               </select>
               {errors.user && (
-                <span className="text-red-500 text-sm mt-1">{errors.user.message}</span>
+                <span className="form-error">{errors.user.message}</span>
               )}
             </div>
           )}
@@ -550,7 +553,7 @@ const PropertyForm = ({ id }: { id?: number }) => {
               ))}
             </select>
             {errors.province && (
-              <span className="text-red-500 text-sm mt-1">{errors.province.message}</span>
+              <span className="form-error">{errors.province.message}</span>
             )}
           </div>
 
@@ -563,7 +566,7 @@ const PropertyForm = ({ id }: { id?: number }) => {
               className="doc-input"
             />
             {errors.locality && (
-              <span className="text-red-500 text-sm mt-1">{errors.locality.message}</span>
+              <span className="form-error">{errors.locality.message}</span>
             )}
           </div>
 
@@ -576,7 +579,7 @@ const PropertyForm = ({ id }: { id?: number }) => {
               className="doc-input"
             />
             {errors.address && (
-              <span className="text-red-500 text-sm mt-1">{errors.address.message}</span>
+              <span className="form-error">{errors.address.message}</span>
             )}
           </div>
 
@@ -585,12 +588,16 @@ const PropertyForm = ({ id }: { id?: number }) => {
             <label htmlFor="postalCode" className="block text-slate-300 mb-1 text-sm">Código Postal</label>
             <input
               id="postalCode"
-              {...register("postalCode", { required: "Este campo es obligatorio", valueAsNumber: true })}
+              {...register("postalCode", {
+                required: "Este campo es obligatorio",
+                valueAsNumber: true,
+                validate: (value) => Number.isInteger(value) || "Ingresá un número entero.",
+              })}
               type="number"
               className="doc-input"
             />
             {errors.postalCode && (
-              <span className="text-red-500 text-sm mt-1">{errors.postalCode.message}</span>
+              <span className="form-error" role="alert">{errors.postalCode.message}</span>
             )}
           </div>
 
@@ -603,7 +610,7 @@ const PropertyForm = ({ id }: { id?: number }) => {
               className="doc-input"
             />
             {errors.betweenStreets1 && (
-              <span className="text-red-500 text-sm mt-1">{errors.betweenStreets1.message}</span>
+              <span className="form-error">{errors.betweenStreets1.message}</span>
             )}
           </div>
 
@@ -616,7 +623,7 @@ const PropertyForm = ({ id }: { id?: number }) => {
               className="doc-input"
             />
             {errors.betweenStreets2 && (
-              <span className="text-red-500 text-sm mt-1">{errors.betweenStreets2.message}</span>
+              <span className="form-error">{errors.betweenStreets2.message}</span>
             )}
           </div>
 
@@ -629,7 +636,7 @@ const PropertyForm = ({ id }: { id?: number }) => {
               className="doc-input"
             />
             {errors.district && (
-              <span className="text-red-500 text-sm mt-1">{errors.district.message}</span>
+              <span className="form-error">{errors.district.message}</span>
             )}
           </div>
 
@@ -637,7 +644,7 @@ const PropertyForm = ({ id }: { id?: number }) => {
             <label htmlFor="active" className="block text-slate-300 mb-1 text-sm">Activo</label>
             <input type="checkbox" {...register("active")} id="active" className="mr-2" />
             {errors.active && (
-              <span className="text-red-500 text-sm mt-1">{errors.active.message}</span>
+              <span className="form-error">{errors.active.message}</span>
             )}
           </div>
 
@@ -650,7 +657,7 @@ const PropertyForm = ({ id }: { id?: number }) => {
               className="doc-input"
             />
             {errors.detailsMaintenance && (
-              <span className="text-red-500 text-sm mt-1">{errors.detailsMaintenance.message}</span>
+              <span className="form-error">{errors.detailsMaintenance.message}</span>
             )}
           </div>
 
@@ -673,7 +680,7 @@ const PropertyForm = ({ id }: { id?: number }) => {
               <option value="7">Otro</option>
             </select>
             {errors.destiny && (
-              <span className="text-red-500 text-sm mt-1">{errors.destiny.message}</span>
+              <span className="form-error">{errors.destiny.message}</span>
             )}
           </div>
 
@@ -692,7 +699,7 @@ const PropertyForm = ({ id }: { id?: number }) => {
               <option value="3">No</option>
             </select>
             {errors.clfc && (
-              <span className="text-red-500 text-sm mt-1">{errors.clfc.message}</span>
+              <span className="form-error">{errors.clfc.message}</span>
             )}
           </div>
 
@@ -709,7 +716,7 @@ const PropertyForm = ({ id }: { id?: number }) => {
               <option value="1">Alquilado</option>
             </select>
             {errors.state && (
-              <span className="text-red-500 text-sm mt-1">{errors.state.message}</span>
+              <span className="form-error">{errors.state.message}</span>
             )}
           </div>
         </div>
@@ -729,7 +736,7 @@ const PropertyForm = ({ id }: { id?: number }) => {
                   className="doc-input"
                 />
                 {errors.installations?.[index]?.name && (
-                  <span className="text-red-500 text-sm mt-1">{errors.installations[index].name.message}</span>
+                  <span className="form-error">{errors.installations[index].name.message}</span>
                 )}
               </div>
 
@@ -737,12 +744,16 @@ const PropertyForm = ({ id }: { id?: number }) => {
                 <label htmlFor={`installation-${index}-quantity`} className="block text-slate-300 mb-1 text-sm">Cantidad</label>
                 <input
                   id={`installation-${index}-quantity`}
-                  {...register(`installations.${index}.quantity`, { required: "Este campo es obligatorio", valueAsNumber: true })}
+                  {...register(`installations.${index}.quantity`, {
+                    required: "Este campo es obligatorio",
+                    valueAsNumber: true,
+                    validate: (value) => Number.isInteger(value) || "Ingresá un número entero.",
+                  })}
                   type="number"
                   className="doc-input"
                 />
                 {errors.installations?.[index]?.quantity && (
-                  <span className="text-red-500 text-sm mt-1">{errors.installations[index].quantity.message}</span>
+                  <span className="form-error" role="alert">{errors.installations[index].quantity.message}</span>
                 )}
               </div>
 
@@ -765,7 +776,7 @@ const PropertyForm = ({ id }: { id?: number }) => {
                   className="doc-input"
                 ></textarea>
                 {errors.installations?.[index]?.details && (
-                  <span className="text-red-500 text-sm mt-1">{errors.installations[index].details.message}</span>
+                  <span className="form-error">{errors.installations[index].details.message}</span>
                 )}
               </div>
 

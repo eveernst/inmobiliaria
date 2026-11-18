@@ -241,7 +241,7 @@ const InsuranceForm = ({ propertyId, documentId, isReadOnly = false, onDirtyChan
     });
 
   return (
-    <form onSubmit={handleSubmit(onSubmit, onInvalid)} className="doc-form w-full">
+    <form noValidate onSubmit={handleSubmit(onSubmit, onInvalid)} className="doc-form w-full">
       <h1 className="doc-title">Formulario de Seguro Inmueble</h1>
       <p className="doc-subtitle">Propiedad actual: #{propertyId || "sin seleccionar"}</p>
       <fieldset className="doc-fieldset">
@@ -256,7 +256,7 @@ const InsuranceForm = ({ propertyId, documentId, isReadOnly = false, onDirtyChan
               readOnly={isReadOnly}
               {...register("name", { required: "Este campo es obligatorio" })}
             />
-            {errors.name && <p className="text-red-400 text-sm mt-1">{errors.name.message}</p>}
+            {errors.name && <p className="form-error">{errors.name.message}</p>}
           </section>
           <section>
             <label htmlFor="telefono" className="block text-gray-300 mb-1">Teléfono</label>
@@ -269,7 +269,7 @@ const InsuranceForm = ({ propertyId, documentId, isReadOnly = false, onDirtyChan
                 validate: (value) => isValidPhoneNumber(value) || PHONE_VALIDATION_MESSAGE,
               })}
             />
-            {errors.phone && <p className="text-red-400 text-sm mt-1">{errors.phone.message}</p>}
+            {errors.phone && <p className="form-error">{errors.phone.message}</p>}
           </section>
         </div>
       </fieldset>
@@ -284,9 +284,12 @@ const InsuranceForm = ({ propertyId, documentId, isReadOnly = false, onDirtyChan
               type="email"
               className="doc-input"
               readOnly={isReadOnly}
-              {...register("email", { required: "Este campo es obligatorio" })}
+              {...register("email", {
+                required: "Este campo es obligatorio",
+                pattern: { value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, message: "Ingresá un email válido." },
+              })}
             />
-            {errors.email && <p className="text-red-400 text-sm mt-1">{errors.email.message}</p>}
+            {errors.email && <p className="form-error" role="alert">{errors.email.message}</p>}
           </section>
           <section>
             <label htmlFor="bien-asegurado" className="block text-gray-300 mb-1">Bien asegurado</label>
@@ -309,7 +312,7 @@ const InsuranceForm = ({ propertyId, documentId, isReadOnly = false, onDirtyChan
               <option value="Antena Interna">Antena Interna</option>
               <option value="Antena Externa">Antena Externa</option>
             </select>
-            {errors.insuredProperty && <p className="text-red-400 text-sm mt-1">{errors.insuredProperty.message}</p>}
+            {errors.insuredProperty && <p className="form-error">{errors.insuredProperty.message}</p>}
           </section>
         </div>
       </fieldset>
@@ -359,7 +362,7 @@ const InsuranceForm = ({ propertyId, documentId, isReadOnly = false, onDirtyChan
               readOnly={isReadOnly}
               {...register("insuranceDate", { required: "Este campo es obligatorio" })}
             />
-            {errors.insuranceDate && <p className="text-red-400 text-sm mt-1">{errors.insuranceDate.message}</p>}
+            {errors.insuranceDate && <p className="form-error">{errors.insuranceDate.message}</p>}
           </div>
           <div>
             <label htmlFor="insuranceImage" className="block text-gray-300 mb-1">Imagen de Póliza</label>
@@ -380,7 +383,7 @@ const InsuranceForm = ({ propertyId, documentId, isReadOnly = false, onDirtyChan
               readOnly={isReadOnly}
               {...register("AnualFormDate", { required: "Este campo es obligatorio" })}
             />
-            {errors.AnualFormDate && <p className="text-red-400 text-sm mt-1">{errors.AnualFormDate.message}</p>}
+            {errors.AnualFormDate && <p className="form-error">{errors.AnualFormDate.message}</p>}
           </div>
           <div>
             <label htmlFor="AnualFormImage" className="block text-gray-300 mb-1">Imagen de Formulario Anual</label>
