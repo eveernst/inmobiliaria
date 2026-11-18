@@ -11,6 +11,7 @@ import { useRouter } from "next/navigation";
 import { setSuccessMessage } from "@/lib/successMessage";
 import { useEffect, useState } from "react";
 import { UnsavedChangesProps, useUnsavedChanges } from "./useUnsavedChanges";
+import { NON_NEGATIVE, nonNegativeInputProps } from "@/lib/numberInput";
 
 interface PlanFormProps extends UnsavedChangesProps {
   propertyId: number;
@@ -328,12 +329,12 @@ const PlanForm = ({ propertyId, documentId, isReadOnly = false, onDirtyChange, s
             </div>
             <div>
               <label htmlFor="nro-plano" className="block text-gray-300 mb-1">N° de Plano</label>
-              <input id="nro-plano" type="number" className="doc-input" {...register("planNumber", { required: "Campo obligatorio", valueAsNumber: true })} />
+              <input id="nro-plano" type="number" className="doc-input" {...nonNegativeInputProps} {...register("planNumber", { required: "Campo obligatorio", valueAsNumber: true, min: NON_NEGATIVE })} />
               {errors.planNumber && <p className="text-red-400 text-sm mt-1">{errors.planNumber.message}</p>}
             </div>
             <div>
               <label htmlFor="year" className="block text-gray-300 mb-1">Año</label>
-              <input id="year" type="number" className="doc-input" {...register("year", { required: "Campo obligatorio", valueAsNumber: true })} />
+              <input id="year" type="number" className="doc-input" {...nonNegativeInputProps} {...register("year", { required: "Campo obligatorio", valueAsNumber: true, min: NON_NEGATIVE })} />
               {errors.year && <p className="text-red-400 text-sm mt-1">{errors.year.message}</p>}
             </div>
             <div>
@@ -425,12 +426,12 @@ const PlanForm = ({ propertyId, documentId, isReadOnly = false, onDirtyChange, s
             </div>
             <div>
               <label htmlFor="planNumberUpdate" className="block text-gray-300 mb-1">N° de Plano</label>
-              <input id="planNumberUpdate" type="number" className="doc-input" {...register("planNumberUpdate", { required: "Campo obligatorio", valueAsNumber: true })} />
+              <input id="planNumberUpdate" type="number" className="doc-input" {...nonNegativeInputProps} {...register("planNumberUpdate", { required: "Campo obligatorio", valueAsNumber: true, min: NON_NEGATIVE })} />
               {errors.planNumberUpdate && <p className="text-red-400 text-sm mt-1">{errors.planNumberUpdate.message}</p>}
             </div>
             <div>
               <label htmlFor="yearUpdate" className="block text-gray-300 mb-1">Año</label>
-              <input id="yearUpdate" type="number" className="doc-input" {...register("yearUpdate", { required: "Campo obligatorio", valueAsNumber: true })} />
+              <input id="yearUpdate" type="number" className="doc-input" {...nonNegativeInputProps} {...register("yearUpdate", { required: "Campo obligatorio", valueAsNumber: true, min: NON_NEGATIVE })} />
               {errors.yearUpdate && <p className="text-red-400 text-sm mt-1">{errors.yearUpdate.message}</p>}
             </div>
             <div>
@@ -450,7 +451,7 @@ const PlanForm = ({ propertyId, documentId, isReadOnly = false, onDirtyChange, s
             </div>
             <div>
               <label htmlFor="numberVisado" className="block text-gray-300 mb-1">Visado Municipal</label>
-              <input id="numberVisado" type="number" className="doc-input" {...register("numberVisado", { required: "Campo obligatorio", valueAsNumber: true })} />
+              <input id="numberVisado" type="number" className="doc-input" {...nonNegativeInputProps} {...register("numberVisado", { required: "Campo obligatorio", valueAsNumber: true, min: NON_NEGATIVE })} />
               {errors.numberVisado && <p className="text-red-400 text-sm mt-1">{errors.numberVisado.message}</p>}
             </div>
             <div>
