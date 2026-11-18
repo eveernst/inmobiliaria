@@ -172,6 +172,42 @@ const UserForm = ({
   );
 };
 
+// ── Detalle de usuario (solo lectura, CU-1.3.4) ───────────────────────────────
+const UserDetail = ({ user, onClose }: { user: UserData; onClose: () => void }) => (
+  <div className="mb-6 rounded-2xl border border-slate-700 bg-slate-900 p-5">
+    <h2 className="mb-4 text-sm font-semibold uppercase tracking-widest text-orange-400">
+      Detalle del usuario
+    </h2>
+    <dl className="grid gap-4 text-sm sm:grid-cols-2">
+      <div>
+        <dt className="text-xs text-slate-400">Nombre</dt>
+        <dd className="font-medium text-slate-100">{user.name}</dd>
+      </div>
+      <div>
+        <dt className="text-xs text-slate-400">Email</dt>
+        <dd className="font-medium text-slate-100">{user.email}</dd>
+      </div>
+      <div>
+        <dt className="text-xs text-slate-400">Rol</dt>
+        <dd className="font-medium text-slate-100">{ROLE_LABELS[user.role] ?? `Rol ${user.role}`}</dd>
+      </div>
+      <div>
+        <dt className="text-xs text-slate-400">ID</dt>
+        <dd className="font-medium text-slate-100">{user.id}</dd>
+      </div>
+    </dl>
+    <div className="mt-4 flex justify-end">
+      <button
+        type="button"
+        onClick={onClose}
+        className="rounded-lg border border-slate-600 bg-slate-800 px-4 py-2 text-sm font-medium text-slate-200 transition hover:bg-slate-700"
+      >
+        Volver
+      </button>
+    </div>
+  </div>
+);
+
 // ── Página principal ──────────────────────────────────────────────────────────
 export default function ViewUser() {
   const router = useRouter();
@@ -180,23 +216,35 @@ export default function ViewUser() {
   const [successMessage, setSuccessMessage] = useState('');
   const [showForm, setShowForm] = useState(false);
   const [editingUser, setEditingUser] = useState<UserData | null>(null);
+  const [viewingUser, setViewingUser] = useState<UserData | null>(null);
+  const [deleteError, setDeleteError] = useState('');
+  // Only the superuser may load this page; others never trigger GET /users (#86).
+  const [authorized, setAuthorized] = useState(false);
   const [confirm, setConfirm] = useState<{ show: boolean; userId: number; name: string }>({
     show: false, userId: 0, name: "",
   });
 
-  // Verificar que sea superusuario
+  // Verificar que sea superusuario antes de pedir nada a la API
   useEffect(() => {
+    let role: number | undefined;
     try {
       const saved = localStorage.getItem("user");
-      if (saved) {
-        const u = JSON.parse(saved);
-        if (!canManageUsers(u.role)) router.push("/");
-      } else {
-        router.push("/login");
+      if (!saved) {
+        router.replace("/login");
+        return;
       }
+      role = JSON.parse(saved)?.role;
     } catch {
-      router.push("/login");
+      router.replace("/login");
+      return;
     }
+
+    if (!canManageUsers(role)) {
+      router.replace("/");
+      return;
+    }
+
+    setAuthorized(true);
     loadUsers();
   }, [router]);
 
@@ -217,15 +265,20 @@ export default function ViewUser() {
   };
 
   const handleDeleteExecute = async () => {
+    setDeleteError('');
     try {
       await deleteUser(confirm.userId);
       setConfirm({ show: false, userId: 0, name: "" });
       setSuccessMessage('Usuario eliminado correctamente');
       loadUsers();
-    } catch {
-      alert("No se pudo eliminar el usuario.");
+    } catch (err) {
+      // CU-1.3.2: e.g. 409 when the user is responsible for properties.
+      setConfirm({ show: false, userId: 0, name: "" });
+      setDeleteError(extractApiErrorMessage(err));
     }
   };
+
+  if (!authorized) return null;
 
   return (
     <>
@@ -240,6 +293,7 @@ export default function ViewUser() {
       <div className="min-h-screen bg-slate-950 pb-16 text-slate-100">
         <div className="page-container pt-6">
           <SuccessMessage message={successMessage} />
+          {deleteError && <p className="form-error" role="alert">{deleteError}</p>}
         </div>
         <div className="page-container py-8">
 
@@ -250,12 +304,16 @@ export default function ViewUser() {
               <p className="mt-1 text-sm text-slate-400">{users.length} usuarios registrados</p>
             </div>
             <button
-              onClick={() => { setEditingUser(null); setShowForm(true); }}
+              onClick={() => { setEditingUser(null); setViewingUser(null); setShowForm(true); }}
               className="rounded-xl bg-orange-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-orange-400"
             >
               + Nuevo usuario
             </button>
           </div>
+
+          {viewingUser && !showForm && !editingUser && (
+            <UserDetail user={viewingUser} onClose={() => setViewingUser(null)} />
+          )}
 
           {/* Formulario */}
           {(showForm || editingUser) && (
@@ -311,10 +369,16 @@ export default function ViewUser() {
                         <td className="px-4 py-3 text-right">
                           <div className="flex justify-end gap-2">
                             <button
-                              onClick={() => { setEditingUser(user); setShowForm(false); }}
+                              onClick={() => { setViewingUser(user); setEditingUser(null); setShowForm(false); }}
+                              className="rounded-lg border border-orange-500/40 bg-orange-500/10 px-3 py-1 text-xs font-medium text-orange-300 transition hover:bg-orange-500/20"
+                            >
+                              Ver
+                            </button>
+                            <button
+                              onClick={() => { setEditingUser(user); setViewingUser(null); setShowForm(false); }}
                               className="rounded-lg border border-slate-600 bg-slate-800 px-3 py-1 text-xs font-medium text-slate-200 transition hover:bg-slate-700"
                             >
-                              Modificar
+                              Editar
                             </button>
                             <button
                               onClick={() => handleDeleteConfirm(user)}

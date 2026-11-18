@@ -13,6 +13,7 @@ import { useRouter } from "next/navigation";
 import { setSuccessMessage } from "@/lib/successMessage";
 import { useEffect } from "react";
 import { UnsavedChangesProps, useUnsavedChanges } from "./useUnsavedChanges";
+import { NON_NEGATIVE, nonNegativeInputProps } from "@/lib/numberInput";
 
 interface RentedFormProps extends UnsavedChangesProps {
   propertyId: number;
@@ -387,9 +388,11 @@ const RentedForm = ({ propertyId, documentId, isReadOnly = false, onDirtyChange,
                   id="price"
                   type="number"
                   className="doc-input"
+                  {...nonNegativeInputProps}
                   {...register("price", {
                     required: "Este campo es obligatorio",
                     valueAsNumber: true,
+                    min: NON_NEGATIVE,
                     validate: (value) => Number.isInteger(value) || "Ingresá un número entero.",
                   })}
                 />

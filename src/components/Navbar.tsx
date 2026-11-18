@@ -79,6 +79,16 @@ const Navbar = () => {
             >
               Instalaciones
             </Link>
+            <Link
+              href="/notification"
+              className={`rounded-lg px-3 py-1.5 text-sm font-medium transition ${
+                pathname.startsWith("/notification")
+                  ? "bg-orange-500/20 text-orange-400"
+                  : "text-slate-300 hover:bg-slate-800 hover:text-slate-100"
+              }`}
+            >
+              Avisos
+            </Link>
             {isSuperuser && (
             <Link
               href="/user"

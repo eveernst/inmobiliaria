@@ -14,13 +14,13 @@ export interface ClassificationOption {
 
 export const ROLE_OPTIONS = [
   { value: 1, label: "Administrador" },
-  { value: 2, label: "Usuario" },
+  { value: 2, label: "Usuario común" },
   { value: 3, label: "Superusuario" },
 ] as const;
 
 export const ROLE_LABELS: Record<number, string> = {
   1: "Administrador",
-  2: "Usuario",
+  2: "Usuario común",
   3: "Superusuario",
 };
 

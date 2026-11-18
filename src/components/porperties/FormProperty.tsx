@@ -21,6 +21,7 @@ import ImageViewModal from "@/components/ui/ImageViewModal";
 import React, { useRef, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useForm, SubmitHandler, useFieldArray, Path } from "react-hook-form";
+import { NON_NEGATIVE, nonNegativeInputProps } from "@/lib/numberInput";
 
 type ImageFieldValue = File | string | null;
 
@@ -422,7 +423,7 @@ const PropertyForm = ({ id }: { id?: number }) => {
 
   const onInvalid = (formErrors: Record<string, unknown>) => {
     const labels: Record<string, string> = {
-      goodUseCode: "Codigo de Buen Uso",
+      goodUseCode: "Código de bien de uso",
       description: "Descripcion",
       classification: "Clasificacion",
       province: "Provincia",
@@ -449,17 +450,19 @@ const PropertyForm = ({ id }: { id?: number }) => {
       <fieldset className="rounded-xl border border-slate-700 p-5 bg-slate-950/30">
         <legend className="text-base font-semibold text-slate-200 px-2">Detalles de la Propiedad</legend>
 
-        {/* Código de Buen Uso */}
+        {/* Código de bien de uso */}
         <div className="grid grid-cols-1 gap-4 mt-4 sm:grid-cols-2">
           <div>
-            <label htmlFor="goodUseCode" className="block text-slate-300 mb-1 text-sm">Código de Buen Uso</label>
+            <label htmlFor="goodUseCode" className="block text-slate-300 mb-1 text-sm">Código de bien de uso</label>
             <input
               id="goodUseCode"
               {...register("goodUseCode", {
                 required: "Este campo es obligatorio",
+                min: NON_NEGATIVE,
                 validate: (value) => Number.isInteger(Number(value)) || "Ingresá un número entero.",
               })}
               type="number"
+              {...nonNegativeInputProps}
               className="doc-input"
             />
             {errors.goodUseCode && (
@@ -591,9 +594,11 @@ const PropertyForm = ({ id }: { id?: number }) => {
               {...register("postalCode", {
                 required: "Este campo es obligatorio",
                 valueAsNumber: true,
+                min: NON_NEGATIVE,
                 validate: (value) => Number.isInteger(value) || "Ingresá un número entero.",
               })}
               type="number"
+              {...nonNegativeInputProps}
               className="doc-input"
             />
             {errors.postalCode && (
@@ -747,9 +752,11 @@ const PropertyForm = ({ id }: { id?: number }) => {
                   {...register(`installations.${index}.quantity`, {
                     required: "Este campo es obligatorio",
                     valueAsNumber: true,
+                    min: NON_NEGATIVE,
                     validate: (value) => Number.isInteger(value) || "Ingresá un número entero.",
                   })}
                   type="number"
+                  {...nonNegativeInputProps}
                   className="doc-input"
                 />
                 {errors.installations?.[index]?.quantity && (

@@ -2,16 +2,20 @@
 import PropertyForm from '@/components/porperties/FormProperty';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import { useRequireWriter } from '@/lib/useRequireWriter';
 
 export default function Property() {
     const router = useRouter();
     const [propertyId, setPropertyId] = useState<number>(0);
+    const allowed = useRequireWriter();
 
     useEffect(() => {
         const query = new URLSearchParams(window.location.search);
         const id = Number(query.get("id"));
         if (id) setPropertyId(id);
       }, []);
+
+    if (!allowed) return null;
 
     // One level up: editing goes back to the property detail, creating goes home (#67).
     const backHref = propertyId ? `/property/details?id=${propertyId}` : '/';
